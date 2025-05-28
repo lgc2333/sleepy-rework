@@ -29,7 +29,14 @@ class Device:
 
     @classmethod
     def from_config(cls, config: DeviceConfig, **kwargs) -> "Device":
-        return cls(config=config, info=DeviceInfo(name=config.name), **kwargs)
+        return cls(
+            config=config,
+            info=DeviceInfo(
+                name=config.name,
+                description=config.description,
+            ),
+            **kwargs,
+        )
 
     def handle_update[F: DeviceStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)
@@ -58,6 +65,10 @@ class Device:
         if in_long_conn:
             self._timer = None
         else:
+            self._timer = get_running_loop().call_later(
+                config.poll_offline_timeout,
+                self.set_offline,
+            )
             if self._ws_connection is not None:
                 logger.warning(
                     f"Device '{self.config.name}' is connected using WebSocket,"
@@ -68,10 +79,6 @@ class Device:
                     await self._ws_connection.close()
                 except Exception:
                     logger.error("Error closing WebSocket connection")
-            self._timer = get_running_loop().call_later(
-                config.poll_offline_timeout,
-                self.set_offline,
-            )
 
         if data is not None:
             self.info.data = combine_model_from_model(
@@ -96,7 +103,8 @@ class Device:
                 logger.exception("WebSocket error")
                 break
         self._ws_connection = None
-        self.set_offline()
+        if self._timer is None:
+            self.set_offline()
 
 
 class DeviceManager:

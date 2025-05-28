@@ -44,6 +44,7 @@ class DeviceData(BaseModel):
 
 class DeviceInfo(BaseModel):
     name: str
+    description: str | None = None
     online: bool = False
     data: DeviceData | None = None
     last_update_time: int | None = None

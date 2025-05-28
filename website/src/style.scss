@@ -1,0 +1,34 @@
+:root {
+  --color-online: rgb(105, 130, 27, var(--un-text-opacity, 1));
+  --color-offline: rgb(125, 125, 125, var(--un-text-opacity, 1));
+  --color-unknown: rgb(225, 123, 52, var(--un-text-opacity, 1));
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+html.dark {
+  --color-online: rgb(76, 175, 80, var(--un-text-opacity, 1));
+  --color-offline: rgb(150, 150, 150, var(--un-text-opacity, 1));
+  --color-unknown: rgb(255, 152, 0, var(--un-text-opacity, 1));
+
+  body {
+    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+}
+
+#app {
+  view-transition-name: app;
+}

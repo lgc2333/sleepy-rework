@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException, params, status
 
 from ..config import config
-from ..log import logger
 from ..models import ErrDetail
 
 
@@ -17,8 +16,6 @@ async def auth_dep(
         and authorization[7:] == config.secret
     ):
         return
-
-    logger.debug("[Auth] Verify secret Failed")
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, ErrDetail())
 
 

@@ -21,8 +21,13 @@
     "prettier": "^3.5.3",
     "sass-embedded": "^1.89.0",
     "typescript": "^5.8.3",
+    "unocss": "^66.1.2",
     "vite": "^6.3.5",
     "vue": "^3.5.13",
     "vue-tsc": "^2.2.8"
+  },
+  "dependencies": {
+    "@unocss/reset": "^66.1.2",
+    "vue-toastification": "^2.0.0-rc.5"
   }
 }

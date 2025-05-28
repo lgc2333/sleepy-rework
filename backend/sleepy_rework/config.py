@@ -4,11 +4,7 @@ from ipaddress import IPv4Address
 from pathlib import Path
 from typing import ClassVar, override
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    IPvAnyAddress,
-)
+from pydantic import BaseModel, ConfigDict, IPvAnyAddress
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
@@ -71,6 +67,7 @@ class CORSConfig(BaseModel):
 
 class DeviceConfig(BaseModel):
     name: str
+    description: str | None = None
 
 
 class OnlineStatus(StrEnum):
