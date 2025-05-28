@@ -1,1 +1,2 @@
-- [ ] 设备新增 idle: bool 字段，所有设备 idle 为 true，且有设备 online 时，设置一个新的状态 IDLE
+- [ ] 设备 (DeviceData) 新增 idle: bool 字段，所有设备 idle 为 true，且有设备 online 时，设置一个新的状态 IDLE
+- [ ] DeviceData 新增 additional_status: list[str] 字段，展示在当前应用下方
