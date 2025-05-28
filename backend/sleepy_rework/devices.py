@@ -69,7 +69,7 @@ class Device:
                 except Exception:
                     logger.error("Error closing WebSocket connection")
             self._timer = get_running_loop().call_later(
-                config.heartbeat_timeout,
+                config.poll_offline_timeout,
                 self.set_offline,
             )
 

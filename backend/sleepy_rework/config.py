@@ -124,8 +124,8 @@ class Config(BaseSettings):
     secret: str | None = "sleepy"  # noqa: S105
     privacy_mode: bool = False
 
-    heartbeat_timeout: int = 10
-    event_throttle: float = 1
+    poll_offline_timeout: int = 10
+    frontend_event_throttle: float = 1
 
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()

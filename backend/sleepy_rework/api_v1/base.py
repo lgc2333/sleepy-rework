@@ -41,8 +41,12 @@ async def _(ws: WebSocket):
 
     @device_manager.handle_update
     @debounce(
-        config.event_throttle,
-        DebounceOptions(leading=True, trailing=True, time_window=config.event_throttle),
+        config.frontend_event_throttle,
+        DebounceOptions(
+            leading=True,
+            trailing=True,
+            time_window=config.frontend_event_throttle,
+        ),
     )
     async def _handler(*_):
         await ws.send_text((await get_info()).model_dump_json())
