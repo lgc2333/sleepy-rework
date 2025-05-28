@@ -14,7 +14,11 @@ dependencies = [
 [project.optional-dependencies]
 
 [dependency-groups]
-dev = []
+dev = [
+    # comment to force toml formatter insert new line
+    "basedpyright>=1.29.2",
+    "ruff>=0.11.11",
+]
 
 [build-system]
 requires = ["hatchling"]

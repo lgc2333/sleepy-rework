@@ -73,10 +73,12 @@ class Config(BaseSettings):
 
     environment: ClassVar[str] = "prod"
 
+    docs_url: str | None = None
+    static_dir: Path | None = None
+    secret: str | None = "sleepy"  # noqa: S105
+
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
-    secret: str | None = "sleepy"  # noqa: S105
-    static_dir: Path | None = None
 
     @override
     @classmethod
@@ -108,7 +110,7 @@ class Config(BaseSettings):
         )
 
 
-class EnvironmentConfig(BaseSettings):
+class _EnvironmentConfig(BaseSettings):
     model_config = Config.model_config
 
     environment: str = "prod"
@@ -134,7 +136,7 @@ class EnvironmentConfig(BaseSettings):
 
 
 def _load_config():
-    environment = EnvironmentConfig().environment
+    environment = _EnvironmentConfig().environment
     Config.environment = environment
     return Config()
 

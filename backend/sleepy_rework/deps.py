@@ -4,7 +4,7 @@ from fastapi import Body, Depends, Form, Header, HTTPException, Query, status
 
 from .config import config
 from .log import logger
-from .models import ErrDetail, ErrType
+from .models import ErrDetail
 
 
 async def auth_dep(
@@ -39,7 +39,7 @@ async def auth_dep(
     logger.debug("[Auth] Verify secret Failed")
     raise HTTPException(
         status.HTTP_401_UNAUTHORIZED,
-        ErrDetail(err=ErrType.NOT_AUTHORIZED).model_dump(),
+        ErrDetail().model_dump(exclude_unset=True),
     )
 
 

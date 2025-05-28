@@ -1,14 +1,14 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel
 
 
 class ErrType(StrEnum):
-    NOT_AUTHORIZED = auto()
+    pass
 
 
 class ErrDetail(BaseModel):
-    err: ErrType | None = None
+    type: ErrType | None = None
     msg: str | None = None
     data: Any = None
