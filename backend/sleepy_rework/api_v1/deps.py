@@ -8,8 +8,8 @@ from ..models import ErrDetail
 
 
 async def auth_dep(
-    x_sleepy_secret: Annotated[str | None, Header("X-Sleepy-Secret")] = None,
-    authorization: Annotated[str | None, Header("Authorization")] = None,
+    x_sleepy_secret: Annotated[str | None, Header(alias="X-Sleepy-Secret")] = None,
+    authorization: Annotated[str | None, Header(alias="Authorization")] = None,
 ) -> None:
     if (x_sleepy_secret == config.secret) or (
         authorization

@@ -111,7 +111,7 @@ class DeviceManager:
     def online_status(self) -> OnlineStatus:
         if not self.devices:
             return OnlineStatus.UNKNOWN
-        if all(device.info.online for device in self.devices.values()):
+        if any(device.info.online for device in self.devices.values()):
             return OnlineStatus.ONLINE
         return OnlineStatus.OFFLINE
 

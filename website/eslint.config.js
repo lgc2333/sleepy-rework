@@ -11,6 +11,7 @@ export default antfu(
       'perfectionist/sort-imports': 'off',
       'perfectionist/sort-named-imports': 'off',
       'ts/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
+      'antfu/if-newline': 'off',
     },
   },
 )
