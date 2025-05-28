@@ -7,7 +7,7 @@ def start():
     uvicorn.run(
         "sleepy_rework.app:app",
         host=str(config.app.host),
-        **config.app.model_dump(exclude={"host"}, exclude_unset=True),
+        **config.app.model_dump(exclude={"host"}),
     )
 
 

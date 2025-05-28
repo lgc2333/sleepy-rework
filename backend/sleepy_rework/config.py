@@ -1,11 +1,16 @@
-import os
 import ssl
 from ipaddress import IPv4Address
+from pathlib import Path
+from typing import ClassVar, override
 
 from pydantic import BaseModel, IPvAnyAddress
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from .utils import deep_update
+from pydantic_settings import (
+    BaseSettings,
+    DotEnvSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+    TomlConfigSettingsSource,
+)
 
 
 class AppConfig(BaseModel):
@@ -35,8 +40,8 @@ class AppConfig(BaseModel):
     limit_max_requests: int | None = None
     timeout_keep_alive: int = 5
     timeout_graceful_shutdown: int | None = None
-    ssl_keyfile: str | os.PathLike[str] | None = None
-    ssl_certfile: str | os.PathLike[str] | None = None
+    ssl_keyfile: Path | None = None
+    ssl_certfile: Path | None = None
     ssl_keyfile_password: str | None = None
     ssl_version: int = ssl.PROTOCOL_TLS_SERVER
     ssl_cert_reqs: int = ssl.CERT_NONE
@@ -59,35 +64,79 @@ class CORSConfig(BaseModel):
     max_age: int = 600
 
 
-class Config(BaseModel):
-    environment: str = "prod"
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        env_prefix="sleepy_",
+        env_file_encoding="utf-8",
+    )
+
+    environment: ClassVar[str] = "prod"
+
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
+    secret: str | None = "sleepy"  # noqa: S105
+    static_dir: Path | None = None
+
+    @override
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        toml_settings = TomlConfigSettingsSource(settings_cls, "sleepy.toml")
+        env_toml_settings = TomlConfigSettingsSource(
+            settings_cls,
+            f"sleepy.{cls.environment}.toml",
+        )
+        env_dotenv_settings = DotEnvSettingsSource(
+            settings_cls,
+            f".env.{cls.environment}",
+        )
+        return (
+            init_settings,
+            file_secret_settings,
+            env_toml_settings,
+            env_dotenv_settings,
+            toml_settings,
+            dotenv_settings,
+            env_settings,
+        )
 
 
-def _get_model_config(env: str | None = None):
-    return SettingsConfigDict(
-        env_prefix="sleepy_",
-        env_file=f".env.{env}" if env else ".env",
-        env_file_encoding="utf-8",
-        toml_file=f"sleepy.{env}.toml" if env else "sleepy.toml",
-    )
+class EnvironmentConfig(BaseSettings):
+    model_config = Config.model_config
+
+    environment: str = "prod"
+
+    @override
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        toml_settings = TomlConfigSettingsSource(settings_cls, "sleepy.toml")
+        return (
+            init_settings,
+            file_secret_settings,
+            toml_settings,
+            dotenv_settings,
+            env_settings,
+        )
 
 
 def _load_config():
-    class SettingsConfig(Config, BaseSettings):
-        model_config = _get_model_config()
-
-    base_config = SettingsConfig()
-
-    class FromEnvSettingsConfig(SettingsConfig):
-        model_config = _get_model_config(base_config.environment)
-
-    config_dict = deep_update(
-        base_config.model_dump(exclude_unset=True),
-        FromEnvSettingsConfig().model_dump(exclude_unset=True),
-    )
-    return Config.model_validate(config_dict)
+    environment = EnvironmentConfig().environment
+    Config.environment = environment
+    return Config()
 
 
 config = _load_config()
