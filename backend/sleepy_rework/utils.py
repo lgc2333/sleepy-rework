@@ -22,13 +22,10 @@ def deep_update[KT](
     return updated_mapping
 
 
-def update_model(target: BaseModel, **kwargs: Any) -> BaseModel:
-    updated_data = target.model_dump(exclude_unset=True)
-    updated_data.update(kwargs)
-    return target.model_validate(updated_data)
+def combine_model[M: BaseModel](target: M, **kwargs: Any) -> M:
+    data = deep_update(target.model_dump(exclude_unset=True), kwargs)
+    return target.model_validate(data)
 
 
-def update_model_from_model[M: BaseModel](target: M, source: BaseModel) -> M:
-    updated_data = target.model_dump(exclude_unset=True)
-    updated_data.update(source.model_dump(exclude_unset=True))
-    return target.model_validate(updated_data)
+def combine_model_from_model[M: BaseModel](target: M, source: BaseModel) -> M:
+    return combine_model(target, **source.model_dump(exclude_unset=True))

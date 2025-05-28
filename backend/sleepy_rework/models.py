@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from .config import FrontendStatusConfig, OnlineStatus
+from .config import OnlineStatus
 
 
 class ErrDetail(BaseModel):
@@ -42,28 +42,16 @@ class DeviceData(BaseModel):
     current_app: DeviceCurrentApp | None = None
 
 
-class DeviceDataOptional(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    device_type: DeviceType | str | None = None
-    device_os: DeviceOS | str | None = None
-    current_app: DeviceCurrentApp | None = None
-
-
 class DeviceInfo(BaseModel):
     name: str
     online: bool = False
     data: DeviceData | None = None
-    last_heartbeat_time: int | None = None
-
-
-class Status(BaseModel):
-    type: OnlineStatus
-    detail: FrontendStatusConfig
+    last_update_time: int | None = None
+    long_connection: bool = False
 
 
 class Info(BaseModel):
-    status: Status
+    status: OnlineStatus
     devices: dict[str, DeviceInfo] | None = None
 
 

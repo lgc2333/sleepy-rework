@@ -73,16 +73,16 @@ class DeviceConfig(BaseModel):
     name: str
 
 
-class FrontendStatusConfig(BaseModel):
-    name: str
-    description: str
-    color: str
-
-
 class OnlineStatus(StrEnum):
     ONLINE = auto()
     OFFLINE = auto()
     UNKNOWN = auto()
+
+
+class FrontendStatusConfig(BaseModel):
+    name: str
+    description: str
+    color: str
 
 
 class FrontendConfig(BaseModel):
@@ -125,6 +125,7 @@ class Config(BaseSettings):
     privacy_mode: bool = False
 
     heartbeat_timeout: int = 10
+    event_throttle: float = 1
 
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
