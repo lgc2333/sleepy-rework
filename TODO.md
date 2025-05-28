@@ -1,0 +1,1 @@
+- [ ] 设备新增 idle: bool 字段，所有设备 idle 为 true，且有设备 online 时，设置一个新的状态 IDLE
