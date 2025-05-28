@@ -1,5 +1,7 @@
 from typing import Any
 
+from pydantic import BaseModel
+
 
 # from pydantic.v1.utils
 def deep_update[KT](
@@ -18,3 +20,15 @@ def deep_update[KT](
             else:
                 updated_mapping[k] = v
     return updated_mapping
+
+
+def update_model(target: BaseModel, **kwargs: Any) -> BaseModel:
+    updated_data = target.model_dump(exclude_unset=True)
+    updated_data.update(kwargs)
+    return target.model_validate(updated_data)
+
+
+def update_model_from_model[M: BaseModel](target: M, source: BaseModel) -> M:
+    updated_data = target.model_dump(exclude_unset=True)
+    updated_data.update(source.model_dump(exclude_unset=True))
+    return target.model_validate(updated_data)

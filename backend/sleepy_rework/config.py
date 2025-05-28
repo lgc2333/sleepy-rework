@@ -1,9 +1,14 @@
 import ssl
+from enum import StrEnum, auto
 from ipaddress import IPv4Address
 from pathlib import Path
 from typing import ClassVar, override
 
-from pydantic import BaseModel, IPvAnyAddress
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    IPvAnyAddress,
+)
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
@@ -64,6 +69,46 @@ class CORSConfig(BaseModel):
     max_age: int = 600
 
 
+class DeviceConfig(BaseModel):
+    name: str
+
+
+class FrontendStatusConfig(BaseModel):
+    name: str
+    description: str
+    color: str
+
+
+class OnlineStatus(StrEnum):
+    ONLINE = auto()
+    OFFLINE = auto()
+    UNKNOWN = auto()
+
+
+class FrontendConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    username: str = "LgCookie"
+
+    status: dict[OnlineStatus, FrontendStatusConfig] = {
+        OnlineStatus.ONLINE: FrontendStatusConfig(
+            name="活着",
+            description="目前在线，可以通过任意可用的联系方式联系到我。",
+            color="var(--color-online)",
+        ),
+        OnlineStatus.OFFLINE: FrontendStatusConfig(
+            name="似了",
+            description="目前没有设备在线，可能正在睡觉或休息。",
+            color="var(--color-offline)",
+        ),
+        OnlineStatus.UNKNOWN: FrontendStatusConfig(
+            name="未知",
+            description="好像没有配置任何设备呢……",
+            color="var(--color-unknown)",
+        ),
+    }
+
+
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
         extra="ignore",
@@ -75,10 +120,16 @@ class Config(BaseSettings):
 
     docs_url: str | None = None
     static_dir: Path | None = None
+
     secret: str | None = "sleepy"  # noqa: S105
+    privacy_mode: bool = False
+
+    heartbeat_timeout: int = 10
 
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()
+    frontend: FrontendConfig = FrontendConfig()
+    devices: dict[str, DeviceConfig] = {}
 
     @override
     @classmethod

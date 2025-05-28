@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Body, Depends, Form, Header, HTTPException, Query, status
+from fastapi import Body, Depends, Form, Header, HTTPException, Query, params, status
 
 from .config import config
 from .log import logger
@@ -37,11 +37,8 @@ async def auth_dep(
         return
 
     logger.debug("[Auth] Verify secret Failed")
-    raise HTTPException(
-        status.HTTP_401_UNAUTHORIZED,
-        ErrDetail().model_dump(exclude_unset=True),
-    )
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED, ErrDetail())
 
 
-AuthDep = Depends(auth_dep)
+AuthDep: params.Depends = Depends(auth_dep)
 Auth = Annotated[None, AuthDep]

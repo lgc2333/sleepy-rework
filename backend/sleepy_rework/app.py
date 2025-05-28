@@ -9,7 +9,14 @@ from . import api_v1
 from .config import config
 from .exc_handle import install_exc_handlers
 
-app = FastAPI()
+app = FastAPI(
+    openapi_url=f"{config.docs_url}/openapi.json" if config.docs_url else None,
+    docs_url=f"{config.docs_url}" if config.docs_url else None,
+    redoc_url=f"{config.docs_url}/redoc" if config.docs_url else None,
+    swagger_ui_oauth2_redirect_url=(
+        f"{config.docs_url}/oauth2-redirect" if config.docs_url else None
+    ),
+)
 
 if config.app.ssl_keyfile:
     app.add_middleware(HTTPSRedirectMiddleware)
