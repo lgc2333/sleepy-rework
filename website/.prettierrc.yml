@@ -1,0 +1,14 @@
+semi: false
+singleQuote: true
+trailingComma: all
+printWidth: 88
+
+plugins:
+  - "@trivago/prettier-plugin-sort-imports"
+
+importOrder:
+  - "^node:(.*)$" # builtin
+  - '^(@[^\/]|[^\.@])(.*)$' # external
+  - ".*" # local
+importOrderSeparation: true
+importOrderSortSpecifiers: true
