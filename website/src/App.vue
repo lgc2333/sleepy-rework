@@ -102,8 +102,10 @@ onUnmounted(() => {
 
   & > * {
     grid-column: span 4;
+  }
 
-    @media (min-width: 640px) {
+  @media (min-width: 640px) {
+    &:has(> *:nth-child(2)) > * {
       grid-column: span 2;
 
       &:last-child:nth-child(2n - 1) {

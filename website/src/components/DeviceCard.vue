@@ -24,8 +24,8 @@ const deviceIcon = computed(() => {
 })
 
 const osIcon = computed(() => {
-  if (info.data?.device_os) {
-    switch (info.data?.device_os) {
+  if (info.device_os) {
+    switch (info.device_os) {
       case 'windows':
         return 'mage:microsoft-windows'
       case 'macos':
@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
         <div flex="~ items-center justify-end gap-2" text-light text-sm my="1">
           <div v-if="osIcon" flex="~ items-center gap-1" title="操作系统">
             <Icon :icon="osIcon" />
-            <span capitalize>{{ osName }}</span>
+            <span>{{ osName }}</span>
           </div>
 
           <div v-if="info.online" flex="~ items-center gap-1">

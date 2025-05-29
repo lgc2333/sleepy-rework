@@ -88,7 +88,7 @@ async def add_device_http(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="New device should provide essential info",
         )
-    return await device_manager.add(device_key, info)
+    return device_manager.add(device_key, info)
 
 
 @router.patch("/device/{device_key}/info", dependencies=[AuthDep])
@@ -98,6 +98,7 @@ async def _(device_key: str, info: DeviceInfoRecv | None = None) -> OpSuccess:
         await device.update(info)
     else:
         device = await add_device_http(device_key, info)
+        await device.update()
     return OpSuccess()
 
 
@@ -118,4 +119,5 @@ async def _(ws: WebSocket, device_key: str):
             device_key,
             DeviceInfoRecv.model_validate_json(data),
         )
+        await device.update(in_long_conn=True)
     await device.handle_ws(ws)

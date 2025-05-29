@@ -109,7 +109,7 @@ class DeviceManager:
 
         if config:
             for key, cfg in config.items():
-                self._add(key, cfg)
+                self.add(key, cfg)
 
     @property
     def overall_status(self) -> OnlineStatus:
@@ -125,18 +125,9 @@ class DeviceManager:
             return OnlineStatus.ONLINE
         return OnlineStatus.OFFLINE
 
-    def _add(self, key: str, cfg: DeviceConfig) -> Device:
+    def add(self, key: str, cfg: DeviceConfig) -> Device:
         device = Device.new(key, cfg, update_handlers=[self.update_handler])
         self.devices[key] = device
-        return device
-
-    async def add(self, key: str, cfg: DeviceConfig, online: bool = True) -> Device:
-        if cfg.remove_when_offline and (not online):
-            raise ValueError(
-                "Cannot add offline device that removes itself when offline",
-            )
-        device = self._add(key, cfg)
-        await device.update(online=online)
         return device
 
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
