@@ -29,6 +29,7 @@ onMounted(async () => {
   try {
     config.value = await request('/config/frontend', 'GET', {
       timeout: false,
+      draggable: false,
       closeButton: false,
       closeOnClick: false,
     })

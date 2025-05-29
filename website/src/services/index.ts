@@ -104,6 +104,7 @@ export function createWS<T extends WsPath>(
       if (!wsCloseToastID) {
         wsCloseToastID = toast.error(`服务端连接断开 (${ev.code})，正在重连`, {
           timeout: false,
+          draggable: false,
           closeButton: false,
           closeOnClick: false,
         })
