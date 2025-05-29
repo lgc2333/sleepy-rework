@@ -118,25 +118,23 @@ onBeforeUnmount(() => {
     <div :indicator="info.status" w-1 transition-all duration-500></div>
     <div flex="~ 1 col justify-center">
       <div mx="2" my="1px">
-        <div flex="~ items-center gap-3" my="1">
-          <Icon :icon="deviceIcon" text="2xl" />
+        <div flex="~ items-center" my="1">
+          <Icon :icon="deviceIcon" text="2xl" mr="2" />
 
           <div flex="~ col 1">
             <div flex="~ items-center wrap" gap-x-1>
-              <div font-bold flex-1>{{ info.name }}</div>
-              <span flex="~ items-center gap-1" text-xs text-light>
+              <div font-bold flex-1 text-lg>{{ info.name }}</div>
+              <span flex="~ items-center gap-1" text-light text-sm>
                 <div w-2 h-2 rounded-full :indicator="info.status"></div>
                 {{ statusName }}
               </span>
             </div>
 
-            <div v-if="info.description" text-xs>
-              {{ info.description }}
-            </div>
+            <div v-if="info.description" text-sm>{{ info.description }}</div>
           </div>
         </div>
 
-        <div text-xs my="1">
+        <div my="1" text-sm>
           <div v-if="info.data?.current_app">
             <template v-if="info.online">
               当前应用：{{ info.data.current_app.name
@@ -156,19 +154,19 @@ onBeforeUnmount(() => {
           </template>
         </div>
 
-        <div flex="~ items-center justify-end gap-2" text-xs text-light my="1">
+        <div flex="~ items-center justify-end gap-2" text-light text-sm my="1">
           <div v-if="osIcon" flex="~ items-center gap-1" title="操作系统">
-            <Icon :icon="osIcon" text-xs />
+            <Icon :icon="osIcon" />
             <span capitalize>{{ osName }}</span>
           </div>
 
           <div v-if="info.online" flex="~ items-center gap-1">
-            <Icon icon="carbon:connection-signal" text-xs />
+            <Icon icon="carbon:connection-signal" />
             <span>{{ info.long_connection ? '长连接' : '轮询' }}</span>
           </div>
 
           <div v-if="lastUpdate" flex="~ items-center gap-1" title="最后更新时间">
-            <Icon icon="carbon:time" text-xs />
+            <Icon icon="carbon:time" />
             <span>{{ lastUpdate }}前</span>
           </div>
         </div>

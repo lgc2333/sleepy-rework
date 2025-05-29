@@ -44,6 +44,7 @@ export interface DeviceInfo {
   description?: string | null
   device_type: DeviceType | string
   device_os: DeviceOS | string
+  remove_when_offline: boolean
   data?: DeviceData | null
   online: boolean
   idle: boolean

@@ -24,8 +24,8 @@ class DeviceData(BaseModel):
 
 
 class DeviceInfoRecv(DeviceConfig):
-    data: DeviceData | None = None
     idle: bool = False
+    data: DeviceData | None = None
 
 
 class DeviceInfo(DeviceConfig):
