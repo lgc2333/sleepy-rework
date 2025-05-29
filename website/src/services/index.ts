@@ -1,5 +1,9 @@
-import { useToast } from 'vue-toastification'
-import type { ToastID, ToastOptions } from 'vue-toastification/dist/types/types'
+import { TYPE, useToast } from 'vue-toastification'
+import type {
+  ToastContent,
+  ToastID,
+  ToastOptions,
+} from 'vue-toastification/dist/types/types'
 
 import type {
   ApiMethod,
@@ -72,16 +76,50 @@ export function createWS<T extends WsPath>(
   const url = `${WS_BASE}${endpoint}`
 
   let ws: WebSocket | null = null
-  let wsCloseToastID: ToastID | null = null
+  let stickingToastID: ToastID | null = null
+  let connected = false
+  let firstConnect = true
   let stopped = false
+
+  const updateStickingToast = (options?: {
+    content?: ToastContent
+    options?: ToastOptions
+  }) => {
+    if (!options) {
+      if (stickingToastID !== null) {
+        toast.dismiss(stickingToastID)
+      }
+      return
+    }
+
+    if (stickingToastID !== null) {
+      toast.update(stickingToastID, options)
+    } else {
+      stickingToastID = toast(options.content, options.options)
+    }
+  }
 
   const connect = () => {
     ws = new WebSocket(url)
+    if (!firstConnect) {
+      updateStickingToast({
+        content: `正在连接服务端`,
+        options: {
+          type: TYPE.INFO,
+          timeout: false,
+          draggable: false,
+          closeButton: false,
+          closeOnClick: false,
+        },
+      })
+    }
+    firstConnect = false
 
     ws.addEventListener('open', (event) => {
-      if (wsCloseToastID) toast.dismiss(wsCloseToastID)
+      updateStickingToast()
       // console.log(`WebSocket connected`)
-      toast.success(`已连接服务端`)
+      // toast.success(`已连接服务端`)
+      connected = true
       options.onOpen?.(event)
     })
 
@@ -105,15 +143,18 @@ export function createWS<T extends WsPath>(
     ws.addEventListener('close', (ev) => {
       console.warn('WebSocket connection closed')
       if (stopped) return
-      if (!wsCloseToastID) {
-        wsCloseToastID = toast.error(`服务端连接断开 (${ev.code})，正在重连`, {
+      updateStickingToast({
+        content: `服务端连接${connected ? '断开' : '失败'} (${ev.code})，3 秒后重连`,
+        options: {
+          type: TYPE.ERROR,
           timeout: false,
           draggable: false,
           closeButton: false,
           closeOnClick: false,
-        })
-        options.onClose?.(ev)
-      }
+        },
+      })
+      connected = false
+      options.onClose?.(ev)
       setTimeout(() => connect(), 3000)
     })
   }
@@ -124,8 +165,14 @@ export function createWS<T extends WsPath>(
 
   const stop = () => {
     stopped = true
+    connected = false
     ws?.close()
   }
 
-  return { getWebSocket, connect, stop }
+  const cleanup = () => {
+    stop()
+    updateStickingToast()
+  }
+
+  return { getWebSocket, connect, stop, cleanup }
 }

@@ -6,10 +6,18 @@
       "type": "debugpy",
       "request": "launch",
       "module": "sleepy_rework",
+      "cwd": "${workspaceFolder}/backend",
       "justMyCode": false,
       "env": {
         "SLEEPY_ENVIRONMENT": "dev"
       }
+    },
+    {
+      "name": "Frontend (Chrome)",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/website/src"
     }
   ]
 }

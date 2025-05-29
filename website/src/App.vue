@@ -43,7 +43,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  ws.stop()
+  ws.cleanup()
 })
 </script>
 
