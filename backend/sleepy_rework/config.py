@@ -65,15 +65,35 @@ class CORSConfig(BaseModel):
     max_age: int = 600
 
 
-class DeviceConfig(BaseModel):
-    name: str
-    description: str | None = None
+class DeviceType(StrEnum):
+    PC = auto()
+    PHONE = auto()
+    TABLET = auto()
+    SMARTWATCH = auto()
+    UNKNOWN = auto()
+
+
+class DeviceOS(StrEnum):
+    WINDOWS = auto()
+    MACOS = auto()
+    LINUX = auto()
+    ANDROID = auto()
+    IOS = auto()
+    UNKNOWN = auto()
 
 
 class OnlineStatus(StrEnum):
     ONLINE = auto()
     OFFLINE = auto()
+    IDLE = auto()
     UNKNOWN = auto()
+
+
+class DeviceConfig(BaseModel):
+    name: str
+    description: str | None = None
+    device_type: DeviceType | str = DeviceType.UNKNOWN
+    device_os: DeviceOS | str = DeviceOS.UNKNOWN
 
 
 class FrontendStatusConfig(BaseModel):
@@ -95,8 +115,13 @@ class FrontendConfig(BaseModel):
         ),
         OnlineStatus.OFFLINE: FrontendStatusConfig(
             name="似了",
-            description="目前没有设备在线，可能正在睡觉或休息。",
+            description="目前没有设备在线。",
             color="var(--color-offline)",
+        ),
+        OnlineStatus.IDLE: FrontendStatusConfig(
+            name="空闲",
+            description="所有设备都在空闲状态，可能正在休息。",
+            color="var(--color-idle)",
         ),
         OnlineStatus.UNKNOWN: FrontendStatusConfig(
             name="未知",
@@ -123,6 +148,7 @@ class Config(BaseSettings):
 
     poll_offline_timeout: int = 10
     frontend_event_throttle: float = 1
+    allow_new_devices: bool = False
 
     app: AppConfig = AppConfig()
     cors: CORSConfig = CORSConfig()

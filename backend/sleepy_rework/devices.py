@@ -9,7 +9,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 from .config import DeviceConfig, OnlineStatus, config
 from .log import logger
-from .models import DeviceData, DeviceInfo
+from .models import DeviceInfo, DeviceInfoRecv
 from .utils import combine_model_from_model
 
 type Co[T] = Coroutine[Any, Any, T]
@@ -56,7 +56,7 @@ class Device:
 
     async def update(
         self,
-        data: DeviceData | None = None,
+        data: DeviceInfoRecv | None = None,
         in_long_conn: bool = False,
     ):
         if self._timer is not None:
@@ -81,10 +81,7 @@ class Device:
                     logger.error("Error closing WebSocket connection")
 
         if data is not None:
-            self.info.data = combine_model_from_model(
-                self.info.data or DeviceData(),
-                data,
-            )
+            self.info = combine_model_from_model(self.info, data)
         self.info.online = True
         self.info.long_connection = in_long_conn
         self.info.last_update_time = int(time.time() * 1000)
@@ -95,7 +92,7 @@ class Device:
         self._ws_connection = ws
         while True:
             try:
-                data = DeviceData.model_validate_json(await ws.receive_text())
+                data = DeviceInfoRecv.model_validate_json(await ws.receive_text())
                 await self.update(data, in_long_conn=True)
             except WebSocketDisconnect:
                 break
@@ -121,7 +118,9 @@ class DeviceManager:
             return OnlineStatus.UNKNOWN
         if any(device.info.online for device in self.devices.values()):
             return OnlineStatus.ONLINE
-        return OnlineStatus.OFFLINE
+        if all((not device.info.online) for device in self.devices.values()):
+            return OnlineStatus.OFFLINE
+        return OnlineStatus.IDLE
 
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)

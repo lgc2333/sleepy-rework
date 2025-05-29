@@ -60,7 +60,7 @@ export async function request<T extends ApiPath, M extends ApiMethod<T>>(
   return data
 }
 
-export function connectWS<T extends WsPath>(
+export function createWS<T extends WsPath>(
   endpoint: T,
   onMessage: (data: WsMessage<T>) => void,
   onError?: (error: Event) => void,
@@ -70,17 +70,14 @@ export function connectWS<T extends WsPath>(
 
   let ws: WebSocket | null = null
   let wsCloseToastID: ToastID | null = null
-
-  const reconnect = () => {
-    setTimeout(() => connect(), 3000)
-  }
+  let stopped = false
 
   const connect = () => {
     ws = new WebSocket(url)
 
     ws.addEventListener('open', () => {
       if (wsCloseToastID) toast.dismiss(wsCloseToastID)
-      console.log(`WebSocket connected`)
+      // console.log(`WebSocket connected`)
       toast.success(`已连接服务端`)
     })
 
@@ -97,11 +94,13 @@ export function connectWS<T extends WsPath>(
     ws.addEventListener('error', (error) => {
       console.error('WebSocket error:', error)
       // toast.error(`连接服务端出错`)
+      if (stopped) return
       onError?.(error)
     })
 
     ws.addEventListener('close', (ev) => {
       console.warn('WebSocket connection closed')
+      if (stopped) return
       if (!wsCloseToastID) {
         wsCloseToastID = toast.error(`服务端连接断开 (${ev.code})，正在重连`, {
           timeout: false,
@@ -110,7 +109,7 @@ export function connectWS<T extends WsPath>(
         })
         onClose?.(ev)
       }
-      reconnect()
+      setTimeout(() => connect(), 3000)
     })
   }
 
@@ -118,7 +117,10 @@ export function connectWS<T extends WsPath>(
     return ws
   }
 
-  connect()
+  const stop = () => {
+    stopped = true
+    ws?.close()
+  }
 
-  return { getWebSocket }
+  return { getWebSocket, connect, stop }
 }

@@ -18,6 +18,7 @@ export enum DeviceOS {
 export enum OnlineStatus {
   ONLINE = 'online',
   OFFLINE = 'offline',
+  IDLE = 'idle',
   UNKNOWN = 'unknown',
 }
 
@@ -33,17 +34,20 @@ export interface DeviceCurrentApp {
 }
 
 export interface DeviceData {
-  device_type: DeviceType | string
-  device_os: DeviceOS | string
   current_app?: DeviceCurrentApp | null
+  additional_statuses?: string[] | null
   [key: string]: any
 }
 
 export interface DeviceInfo {
   name: string
   description?: string | null
-  online: boolean
+  device_type: DeviceType | string
+  device_os: DeviceOS | string
   data?: DeviceData | null
+  online: boolean
+  idle: boolean
+  status: Exclude<OnlineStatus, OnlineStatus.UNKNOWN>
   last_update_time?: number | null
   long_connection: boolean
 }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { useDark } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import DeviceCard from './components/DeviceCard.vue'
-import { connectWS, request } from './services'
-import { type FrontendConfig, type Info, OnlineStatus } from './types'
+import { createWS, request } from './services'
+import { OnlineStatus } from './types'
+import type { FrontendConfig, Info } from './types'
 
 const loadFailed = ref(false)
 const config = ref<FrontendConfig | null>(null)
@@ -15,11 +16,15 @@ const currentStatus = computed(() => {
 })
 
 const dark = useDark()
-const toggleDark = () => {
+function toggleDark() {
   document.startViewTransition(() => {
     dark.value = !dark.value
   })
 }
+
+const ws = createWS('/info', (data) => {
+  info.value = data
+})
 
 onMounted(async () => {
   try {
@@ -28,22 +33,24 @@ onMounted(async () => {
       closeButton: false,
       closeOnClick: false,
     })
-    connectWS('/info', (data) => {
-      info.value = data
-    })
-  } catch (e) {
+    ws.connect()
+  } catch {
     loadFailed.value = true
   }
+})
+
+onUnmounted(() => {
+  ws.stop()
 })
 </script>
 
 <template>
-  <div absolute top-2 right-2 text-primary>
+  <div absolute top-2 right-2>
     <button
       transition="~ duration-500"
       bg="transparent hover:white hover:op-20"
       border="none"
-      rounded
+      rd-full
       shadow="hover:sm"
       p="1"
       op="30 hover:100"
@@ -58,7 +65,7 @@ onMounted(async () => {
     </button>
   </div>
 
-  <div flex="~ items-center justify-center" min-h="screen" max-w="99vw" text-primary>
+  <div flex="~ items-center justify-center" min-h="screen">
     <div
       v-if="config && info"
       card
@@ -67,6 +74,7 @@ onMounted(async () => {
       w="fit"
       flex="~ col items-center"
       gap="4"
+      m="2"
     >
       <h1>{{ config.username }}'s Status</h1>
       <h1 text-op-90 :style="`color: ${currentStatus!.color}`" transition-color>
@@ -78,11 +86,8 @@ onMounted(async () => {
       >
         {{ currentStatus!.description }}
       </p>
-      <template v-if="info.devices">
-        <div v-if="Object.keys(info.devices).length > 1" grid="~" cols-2>
-          <DeviceCard v-for="(device, id) in info.devices" :key="id" :info="device" />
-        </div>
-        <div v-else grid="~" cols-1>
+      <template v-if="info.devices && Object.keys(info.devices).length">
+        <div gap-2 class="devices-grid">
           <DeviceCard v-for="(device, id) in info.devices" :key="id" :info="device" />
         </div>
       </template>
@@ -92,4 +97,21 @@ onMounted(async () => {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  & > * {
+    grid-column: span 4;
+
+    @media (min-width: 640px) {
+      grid-column: span 2;
+
+      &:last-child:nth-child(2n - 1) {
+        grid-column-end: 4;
+      }
+    }
+  }
+}
+</style>

@@ -5,7 +5,7 @@ from fastapi.exceptions import HTTPException
 from ..config import FrontendConfig, config
 from ..devices import device_manager
 from ..log import logger
-from ..models import DeviceData, Info, OpSuccess
+from ..models import DeviceInfoRecv, Info, OpSuccess
 from .deps import AuthDep
 
 router = APIRouter(prefix="/api/v1")
@@ -73,14 +73,14 @@ def find_device_http(device_key: str):
     return device
 
 
-@router.patch("/device/{device_key}/data", dependencies=[AuthDep])
-async def _(device_key: str, data: DeviceData | None = None) -> OpSuccess:
+@router.patch("/device/{device_key}/info", dependencies=[AuthDep])
+async def _(device_key: str, info: DeviceInfoRecv | None = None) -> OpSuccess:
     device = find_device_http(device_key)
-    await device.update(data)
+    await device.update(info)
     return OpSuccess()
 
 
-@router.websocket("/device/{device_key}/data", dependencies=[AuthDep])
+@router.websocket("/device/{device_key}/info", dependencies=[AuthDep])
 async def _(ws: WebSocket, device_key: str):
     device = find_device_http(device_key)
     await ws.accept()

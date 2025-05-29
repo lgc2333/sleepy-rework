@@ -1,9 +1,8 @@
-from enum import StrEnum, auto
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 
-from .config import OnlineStatus
+from .config import DeviceConfig, OnlineStatus
 
 
 class ErrDetail(BaseModel):
@@ -17,38 +16,34 @@ class DeviceCurrentApp(BaseModel):
     last_change_time: int | None = None
 
 
-class DeviceType(StrEnum):
-    PC = auto()
-    PHONE = auto()
-    TABLET = auto()
-    SMARTWATCH = auto()
-    UNKNOWN = auto()
-
-
-class DeviceOS(StrEnum):
-    WINDOWS = auto()
-    MACOS = auto()
-    LINUX = auto()
-    ANDROID = auto()
-    IOS = auto()
-    UNKNOWN = auto()
-
-
 class DeviceData(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    device_type: DeviceType | str = DeviceType.UNKNOWN
-    device_os: DeviceOS | str = DeviceOS.UNKNOWN
     current_app: DeviceCurrentApp | None = None
+    additional_statuses: list[str] | None = None
 
 
-class DeviceInfo(BaseModel):
-    name: str
-    description: str | None = None
-    online: bool = False
+class DeviceInfoRecv(DeviceConfig):
+    name: str | None = None  # pyright: ignore
     data: DeviceData | None = None
+    idle: bool = False
+
+
+class DeviceInfo(DeviceConfig):
+    data: DeviceData | None = None
+    idle: bool = False
+
+    online: bool = False
     last_update_time: int | None = None
     long_connection: bool = False
+
+    @computed_field
+    def status(self) -> OnlineStatus:
+        if self.online:
+            return OnlineStatus.ONLINE
+        if self.idle:
+            return OnlineStatus.IDLE
+        return OnlineStatus.OFFLINE
 
 
 class Info(BaseModel):

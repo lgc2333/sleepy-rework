@@ -7,8 +7,8 @@ import type { DeviceInfo } from '../types'
 const { info } = defineProps<{ info: DeviceInfo }>()
 
 const deviceIcon = computed(() => {
-  if (info.data?.device_type) {
-    switch (info.data?.device_type) {
+  if (info.device_type) {
+    switch (info.device_type) {
       case 'pc':
         return 'carbon:laptop'
       case 'phone':
@@ -40,8 +40,8 @@ const osIcon = computed(() => {
 })
 
 const osName = computed(() => {
-  if (!info.data?.device_os) return null
-  const os = info.data?.device_os
+  if (!info.device_os) return null
+  const os = info.device_os
   switch (os) {
     case 'macos':
       return 'macOS'
@@ -54,7 +54,7 @@ const osName = computed(() => {
     .join(' ')
 })
 
-const formatUpdate = (timestamp: number) => {
+function formatUpdate(timestamp: number) {
   const now = Date.now()
   const diff = now - timestamp
   const minutes = Math.floor(diff / (1000 * 60))
@@ -67,12 +67,14 @@ const formatUpdate = (timestamp: number) => {
   return `${days}天`
 }
 
-const getLastUpdate = () =>
-  info.last_update_time ? formatUpdate(info.last_update_time) : null
-const getAppOpenedTime = () =>
-  info.data?.current_app?.last_change_time
+function getLastUpdate() {
+  return info.last_update_time ? formatUpdate(info.last_update_time) : null
+}
+function getAppOpenedTime() {
+  return info.data?.current_app?.last_change_time
     ? formatUpdate(info.data.current_app.last_change_time)
     : null
+}
 
 const lastUpdate = ref(getLastUpdate())
 const appOpenedTime = ref(getAppOpenedTime())
@@ -93,25 +95,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div card rounded-md overflow="hidden" flex="~" transition="all duration-300">
-    <div indicator w-1 :online="info.online" transition-all duration-500></div>
+    <div :indicator="info.status" w-1 transition-all duration-500></div>
 
     <div p-4 flex="~ col 1" gap="2">
       <div flex="~ items-center gap-3">
         <Icon :icon="deviceIcon" text="2xl lightest" />
 
         <div flex="~ col 1">
-          <div flex="~ items-center gap-2">
-            <h3 text-lg font-bold text-primary truncate flex-1>
-              {{ info.name }}
-            </h3>
-            <span
-              indicator
-              text-sm
-              font-medium
-              flex="~ items-center gap-1"
-              text-lightest
-            >
-              <div w-2 h-2 rounded-full indicator :online="info.online"></div>
+          <div flex="~ items-center wrap" gap-x-1>
+            <div font-bold text-primary flex-1>{{ info.name }}</div>
+            <span text-sm font-medium flex="~ items-center gap-1" text-lightest>
+              <div w-2 h-2 rounded-full :indicator="info.status"></div>
               {{ info.online ? '在线' : '离线' }}
             </span>
           </div>
@@ -122,12 +116,28 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div v-if="info.data?.current_app" text-lighter text-sm>
-        <template v-if="info.online">
-          当前应用：{{ info.data.current_app.name
-          }}{{ appOpenedTime && `（已驻前台${appOpenedTime}）` }}
+      <div
+        v-if="
+          info.data?.current_app ||
+          (info.data?.additional_statuses && info.data?.additional_statuses.length)
+        "
+        text-lighter
+        text-sm
+      >
+        <div v-if="info.data?.current_app">
+          <template v-if="info.online">
+            当前应用：{{ info.data.current_app.name
+            }}{{ appOpenedTime && `（已驻前台${appOpenedTime}）` }}
+          </template>
+          <template v-else>离线前应用：{{ info.data.current_app.name }}</template>
+        </div>
+        <template
+          v-if="info.data?.additional_statuses && info.data?.additional_statuses.length"
+        >
+          <div v-for="(status, index) in info.data.additional_statuses" :key="index">
+            {{ status }}
+          </div>
         </template>
-        <template v-else>离线前应用：{{ info.data.current_app.name }}</template>
       </div>
 
       <div

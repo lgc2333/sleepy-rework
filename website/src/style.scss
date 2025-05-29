@@ -1,6 +1,7 @@
 :root {
   --color-online: rgb(105, 130, 27, var(--un-text-opacity, 1));
   --color-offline: rgb(125, 125, 125, var(--un-text-opacity, 1));
+  --color-idle: rgb(225, 123, 52, var(--un-text-opacity, 1));
   --color-unknown: rgb(225, 123, 52, var(--un-text-opacity, 1));
 }
 
@@ -22,13 +23,31 @@ body {
 html.dark {
   --color-online: rgb(76, 175, 80, var(--un-text-opacity, 1));
   --color-offline: rgb(150, 150, 150, var(--un-text-opacity, 1));
+  --color-idle: rgb(255, 152, 0, var(--un-text-opacity, 1));
   --color-unknown: rgb(255, 152, 0, var(--un-text-opacity, 1));
 
   body {
-    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
   }
 }
 
 #app {
   view-transition-name: app;
+}
+
+[indicator='online'] {
+  color: var(--color-online);
+  background-color: var(--color-online);
+}
+[indicator='idle'] {
+  color: var(--color-idle);
+  background-color: var(--color-idle);
+}
+[indicator='offline'] {
+  color: var(--color-offline);
+  background-color: var(--color-offline);
+}
+[indicator='unknown'] {
+  color: var(--color-unknown);
+  background-color: var(--color-unknown);
 }
