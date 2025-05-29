@@ -90,10 +90,11 @@ class OnlineStatus(StrEnum):
 
 
 class DeviceConfig(BaseModel):
-    name: str
+    name: str | None = None
     description: str | None = None
     device_type: DeviceType | str = DeviceType.UNKNOWN
     device_os: DeviceOS | str = DeviceOS.UNKNOWN
+    remove_when_offline: bool = False
 
 
 class FrontendStatusConfig(BaseModel):
@@ -120,7 +121,7 @@ class FrontendConfig(BaseModel):
         ),
         OnlineStatus.IDLE: FrontendStatusConfig(
             name="空闲",
-            description="所有设备都在空闲状态，可能正在休息。",
+            description="所有在线设备都在空闲状态，可能正在休息。",
             color="var(--color-idle)",
         ),
         OnlineStatus.UNKNOWN: FrontendStatusConfig(
@@ -145,8 +146,9 @@ class Config(BaseSettings):
 
     secret: str | None = "sleepy"  # noqa: S105
     privacy_mode: bool = False
+    unknown_as_offline: bool = False
 
-    poll_offline_timeout: int = 10
+    poll_offline_timeout: int = 30
     frontend_event_throttle: float = 1
     allow_new_devices: bool = False
 

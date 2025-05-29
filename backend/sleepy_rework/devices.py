@@ -3,7 +3,7 @@ import time
 from asyncio import Future, TaskGroup, TimerHandle, get_running_loop
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Self
 
 from fastapi import WebSocket, WebSocketDisconnect
 
@@ -19,7 +19,7 @@ type ManagerStatusUpdateHandler = Callable[["DeviceManager", Device], Co[Any]]
 
 @dataclass
 class Device:
-    config: DeviceConfig
+    key: str
     info: DeviceInfo
 
     update_handlers: list[DeviceStatusUpdateHandler] = field(default_factory=list)
@@ -28,13 +28,10 @@ class Device:
     _ws_connection: WebSocket | None = None
 
     @classmethod
-    def from_config(cls, config: DeviceConfig, **kwargs) -> "Device":
+    def new(cls, key: str, cfg: DeviceConfig, **kwargs) -> Self:
         return cls(
-            config=config,
-            info=DeviceInfo(
-                name=config.name,
-                description=config.description,
-            ),
+            key=key,
+            info=DeviceInfo(**cfg.model_dump(exclude_unset=True)),
             **kwargs,
         )
 
@@ -50,28 +47,29 @@ class Device:
         except Exception:
             logger.exception("Error occurred while running device update handlers")
 
-    def set_offline(self):
+    def offline_timer_handler(self):
         self.info.online = False
         asyncio.create_task(self.run_handlers())
 
     async def update(
         self,
         data: DeviceInfoRecv | None = None,
+        online: bool = True,
         in_long_conn: bool = False,
     ):
         if self._timer is not None:
             self._timer.cancel()
 
-        if in_long_conn:
+        if in_long_conn or (not online):
             self._timer = None
         else:
             self._timer = get_running_loop().call_later(
                 config.poll_offline_timeout,
-                self.set_offline,
+                self.offline_timer_handler,
             )
             if self._ws_connection is not None:
                 logger.warning(
-                    f"Device '{self.config.name}' is connected using WebSocket,"
+                    f"Device '{self.info.name}' is connected using WebSocket,"
                     f" but received HTTP update data request."
                     f" Will disconnect WebSocket.",
                 )
@@ -82,7 +80,7 @@ class Device:
 
         if data is not None:
             self.info = combine_model_from_model(self.info, data)
-        self.info.online = True
+        self.info.online = online
         self.info.long_connection = in_long_conn
         self.info.last_update_time = int(time.time() * 1000)
 
@@ -101,32 +99,54 @@ class Device:
                 break
         self._ws_connection = None
         if self._timer is None:
-            self.set_offline()
+            await self.update(online=False)
 
 
 class DeviceManager:
-    def __init__(self, config: dict[str, DeviceConfig]) -> None:
-        self.devices = {
-            name: Device.from_config(cfg, update_handlers=[self.update_handler])
-            for name, cfg in config.items()
-        }
+    def __init__(self, config: dict[str, DeviceConfig] | None = None) -> None:
+        self.devices: dict[str, Device] = {}
         self.update_handlers: list[ManagerStatusUpdateHandler] = []
 
+        if config:
+            for key, cfg in config.items():
+                self._add(key, cfg)
+
     @property
-    def online_status(self) -> OnlineStatus:
+    def overall_status(self) -> OnlineStatus:
         if not self.devices:
-            return OnlineStatus.UNKNOWN
-        if any(device.info.online for device in self.devices.values()):
+            return (
+                OnlineStatus.OFFLINE
+                if config.unknown_as_offline
+                else OnlineStatus.UNKNOWN
+            )
+        if any(x.info.online for x in self.devices.values()):
+            if all(x.info.idle for x in self.devices.values() if x.info.online):
+                return OnlineStatus.IDLE
             return OnlineStatus.ONLINE
-        if all((not device.info.online) for device in self.devices.values()):
-            return OnlineStatus.OFFLINE
-        return OnlineStatus.IDLE
+        return OnlineStatus.OFFLINE
+
+    def _add(self, key: str, cfg: DeviceConfig) -> Device:
+        device = Device.new(key, cfg, update_handlers=[self.update_handler])
+        self.devices[key] = device
+        return device
+
+    async def add(self, key: str, cfg: DeviceConfig, online: bool = True) -> Device:
+        if cfg.remove_when_offline and (not online):
+            raise ValueError(
+                "Cannot add offline device that removes itself when offline",
+            )
+        device = self._add(key, cfg)
+        await device.update(online=online)
+        return device
 
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)
         return handler
 
     async def update_handler(self, device: Device):
+        if (not device.info.online) and device.info.remove_when_offline:
+            del self.devices[device.key]
+
         async with TaskGroup() as tg:
             for handler in self.update_handlers:
                 tg.create_task(handler(self, device))

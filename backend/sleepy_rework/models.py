@@ -24,12 +24,12 @@ class DeviceData(BaseModel):
 
 
 class DeviceInfoRecv(DeviceConfig):
-    name: str | None = None  # pyright: ignore
     data: DeviceData | None = None
     idle: bool = False
 
 
 class DeviceInfo(DeviceConfig):
+    name: str  # pyright: ignore
     data: DeviceData | None = None
     idle: bool = False
 
@@ -40,9 +40,9 @@ class DeviceInfo(DeviceConfig):
     @computed_field
     def status(self) -> OnlineStatus:
         if self.online:
+            if self.idle:
+                return OnlineStatus.IDLE
             return OnlineStatus.ONLINE
-        if self.idle:
-            return OnlineStatus.IDLE
         return OnlineStatus.OFFLINE
 
 

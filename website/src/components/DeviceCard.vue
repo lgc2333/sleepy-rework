@@ -2,6 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
+import { OnlineStatus } from '../types'
 import type { DeviceInfo } from '../types'
 
 const { info } = defineProps<{ info: DeviceInfo }>()
@@ -54,6 +55,18 @@ const osName = computed(() => {
     .join(' ')
 })
 
+const statusName = computed(() => {
+  switch (info.status) {
+    case OnlineStatus.ONLINE:
+      return '在线'
+    case OnlineStatus.IDLE:
+      return '闲置'
+    case OnlineStatus.OFFLINE:
+      return '离线'
+  }
+  return '未知'
+})
+
 function formatUpdate(timestamp: number) {
   const now = Date.now()
   const diff = now - timestamp
@@ -94,71 +107,70 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div card rounded-md overflow="hidden" flex="~" transition="all duration-300">
+  <div
+    card
+    rounded-md
+    overflow="hidden"
+    flex="~"
+    transition="all duration-300"
+    min-w="200px"
+  >
     <div :indicator="info.status" w-1 transition-all duration-500></div>
+    <div flex="~ 1 col justify-center">
+      <div mx="2" my="1px">
+        <div flex="~ items-center gap-3" my="1">
+          <Icon :icon="deviceIcon" text="2xl" />
 
-    <div p-4 flex="~ col 1" gap="2">
-      <div flex="~ items-center gap-3">
-        <Icon :icon="deviceIcon" text="2xl lightest" />
+          <div flex="~ col 1">
+            <div flex="~ items-center wrap" gap-x-1>
+              <div font-bold flex-1>{{ info.name }}</div>
+              <span flex="~ items-center gap-1" text-xs text-light>
+                <div w-2 h-2 rounded-full :indicator="info.status"></div>
+                {{ statusName }}
+              </span>
+            </div>
 
-        <div flex="~ col 1">
-          <div flex="~ items-center wrap" gap-x-1>
-            <div font-bold text-primary flex-1>{{ info.name }}</div>
-            <span text-sm font-medium flex="~ items-center gap-1" text-lightest>
-              <div w-2 h-2 rounded-full :indicator="info.status"></div>
-              {{ info.online ? '在线' : '离线' }}
-            </span>
-          </div>
-
-          <div v-if="info.description" text-lighter text-sm>
-            {{ info.description }}
+            <div v-if="info.description" text-xs>
+              {{ info.description }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div
-        v-if="
-          info.data?.current_app ||
-          (info.data?.additional_statuses && info.data?.additional_statuses.length)
-        "
-        text-lighter
-        text-sm
-      >
-        <div v-if="info.data?.current_app">
-          <template v-if="info.online">
-            当前应用：{{ info.data.current_app.name
-            }}{{ appOpenedTime && `（已驻前台${appOpenedTime}）` }}
+        <div text-xs my="1">
+          <div v-if="info.data?.current_app">
+            <template v-if="info.online">
+              当前应用：{{ info.data.current_app.name
+              }}{{ appOpenedTime && `（已驻前台${appOpenedTime}）` }}
+            </template>
+            <template v-else>离线前应用：{{ info.data.current_app.name }}</template>
+          </div>
+
+          <template
+            v-if="
+              info.data?.additional_statuses && info.data?.additional_statuses.length
+            "
+          >
+            <div v-for="(status, index) in info.data.additional_statuses" :key="index">
+              {{ status }}
+            </div>
           </template>
-          <template v-else>离线前应用：{{ info.data.current_app.name }}</template>
         </div>
-        <template
-          v-if="info.data?.additional_statuses && info.data?.additional_statuses.length"
-        >
-          <div v-for="(status, index) in info.data.additional_statuses" :key="index">
-            {{ status }}
+
+        <div flex="~ items-center justify-end gap-2" text-xs text-light my="1">
+          <div v-if="osIcon" flex="~ items-center gap-1" title="操作系统">
+            <Icon :icon="osIcon" text-xs />
+            <span capitalize>{{ osName }}</span>
           </div>
-        </template>
-      </div>
 
-      <div
-        v-if="osIcon || info.online || lastUpdate"
-        flex="~ items-center gap-2"
-        text-sm
-        text-lightest
-      >
-        <div v-if="osIcon" flex="~ items-center gap-1" title="操作系统">
-          <Icon :icon="osIcon" text-sm />
-          <span capitalize>{{ osName }}</span>
-        </div>
+          <div v-if="info.online" flex="~ items-center gap-1">
+            <Icon icon="carbon:connection-signal" text-xs />
+            <span>{{ info.long_connection ? '长连接' : '轮询' }}</span>
+          </div>
 
-        <div v-if="info.online" flex="~ items-center gap-1">
-          <Icon icon="carbon:connection-signal" class="text-base" />
-          <span>{{ info.long_connection ? '长连接' : '轮询' }}</span>
-        </div>
-
-        <div v-if="lastUpdate" flex="~ items-center gap-1" title="最后更新时间">
-          <Icon icon="carbon:time" class="text-base" />
-          <span>{{ lastUpdate }}前</span>
+          <div v-if="lastUpdate" flex="~ items-center gap-1" title="最后更新时间">
+            <Icon icon="carbon:time" text-xs />
+            <span>{{ lastUpdate }}前</span>
+          </div>
         </div>
       </div>
     </div>

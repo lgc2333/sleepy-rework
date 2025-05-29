@@ -5,7 +5,6 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import DeviceCard from './components/DeviceCard.vue'
 import { createWS, request } from './services'
-import { OnlineStatus } from './types'
 import type { FrontendConfig, Info } from './types'
 
 const loadFailed = ref(false)
@@ -55,13 +54,10 @@ onUnmounted(() => {
       p="1"
       op="30 hover:100"
       text-primary
+      :title="dark ? '切换亮色' : '切换暗色'"
       @click="toggleDark()"
     >
-      <Icon
-        :icon="dark ? 'mdi:weather-night' : 'mdi:weather-sunny'"
-        text-size-3xl
-        :title="dark ? 'Switch to light mode' : 'Switch to dark mode'"
-      />
+      <Icon :icon="dark ? 'ph:moon' : 'ph:sun'" text-size-3xl />
     </button>
   </div>
 
@@ -76,16 +72,17 @@ onUnmounted(() => {
       gap="4"
       m="2"
     >
-      <h1>{{ config.username }}'s Status</h1>
-      <h1 text-op-90 :style="`color: ${currentStatus!.color}`" transition-color>
-        {{ currentStatus!.name }}
-      </h1>
-      <p
-        :text-lighter="info.status === OnlineStatus.ONLINE ? null : ''"
+      <div text-3xl font-medium>{{ config.username }}'s Status</div>
+      <div
+        text-4xl
+        font-bold
+        :style="`color: ${currentStatus!.color}`"
         transition-color
       >
-        {{ currentStatus!.description }}
-      </p>
+        {{ currentStatus!.name }}
+      </div>
+      <div>{{ currentStatus!.description }}</div>
+
       <template v-if="info.devices && Object.keys(info.devices).length">
         <div gap-2 class="devices-grid">
           <DeviceCard v-for="(device, id) in info.devices" :key="id" :info="device" />
