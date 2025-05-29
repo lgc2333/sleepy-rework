@@ -2,9 +2,14 @@ import ssl
 from enum import StrEnum, auto
 from ipaddress import IPv4Address
 from pathlib import Path
-from typing import ClassVar, override
+from typing import Annotated, Any, ClassVar, override
 
-from pydantic import BaseModel, ConfigDict, IPvAnyAddress
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    IPvAnyAddress,
+)
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
@@ -103,33 +108,57 @@ class FrontendStatusConfig(BaseModel):
     color: str
 
 
+class FrontendStatusConfigOptional(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    color: str | None = None
+
+
+DEFAULT_FRONTEND_STATUSES = {
+    OnlineStatus.ONLINE: FrontendStatusConfig(
+        name="活着",
+        description="目前在线，可以通过任意可用的联系方式联系到我。",
+        color="var(--color-online)",
+    ),
+    OnlineStatus.OFFLINE: FrontendStatusConfig(
+        name="似了",
+        description="目前没有设备在线。",
+        color="var(--color-offline)",
+    ),
+    OnlineStatus.IDLE: FrontendStatusConfig(
+        name="空闲",
+        description="所有在线设备都在空闲状态，可能正在休息。",
+        color="var(--color-idle)",
+    ),
+    OnlineStatus.UNKNOWN: FrontendStatusConfig(
+        name="未知",
+        description="好像没有配置任何设备呢……",
+        color="var(--color-unknown)",
+    ),
+}
+
+
+def _validate_override_frontend_statuses(raw: Any):
+    if not isinstance(raw, dict):
+        raise TypeError("Frontend statuses must be a dictionary")
+    statuses: dict[Any, Any] = DEFAULT_FRONTEND_STATUSES.copy()
+    for k, v in raw.items():
+        if k not in DEFAULT_FRONTEND_STATUSES:
+            continue
+        if not isinstance(v, dict):
+            raise TypeError(f"Frontend status '{k}' must be a dictionary")
+        statuses[k] = {**DEFAULT_FRONTEND_STATUSES[k].model_dump(), **v}
+    return statuses
+
+
 class FrontendConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     username: str = "LgCookie"
-
-    status: dict[OnlineStatus, FrontendStatusConfig] = {
-        OnlineStatus.ONLINE: FrontendStatusConfig(
-            name="活着",
-            description="目前在线，可以通过任意可用的联系方式联系到我。",
-            color="var(--color-online)",
-        ),
-        OnlineStatus.OFFLINE: FrontendStatusConfig(
-            name="似了",
-            description="目前没有设备在线。",
-            color="var(--color-offline)",
-        ),
-        OnlineStatus.IDLE: FrontendStatusConfig(
-            name="空闲",
-            description="所有在线设备都在空闲状态，可能正在休息。",
-            color="var(--color-idle)",
-        ),
-        OnlineStatus.UNKNOWN: FrontendStatusConfig(
-            name="未知",
-            description="好像没有配置任何设备呢……",
-            color="var(--color-unknown)",
-        ),
-    }
+    status: Annotated[
+        dict[OnlineStatus, FrontendStatusConfig],
+        BeforeValidator(_validate_override_frontend_statuses),
+    ] = {}
 
 
 class Config(BaseSettings):

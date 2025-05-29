@@ -62,9 +62,12 @@ export async function request<T extends ApiPath, M extends ApiMethod<T>>(
 
 export function createWS<T extends WsPath>(
   endpoint: T,
-  onMessage: (data: WsMessage<T>) => void,
-  onError?: (error: Event) => void,
-  onClose?: (event: CloseEvent) => void,
+  options: {
+    onOpen?: (event: Event) => void
+    onMessage?: (data: WsMessage<T>) => void
+    onError?: (event: Event) => void
+    onClose?: (event: CloseEvent) => void
+  } = {},
 ) {
   const url = `${WS_BASE}${endpoint}`
 
@@ -75,16 +78,17 @@ export function createWS<T extends WsPath>(
   const connect = () => {
     ws = new WebSocket(url)
 
-    ws.addEventListener('open', () => {
+    ws.addEventListener('open', (event) => {
       if (wsCloseToastID) toast.dismiss(wsCloseToastID)
       // console.log(`WebSocket connected`)
       toast.success(`已连接服务端`)
+      options.onOpen?.(event)
     })
 
     ws.addEventListener('message', (event) => {
       try {
         const data = JSON.parse(event.data) as WsMessage<T>
-        onMessage(data)
+        options.onMessage?.(data)
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error)
         toast.error(`服务端发送数据解析失败`)
@@ -95,7 +99,7 @@ export function createWS<T extends WsPath>(
       console.error('WebSocket error:', error)
       // toast.error(`连接服务端出错`)
       if (stopped) return
-      onError?.(error)
+      options.onError?.(error)
     })
 
     ws.addEventListener('close', (ev) => {
@@ -108,7 +112,7 @@ export function createWS<T extends WsPath>(
           closeButton: false,
           closeOnClick: false,
         })
-        onClose?.(ev)
+        options.onClose?.(ev)
       }
       setTimeout(() => connect(), 3000)
     })

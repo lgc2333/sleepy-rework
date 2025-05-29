@@ -7,7 +7,6 @@ import DeviceCard from './components/DeviceCard.vue'
 import { createWS, request } from './services'
 import type { FrontendConfig, Info } from './types'
 
-const loadFailed = ref(false)
 const config = ref<FrontendConfig | null>(null)
 const info = ref<Info | null>(null)
 const currentStatus = computed(() => {
@@ -21,22 +20,26 @@ function toggleDark() {
   })
 }
 
-const ws = createWS('/info', (data) => {
-  info.value = data
-})
-
-onMounted(async () => {
-  try {
-    config.value = await request('/config/frontend', 'GET', {
+const ws = createWS('/info', {
+  onOpen: () => {
+    request('/config/frontend', 'GET', {
       timeout: false,
       draggable: false,
       closeButton: false,
       closeOnClick: false,
     })
-    ws.connect()
-  } catch {
-    loadFailed.value = true
-  }
+      .then((res) => {
+        config.value = res
+      })
+      .catch()
+  },
+  onMessage: (data) => {
+    info.value = data
+  },
+})
+
+onMounted(async () => {
+  ws.connect()
 })
 
 onUnmounted(() => {
@@ -90,7 +93,6 @@ onUnmounted(() => {
         </div>
       </template>
     </div>
-    <div v-else-if="loadFailed" card p-8 rounded-xl>Failed to load data</div>
     <div v-else card p-8 rounded-xl>Loading...</div>
   </div>
 </template>
