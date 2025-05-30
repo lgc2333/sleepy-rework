@@ -10,7 +10,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY, WS_1008_POLICY_VIOLATION
 
-from .models import ErrDetail
+from sleepy_rework_types import ErrDetail
 
 
 def transform_exc_detail(v: Any):

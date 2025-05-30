@@ -4,10 +4,11 @@ from debouncer import DebounceOptions, debounce
 from fastapi import APIRouter, Response, WebSocket, WebSocketDisconnect, status
 from fastapi.exceptions import HTTPException
 
-from ..config import FrontendConfig, config
+from sleepy_rework_types import DeviceInfoFromClient, FrontendConfig, Info, OpSuccess
+
+from ..config import config
 from ..devices import Device, device_manager
 from ..log import logger
-from ..models import DeviceInfoRecv, Info, OpSuccess
 from .deps import AuthDep
 
 router = APIRouter(prefix="/api/v1")
@@ -81,7 +82,7 @@ def find_device_http(device_key: str) -> Device | None:
 
 async def add_device_http(
     device_key: str,
-    info: DeviceInfoRecv | None = None,
+    info: DeviceInfoFromClient | None = None,
 ) -> Device:
     if (not info) or (not info.name):
         raise HTTPException(
@@ -92,7 +93,7 @@ async def add_device_http(
 
 
 @router.patch("/device/{device_key}/info", dependencies=[AuthDep])
-async def _(device_key: str, info: DeviceInfoRecv | None = None) -> OpSuccess:
+async def _(device_key: str, info: DeviceInfoFromClient | None = None) -> OpSuccess:
     device = find_device_http(device_key)
     if device:
         await device.update(info)
@@ -117,7 +118,7 @@ async def _(ws: WebSocket, device_key: str):
             return
         device = await add_device_http(
             device_key,
-            DeviceInfoRecv.model_validate_json(data),
+            DeviceInfoFromClient.model_validate_json(data),
         )
         await device.update(in_long_conn=True)
     await device.handle_ws(ws)

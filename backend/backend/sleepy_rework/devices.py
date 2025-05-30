@@ -7,9 +7,15 @@ from typing import Any, Self
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from .config import DeviceConfig, OnlineStatus, config
+from sleepy_rework_types import (
+    DeviceConfig,
+    DeviceInfo,
+    DeviceInfoFromClient,
+    OnlineStatus,
+)
+
+from .config import config
 from .log import logger
-from .models import DeviceInfo, DeviceInfoRecv
 from .utils import combine_model_from_model
 
 type Co[T] = Coroutine[Any, Any, T]
@@ -53,7 +59,7 @@ class Device:
 
     async def update(
         self,
-        data: DeviceInfoRecv | None = None,
+        data: DeviceInfoFromClient | None = None,
         online: bool = True,
         in_long_conn: bool = False,
     ):
@@ -90,7 +96,7 @@ class Device:
         self._ws_connection = ws
         while True:
             try:
-                data = DeviceInfoRecv.model_validate_json(await ws.receive_text())
+                data = DeviceInfoFromClient.model_validate_json(await ws.receive_text())
                 await self.update(data, in_long_conn=True)
             except WebSocketDisconnect:
                 break

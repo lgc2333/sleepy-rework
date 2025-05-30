@@ -2,8 +2,9 @@ from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, params, status
 
+from sleepy_rework_types import ErrDetail
+
 from ..config import config
-from ..models import ErrDetail
 
 
 async def auth_dep(

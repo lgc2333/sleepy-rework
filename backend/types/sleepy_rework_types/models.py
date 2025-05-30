@@ -2,13 +2,18 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from .config import DeviceConfig, OnlineStatus
+from .config import DeviceConfig
+from .enums import OnlineStatus
 
 
 class ErrDetail(BaseModel):
     type: str | None = None
     msg: str | None = None
     data: Any = None
+
+
+class OpSuccess(BaseModel):
+    success: Literal[True] = True
 
 
 class DeviceCurrentApp(BaseModel):
@@ -23,15 +28,13 @@ class DeviceData(BaseModel):
     additional_statuses: list[str] | None = None
 
 
-class DeviceInfoRecv(DeviceConfig):
+class DeviceInfoFromClient(DeviceConfig):
     idle: bool = False
     data: DeviceData | None = None
 
 
-class DeviceInfo(DeviceConfig):
-    name: str  # pyright: ignore
-    data: DeviceData | None = None
-    idle: bool = False
+class DeviceInfo(DeviceInfoFromClient):
+    name: str  # pyright: ignore  # make name required
 
     online: bool = False
     last_update_time: int | None = None
@@ -39,17 +42,13 @@ class DeviceInfo(DeviceConfig):
 
     @computed_field
     def status(self) -> OnlineStatus:
-        if self.online:
-            if self.idle:
-                return OnlineStatus.IDLE
-            return OnlineStatus.ONLINE
-        return OnlineStatus.OFFLINE
+        if not self.online:
+            return OnlineStatus.OFFLINE
+        if self.idle:
+            return OnlineStatus.IDLE
+        return OnlineStatus.ONLINE
 
 
 class Info(BaseModel):
     status: OnlineStatus
     devices: dict[str, DeviceInfo] | None = None
-
-
-class OpSuccess(BaseModel):
-    success: Literal[True] = True

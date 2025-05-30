@@ -8,6 +8,7 @@ classifiers = ["Private :: Do Not Upload"]
 dev = [
     # members
     "sleepy-rework",
+    "sleepy-rework-types",
     "sleepy-rework-client-desktop",
     # tools
     "basedpyright>=1.29.2",
@@ -15,10 +16,11 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["backend", "client/desktop"]
+members = ["backend/*", "client/desktop"]
 
 [tool.uv.sources]
 sleepy-rework = { workspace = true }
+sleepy-rework-types = { workspace = true }
 sleepy-rework-client-desktop = { workspace = true }
 
 # tools config
@@ -128,3 +130,8 @@ combine-as-imports = true
 detect-same-package = true
 extra-standard-library = ["typing_extensions"]
 split-on-trailing-comma = true
+known-first-party = [
+    "sleepy_rework",
+    "sleepy_rework_types",
+    "sleepy_rework_client_desktop",
+]
