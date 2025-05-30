@@ -1,0 +1,18 @@
+{
+  "name": "@root/sleepy-rework",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "yarn@4.9.1",
+  "workspaces": [
+    "website"
+  ],
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.12.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3"
+  }
+}

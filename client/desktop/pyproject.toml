@@ -1,0 +1,11 @@
+[project]
+name = "sleepy-rework-client-desktop"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
