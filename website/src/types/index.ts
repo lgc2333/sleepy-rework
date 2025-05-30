@@ -70,7 +70,7 @@ export interface FrontendStatusConfig {
 
 export interface FrontendConfig {
   username: string
-  status: Record<OnlineStatus, FrontendStatusConfig>
+  statuses: Record<OnlineStatus, FrontendStatusConfig>
   [key: string]: any
 }
 

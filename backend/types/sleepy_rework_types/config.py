@@ -82,11 +82,11 @@ class FrontendConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     username: str = "LgCookie"
-    status: dict[OnlineStatus, FrontendStatusConfig] = {}
+    statuses: dict[OnlineStatus, FrontendStatusConfig] = {}
 
-    @field_validator("status", mode="after")
+    @field_validator("statuses", mode="after")
     @classmethod
-    async def _validate_status(cls, v: dict):
+    def _validate_status(cls, v: dict):
         statuses = OnlineStatus.__members__.values()
         if any((x not in statuses) for x in v):
             raise ValueError("Invalid status keys in frontend configuration")

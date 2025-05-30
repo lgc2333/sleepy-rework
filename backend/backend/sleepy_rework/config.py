@@ -47,23 +47,29 @@ class Config(BaseConfig, BaseSettings):
     @model_validator(mode="before")
     @classmethod
     def _validate_override_frontend_statuses(cls, raw: Any):
-        if not (
-            isinstance(raw, dict)
-            and isinstance((frontend := raw.get("frontend")), dict)
-            and isinstance((status := frontend.get("status")), dict)
-        ):
+        if not isinstance(raw, dict):
             # let pydantic validate the wrong type and raise validation error
             return raw
 
+        if "frontend" not in raw:
+            raw["frontend"] = frontend = {}
+        elif not isinstance((frontend := raw["frontend"]), dict):
+            return raw
+
+        if "statuses" not in frontend:
+            frontend["statuses"] = statuses = {}
+        elif not isinstance((statuses := frontend["statuses"]), dict):
+            return raw
+
         merged: dict = DEFAULT_FRONTEND_STATUSES.copy()
-        for k, v in status.items():
+        for k, v in statuses.items():
             if k not in DEFAULT_FRONTEND_STATUSES:
                 continue
             if isinstance(v, dict):
                 merged[k] = {**DEFAULT_FRONTEND_STATUSES[k].model_dump(), **v}
             else:
                 merged[k] = v  # there also
-        raw["frontend"]["status"] = merged
+        raw["frontend"]["statuses"] = merged
 
         return raw
 

@@ -10,7 +10,7 @@ import type { FrontendConfig, Info } from './types'
 const config = ref<FrontendConfig | null>(null)
 const info = ref<Info | null>(null)
 const currentStatus = computed(() => {
-  return config.value && info.value ? config.value.status[info.value.status] : null
+  return config.value && info.value ? config.value.statuses[info.value.status] : null
 })
 
 const dark = useDark()
