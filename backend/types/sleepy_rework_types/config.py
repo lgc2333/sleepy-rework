@@ -85,7 +85,8 @@ class FrontendConfig(BaseModel):
     status: dict[OnlineStatus, FrontendStatusConfig] = {}
 
     @field_validator("status", mode="after")
-    async def _validate_status(self, v: dict):
+    @classmethod
+    async def _validate_status(cls, v: dict):
         statuses = OnlineStatus.__members__.values()
         if any((x not in statuses) for x in v):
             raise ValueError("Invalid status keys in frontend configuration")

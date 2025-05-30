@@ -354,15 +354,11 @@ name = "sleepy-rework-types"
 version = "0.1.0"
 source = { editable = "backend/types" }
 dependencies = [
-    { name = "cookit", extra = ["pyd"] },
     { name = "pydantic" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "cookit", extras = ["pyd"], specifier = ">=0.11.6" },
-    { name = "pydantic", specifier = ">=2.11.5" },
-]
+requires-dist = [{ name = "pydantic", specifier = ">=2.11.5" }]
 
 [[package]]
 name = "sniffio"
