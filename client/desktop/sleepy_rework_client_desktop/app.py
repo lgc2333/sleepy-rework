@@ -45,7 +45,7 @@ class MainWindow(MSFluentWindow):
             a0.accept()
 
 
-def launch_app():
+def launch():
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
@@ -55,4 +55,4 @@ def launch_app():
     window = MainWindow()
     window.show()
 
-    return app.exec_()
+    sys.exit(app.exec_())
