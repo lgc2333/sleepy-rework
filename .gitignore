@@ -813,5 +813,6 @@ FodyWeavers.xsd
 
 .env
 .env.*
+!.env.example
 sleepy.toml
 sleepy.*.toml
