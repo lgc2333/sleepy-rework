@@ -4,12 +4,13 @@ from pathlib import Path
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtWidgets import QApplication
-from qfluentwidgets import FluentWindow
+from qfluentwidgets import FluentIcon, MSFluentWindow
 
 from .tray import SystemTrayIcon
+from .views.home import HomePage
 
 
-class MainWindow(FluentWindow):
+class MainWindow(MSFluentWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sleepy Rework")
@@ -24,7 +25,15 @@ class MainWindow(FluentWindow):
         self.tray_icon.show()
 
     def init_ui(self):
-        pass
+        self.home_page = HomePage()
+        self.addSubInterface(
+            self.home_page,
+            FluentIcon.HOME,
+            "主页",
+            FluentIcon.HOME_FILL,
+        )
+
+        self.navigationInterface.setCurrentItem(self.home_page.route_key)
 
     def closeEvent(self, a0: QCloseEvent | None):  # noqa: N802
         if not a0:
