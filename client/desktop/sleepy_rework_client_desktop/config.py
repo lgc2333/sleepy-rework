@@ -1,10 +1,24 @@
+import sys
 from typing import Any, override
 
 from nonestorage import user_config_dir
-from qfluentwidgets import BoolValidator, ConfigItem, ConfigValidator, QConfig, qconfig
+from PyQt5.QtGui import QColor
+from qfluentwidgets import (
+    BoolValidator,
+    ConfigItem,
+    ConfigValidator,
+    EnumSerializer,
+    OptionsConfigItem,
+    OptionsValidator,
+    QConfig,
+    Theme,
+    qconfig,
+)
+from qframelesswindow.utils import getSystemAccentColor
 
 config_dir = user_config_dir("SleepyRework", roaming=True)
-print(f"Config directory: {config_dir}")
+config_file_path = config_dir / "config.json"
+print(f"Config path: {config_file_path}")
 
 
 class StringValidator(ConfigValidator):
@@ -14,6 +28,12 @@ class StringValidator(ConfigValidator):
 
 
 class Config(QConfig):
+    server_enable_send_status = ConfigItem(
+        "server",
+        "enable_send_status",
+        default=False,
+        validator=BoolValidator(),
+    )
     server_url = ConfigItem(
         "server",
         "url",
@@ -27,12 +47,6 @@ class Config(QConfig):
         validator=StringValidator(),
     )
 
-    app_enable_send_status = ConfigItem(
-        "app",
-        "enable_send_status",
-        default=False,
-        validator=BoolValidator(),
-    )
     app_auto_start = ConfigItem(
         "app",
         "auto_start",
@@ -44,6 +58,13 @@ class Config(QConfig):
         "start_minimized",
         default=False,
         validator=BoolValidator(),
+    )
+    app_theme_mode = OptionsConfigItem(
+        "app",
+        "theme_mode",
+        Theme.AUTO,
+        OptionsValidator(Theme),
+        EnumSerializer(Theme),
     )
 
     device_key = ConfigItem(
@@ -67,7 +88,22 @@ class Config(QConfig):
 
 
 config = Config()
-qconfig.load(config_dir / "config.json", config)
+qconfig.load(config_file_path, config)
+
+qconfig.set(
+    config.themeMode,
+    config.app_theme_mode.value,
+    save=False,
+)
+qconfig.set(
+    config.themeColor,
+    (
+        getSystemAccentColor()
+        if sys.platform in ["win32", "darwin"]
+        else QColor("#f2a62a")
+    ),
+    save=False,
+)
 
 if not config.device_key.value:
     import random

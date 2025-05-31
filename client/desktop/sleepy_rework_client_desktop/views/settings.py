@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLineEdit, QVBoxLayout, QWidget
 from qfluentwidgets import (
     FluentIcon,
+    OptionsSettingCard,
     SmoothScrollArea,
     SubtitleLabel,
     SwitchSettingCard,
@@ -50,6 +51,15 @@ class SettingsPage(QWidget):
         self.server_title_label = SubtitleLabel("服务器设置", parent=self.scroll_widget)
         self.scroll_content_layout.addWidget(self.server_title_label)
 
+        self.server_enable_send_status_card = SwitchSettingCard(
+            icon=FluentIcon.SEND,
+            title="启用状态发送",
+            content="是否向服务器发送设备状态信息",
+            configItem=config.server_enable_send_status,
+            parent=self.scroll_widget,
+        )
+        self.scroll_content_layout.addWidget(self.server_enable_send_status_card)
+
         self.server_url_card = LineEditSettingCard(
             icon=FluentIcon.LINK,
             title="服务器地址",
@@ -73,15 +83,6 @@ class SettingsPage(QWidget):
         self.app_title_label = SubtitleLabel("应用设置", parent=self.scroll_widget)
         self.scroll_content_layout.addWidget(self.app_title_label)
 
-        self.app_enable_send_status_card = SwitchSettingCard(
-            icon=FluentIcon.SEND,
-            title="启用状态发送",
-            content="是否向服务器发送设备状态信息",
-            configItem=config.app_enable_send_status,
-            parent=self.scroll_widget,
-        )
-        self.scroll_content_layout.addWidget(self.app_enable_send_status_card)
-
         self.app_auto_start_card = SwitchSettingCard(
             icon=FluentIcon.POWER_BUTTON,
             title="开机自启动",
@@ -99,6 +100,16 @@ class SettingsPage(QWidget):
             parent=self.scroll_widget,
         )
         self.scroll_content_layout.addWidget(self.app_start_minimized_card)
+
+        self.app_theme_card = OptionsSettingCard(
+            config.app_theme_mode,
+            FluentIcon.BRUSH,
+            "应用主题",
+            "调整你的应用外观（重启后生效）",
+            texts=["浅色", "深色", "跟随系统设置"],
+            parent=self.scroll_widget,
+        )
+        self.scroll_content_layout.addWidget(self.app_theme_card)
 
     def create_device_settings(self) -> None:
         self.device_title_label = SubtitleLabel("设备设置", parent=self.scroll_widget)
