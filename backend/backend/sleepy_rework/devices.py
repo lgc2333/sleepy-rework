@@ -2,6 +2,7 @@ import asyncio
 import time
 from asyncio import Future, TaskGroup, TimerHandle, get_running_loop
 from collections.abc import Callable, Coroutine
+from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import Any, Self
 
@@ -93,7 +94,18 @@ class Device:
         asyncio.create_task(self.run_handlers())
 
     async def handle_ws(self, ws: WebSocket):
+        old_connection = self._ws_connection
         self._ws_connection = ws
+
+        if old_connection:
+            logger.warning(
+                f"Device '{self.info.name}' is connected using WebSocket,"
+                f" but received new WebSocket connection request."
+                f" Will close old connection.",
+            )
+            with suppress(Exception):
+                await old_connection.close()
+
         while True:
             try:
                 data = DeviceInfoFromClient.model_validate_json(await ws.receive_text())
