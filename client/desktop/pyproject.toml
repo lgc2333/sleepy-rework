@@ -3,6 +3,7 @@ name = "sleepy-rework-client-desktop"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "nonestorage>=0.1.0",
     "pyqt-fluent-widgets[full]>=1.8.1",
     "pyqt5>=5.15.11",
     "pyqt5-qt5==5.15.2; sys_platform == 'win32'",

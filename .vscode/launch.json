@@ -18,6 +18,14 @@
       "type": "chrome",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/website/src"
+    },
+    {
+      "name": "Client - Desktop",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "sleepy_rework_client_desktop",
+      "cwd": "${workspaceFolder}/backend",
+      "justMyCode": false
     }
   ]
 }

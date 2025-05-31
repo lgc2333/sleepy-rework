@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtWidgets import QApplication
-from qfluentwidgets import FluentIcon, MSFluentWindow
+from qfluentwidgets import FluentIcon, MSFluentWindow, SplashScreen
 
 from .tray import SystemTrayIcon
-from .views.home import HomePage
+from .views import HomePage, SettingsPage
 
 
 class MainWindow(MSFluentWindow):
@@ -19,10 +19,16 @@ class MainWindow(MSFluentWindow):
         icon_path = Path(__file__).parent / "assets" / "icon.png"
         self.setWindowIcon(QIcon(str(icon_path)))
 
-        self.init_ui()
-
         self.tray_icon = SystemTrayIcon(self)
         self.tray_icon.show()
+
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(128, 128))
+        self.show()
+
+        self.init_ui()
+
+        self.splashScreen.finish()
 
     def init_ui(self):
         self.home_page = HomePage()
@@ -31,6 +37,13 @@ class MainWindow(MSFluentWindow):
             FluentIcon.HOME,
             "主页",
             FluentIcon.HOME_FILL,
+        )
+
+        self.settings_page = SettingsPage()
+        self.addSubInterface(
+            self.settings_page,
+            FluentIcon.SETTING,
+            "设置",
         )
 
         self.navigationInterface.setCurrentItem(self.home_page.route_key)
@@ -52,7 +65,6 @@ def launch():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
 
-    window = MainWindow()
-    window.show()
+    MainWindow()
 
     sys.exit(app.exec_())

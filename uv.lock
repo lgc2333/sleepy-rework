@@ -204,6 +204,15 @@ wheels = [
 ]
 
 [[package]]
+name = "nonestorage"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/58/04676895dc6aa4fa6b6bfb069692d1469bfeb175bf6c25ea071762d2b006/nonestorage-0.1.0.tar.gz", hash = "sha256:818232236455c79cabbb69e716f73aa1b9c21d579f1c1fcbdba273b60bac72d9", size = 19257, upload-time = "2024-12-21T08:35:18.1Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/54/7c796d764ef0c53d94862b1cfe55fcc383a0ba7c2764c0ce40307438a052/nonestorage-0.1.0-py3-none-any.whl", hash = "sha256:35811adf67c680c272bcb71fa9d6c3613cc2d1bb79f5bfc7d83c4412a79537cb", size = 4127, upload-time = "2024-12-21T08:35:15.732Z" },
+]
+
+[[package]]
 name = "numpy"
 version = "2.2.6"
 source = { registry = "https://pypi.org/simple" }
@@ -3116,6 +3125,7 @@ name = "sleepy-rework-client-desktop"
 version = "0.1.0"
 source = { editable = "client/desktop" }
 dependencies = [
+    { name = "nonestorage" },
     { name = "pyqt-fluent-widgets", extra = ["full"] },
     { name = "pyqt5" },
     { name = "pyqt5-qt5" },
@@ -3123,6 +3133,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "nonestorage", specifier = ">=0.1.0" },
     { name = "pyqt-fluent-widgets", extras = ["full"], specifier = ">=1.8.1" },
     { name = "pyqt5", specifier = ">=5.15.11" },
     { name = "pyqt5-qt5", marker = "sys_platform != 'win32'", specifier = ">=5.15.2" },
