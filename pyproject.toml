@@ -135,3 +135,6 @@ known-first-party = [
     "sleepy_rework_types",
     "sleepy_rework_client_desktop",
 ]
+
+[tool.uv]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
