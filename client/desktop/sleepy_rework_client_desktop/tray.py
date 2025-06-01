@@ -1,9 +1,8 @@
 import sys
 from pathlib import Path
-
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon
-from qfluentwidgets import FluentWindow
+from PyQt5.QtWidgets import QSystemTrayIcon
+from qfluentwidgets import FluentWindow, Action
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -17,20 +16,24 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.create_menu()
 
+        self.show()
+
         self.activated.connect(self.on_tray_activated)
 
     def create_menu(self):
-        menu = QMenu()
+        from qfluentwidgets import FluentIcon, SystemTrayMenu
 
-        show_action = QAction("显示窗口", self)
+        self.menu = SystemTrayMenu("Sleepy Rework", parent=self.parent_)
+        show_action = Action("显示窗口", self)
+        show_action.setIcon(FluentIcon.LINK)
         show_action.triggered.connect(self.show_main_window)
-        menu.addAction(show_action)
 
-        quit_action = QAction("退出应用", self)
+        quit_action = Action("退出应用", self)
+        quit_action.setIcon(FluentIcon.CLOSE)
         quit_action.triggered.connect(self.quit_application)
-        menu.addAction(quit_action)
 
-        self.setContextMenu(menu)
+        self.menu.addActions([show_action, quit_action])
+        self.setContextMenu(self.menu)
 
     def show_main_window(self):
         self.parent_.showNormal()
