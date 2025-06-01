@@ -105,7 +105,8 @@ class SettingsPage(QWidget):
             config.app_theme_mode,
             FluentIcon.BRUSH,
             "应用主题",
-            "调整你的应用外观（重启后生效）",
+            # "调整你的应用外观（重启后生效）",
+            "调整你的应用外观",
             texts=["浅色", "深色", "跟随系统设置"],
             parent=self.scroll_widget,
         )

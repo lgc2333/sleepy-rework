@@ -12,6 +12,7 @@ from qfluentwidgets import (
     OptionsValidator,
     QConfig,
     Theme,
+    setTheme,
     qconfig,
 )
 from qframelesswindow.utils import getSystemAccentColor
@@ -66,7 +67,10 @@ class Config(QConfig):
         OptionsValidator(Theme),
         EnumSerializer(Theme),
     )
-
+    app_theme_mode.valueChanged.connect(
+        lambda: qconfig.set(QConfig.themeMode, qconfig.get(Config.app_theme_mode))
+    )
+    app_theme_mode.valueChanged.connect(lambda: setTheme(qconfig.get(config.themeMode)))
     device_key = ConfigItem(
         "device",
         "key",
@@ -95,6 +99,7 @@ qconfig.set(
     config.app_theme_mode.value,
     save=False,
 )
+setTheme(qconfig.get(config.themeMode))
 qconfig.set(
     config.themeColor,
     (
