@@ -1,12 +1,13 @@
 import sys
 from pathlib import Path
+
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QSystemTrayIcon
-from qfluentwidgets import FluentWindow, Action
+from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
+from qfluentwidgets import Action
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, parent: FluentWindow):
+    def __init__(self, parent: QWidget):
         super().__init__(parent)
         self.parent_ = parent
 
