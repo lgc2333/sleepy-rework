@@ -9,6 +9,7 @@ dependencies = [
     "pyqt5>=5.15.11",
     "pyqt5-qt5==5.15.2; sys_platform == 'win32'",
     "pyqt5-qt5>=5.15.2; sys_platform != 'win32'",
+    "pylnk3>=0.4.3; sys_platform == 'win32'",
 ]
 
 [build-system]

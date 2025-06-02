@@ -4,15 +4,17 @@ from typing import override
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtWidgets import QApplication
-from qfluentwidgets import MSFluentWindow, SplashScreen
+from qfluentwidgets import MSFluentWindow, SplashScreen, qconfig
 
 from .assets import ICON_PATH
-from .config import config  # noqa: F401
+from .config import config
 from .single_app import QtSingleApplication
+from .utils.auto_start import AutoStartManager
+from .utils.common import AUTO_START_OPT
 
 
 class MainWindow(MSFluentWindow):
-    def __init__(self):
+    def __init__(self, show: bool = True):
         super().__init__()
         self.setWindowTitle("Sleepy Rework")
         self.resize(900, 650)
@@ -21,7 +23,8 @@ class MainWindow(MSFluentWindow):
 
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(128, 128))
-        self.show()
+        if show:
+            self.show()
 
         self.setupTrayIcon()
         self.setupUI()
@@ -79,12 +82,28 @@ def launch():
 
     if app.isRunning():
         print("Another instance is already running.")
-        app.sendMessage("activate")
+        app.sendMessage("114514")
         sys.exit(0)
 
     app.setQuitOnLastWindowClosed(False)
 
-    window = MainWindow()
+    if AutoStartManager:
+        config_auto_start_enabled: bool = qconfig.get(config.appAutoStart)
+        auto_start_enabled = AutoStartManager.is_enabled()
+        if auto_start_enabled != config_auto_start_enabled:
+            res = (
+                AutoStartManager.disable()
+                if auto_start_enabled
+                else AutoStartManager.enable()
+            )
+            if not res:
+                qconfig.set(config.appAutoStart, auto_start_enabled)
+
+    window = MainWindow(
+        show=not (
+            (AUTO_START_OPT in sys.argv) and qconfig.get(config.appStartMinimized)
+        ),
+    )
     app.setActivationWindow(window)
 
     sys.exit(app.exec_())

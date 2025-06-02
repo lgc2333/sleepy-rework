@@ -124,6 +124,7 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"typings/*" = ["A002", "N801", "N818"]
 "client/desktop/*" = ["N802", "N803", "N806", "N815", "N816"]
 
 [tool.ruff.lint.isort]

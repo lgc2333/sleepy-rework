@@ -13,6 +13,8 @@ from qfluentwidgets import (
     FluentIcon,
     FluentIconBase,
     IndicatorPosition,
+    InfoBar,
+    InfoBarPosition,
     LineEdit,
     OptionsConfigItem,
     OptionsSettingCard,
@@ -27,6 +29,7 @@ from qfluentwidgets import (
 )
 
 from ..config import config
+from ..utils.auto_start import AutoStartManager
 
 
 class AbstractLineEditSettingCard(SettingCard):
@@ -243,6 +246,8 @@ class SettingsPage(QWidget):
 
         self.setupUI()
 
+        config.appAutoStart.valueChanged.connect(self.onAutoStartChanged)
+
     def setupUI(self) -> None:
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -268,17 +273,13 @@ class SettingsPage(QWidget):
         self.createDeviceSettings()
 
     def createServerSettings(self) -> None:
-        self.serverSettingGroup = SettingCardGroup(
-            "服务器设置",
-            parent=self.scrollWidget,
-        )
+        self.serverSettingGroup = SettingCardGroup("服务器设置")
 
         self.serverEnableSendStatusCard = SwitchSettingCard(
             icon=FluentIcon.SEND,
             title="启用状态发送",
             content="是否向服务器发送设备状态信息",
             configItem=config.serverEnableSendStatus,
-            parent=self.scrollWidget,
         )
         self.serverSettingGroup.addSettingCard(self.serverEnableSendStatusCard)
 
@@ -287,7 +288,6 @@ class SettingsPage(QWidget):
             title="服务器地址",
             content="设置连接的服务器地址",
             configItem=config.serverUrl,
-            parent=self.scrollWidget,
         )
         self.serverSettingGroup.addSettingCard(self.serverUrlCard)
 
@@ -296,33 +296,29 @@ class SettingsPage(QWidget):
             title="服务器密钥",
             content="设置连接服务器所需的密钥",
             configItem=config.serverSecret,
-            parent=self.scrollWidget,
         )
         self.serverSettingGroup.addSettingCard(self.serverSecretCard)
 
         self.scrollContentLayout.addWidget(self.serverSettingGroup)
 
     def createAppSettings(self) -> None:
-        self.appSettingGroup = SettingCardGroup(
-            "应用设置",
-            parent=self.scrollWidget,
-        )
+        self.appSettingGroup = SettingCardGroup("应用设置")
 
         self.appAutoStartCard = SwitchSettingCard(
             icon=FluentIcon.POWER_BUTTON,
-            title="开机自启动",
-            content="是否在系统启动时自动启动应用",
             configItem=config.appAutoStart,
-            parent=self.scrollWidget,
+            title=f"开机自启动{'' if AutoStartManager else '（暂不支持当前系统）'}",
+            content="是否在系统启动时自动启动应用",
         )
+        if not AutoStartManager:
+            self.appAutoStartCard.switchButton.setEnabled(False)
         self.appSettingGroup.addSettingCard(self.appAutoStartCard)
 
         self.appStartMinimizedCard = SwitchSettingCard(
             icon=FluentIcon.MINIMIZE,
-            title="启动时最小化",
-            content="是否在启动时自动最小化到系统托盘",
+            title="自启时最小化",
+            content="是否在自启时自动最小化到系统托盘",
             configItem=config.appStartMinimized,
-            parent=self.scrollWidget,
         )
         self.appSettingGroup.addSettingCard(self.appStartMinimizedCard)
 
@@ -332,17 +328,13 @@ class SettingsPage(QWidget):
             "应用主题",
             "调整你的应用外观",
             texts=["浅色", "深色", "跟随系统设置"],
-            parent=self.scrollWidget,
         )
         self.appSettingGroup.addSettingCard(self.appThemeCard)
 
         self.scrollContentLayout.addWidget(self.appSettingGroup)
 
     def createDeviceSettings(self) -> None:
-        self.deviceSettingGroup = SettingCardGroup(
-            "设备设置",
-            parent=self.scrollWidget,
-        )
+        self.deviceSettingGroup = SettingCardGroup("设备设置")
 
         self.deviceKeyCard = LineEditSettingCard(
             icon=FluentIcon.TAG,
@@ -412,3 +404,19 @@ class SettingsPage(QWidget):
         self.deviceSettingGroup.addSettingCard(self.deviceOSOverrideCard)
 
         self.scrollContentLayout.addWidget(self.deviceSettingGroup)
+
+    def onAutoStartChanged(self, checked: bool) -> None:
+        if not AutoStartManager:
+            return
+        self.appAutoStartCard.switchButton.setEnabled(False)
+        res = AutoStartManager.enable() if checked else AutoStartManager.disable()
+        if not res:
+            self.appAutoStartCard.switchButton.setChecked(not checked)
+            InfoBar.error(
+                "操作失败",
+                "设置开机自启失败",
+                duration=3000,
+                position=InfoBarPosition.TOP_RIGHT,
+                parent=self.appAutoStartCard,
+            )
+        self.appAutoStartCard.switchButton.setEnabled(True)

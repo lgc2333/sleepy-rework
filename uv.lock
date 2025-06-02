@@ -386,6 +386,15 @@ toml = [
 ]
 
 [[package]]
+name = "pylnk3"
+version = "0.4.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/7c/8f824baeeb854ebb3c5f547c791cde05733a2e66ae4f249a70ff23c2b7ab/pylnk3-0.4.3.tar.gz", hash = "sha256:fbc5f512b581382c2a4c11e6df3796f9975bcfd99e3fca2afe531ea61b3c4ac2", size = 23324, upload-time = "2025-04-28T19:06:52.103Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/86/ed659fbdce3befc0ad059e7c8186b9fceff5b9301122a3930016747b2f9d/pylnk3-0.4.3-py3-none-any.whl", hash = "sha256:fafa9293290163fed30541fb38f7df21a0e3f6fcc8324597a898ce694c9a593d", size = 21952, upload-time = "2025-04-28T19:06:50.509Z" },
+]
+
+[[package]]
 name = "pyobjc"
 version = "11.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3126,18 +3135,22 @@ version = "0.1.0"
 source = { editable = "client/desktop" }
 dependencies = [
     { name = "nonestorage" },
+    { name = "pylnk3", marker = "sys_platform == 'win32'" },
     { name = "pyqt-fluent-widgets", extra = ["full"] },
     { name = "pyqt5" },
     { name = "pyqt5-qt5" },
+    { name = "sleepy-rework-types" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "nonestorage", specifier = ">=0.1.0" },
+    { name = "pylnk3", marker = "sys_platform == 'win32'", specifier = ">=0.4.3" },
     { name = "pyqt-fluent-widgets", extras = ["full"], specifier = ">=1.8.1" },
     { name = "pyqt5", specifier = ">=5.15.11" },
     { name = "pyqt5-qt5", marker = "sys_platform != 'win32'", specifier = ">=5.15.2" },
     { name = "pyqt5-qt5", marker = "sys_platform == 'win32'", specifier = "==5.15.2" },
+    { name = "sleepy-rework-types", editable = "backend/types" },
 ]
 
 [[package]]
