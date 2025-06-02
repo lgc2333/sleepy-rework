@@ -349,7 +349,6 @@ class SettingsPage(QWidget):
             title="设备 ID",
             content="此设备的唯一标识名称",
             configItem=config.deviceKey,
-            isReadOnly=True,
         )
         self.deviceSettingGroup.addSettingCard(self.deviceKeyCard)
 
