@@ -89,64 +89,64 @@ class Config(QConfig):
         validator=StringValidator(),
     )
 
-    deviceEnableTypeDetect = ConfigItem(
+    deviceTypeOverrideUseDetect = ConfigItem(
         "device",
-        "enableTypeDetect",
+        "typeOverrideUseDetect",
         default=True,
         validator=BoolValidator(),
     )
-    deviceEnableTypeOverride = ConfigItem(
+    deviceTypeOverrideEnable = ConfigItem(
         "device",
-        "enableTypeOverride",
+        "typeOverrideEnable",
         default=False,
         validator=BoolValidator(),
     )
-    deviceIsCustomTypeOverride = ConfigItem(
+    deviceTypeOverrideUseCustom = ConfigItem(
         "device",
-        "isCustomTypeOverride",
+        "typeOverrideUseCustom",
         default=False,
         validator=BoolValidator(),
     )
-    deviceBuiltInTypeOverride = OptionsConfigItem(
+    deviceTypeOverrideValueBuiltIn = OptionsConfigItem(
         "device",
-        "builtInTypeOverride",
+        "typeOverrideValueBuiltIn",
         DeviceType.PC,
         validator=OptionsValidator(DeviceType),
     )
-    deviceCustomTypeOverride = ConfigItem(
+    deviceTypeOverrideValueCustom = ConfigItem(
         "device",
-        "customTypeOverride",
+        "typeOverrideValueCustom",
         "unknown",
         validator=StringValidator(),
     )
 
-    deviceEnableOSDetect = ConfigItem(
+    deviceOSOverrideUseDetect = ConfigItem(
         "device",
-        "enableOSDetect",
+        "osOverrideUseDetect",
         default=True,
         validator=BoolValidator(),
     )
-    deviceEnableOSOverride = ConfigItem(
+    deviceOSOverrideEnable = ConfigItem(
         "device",
-        "enableOSOverride",
+        "osOverrideEnable",
         default=False,
         validator=BoolValidator(),
     )
-    deviceIsCustomOSOverride = ConfigItem(
+    deviceOSOverrideUseCustom = ConfigItem(
         "device",
-        "isCustomOSOverride",
+        "osOverrideUseCustom",
         default=False,
         validator=BoolValidator(),
     )
-    deviceBuiltInOSOverride = OptionsConfigItem(
+    deviceOSOverrideValueBuiltIn = OptionsConfigItem(
         "device",
-        "builtInOSOverride",
-        DeviceOS.UNKNOWN,
+        "osOverrideValueBuiltIn",
+        DeviceOS.WINDOWS,
         validator=OptionsValidator(DeviceOS.UNKNOWN),
     )
-    deviceCustomOSOverride = ConfigItem(
+    deviceOSOverrideValueCustom = ConfigItem(
         "device",
-        "customOSOverride",
+        "osOverrideValueCustom",
         "unknown",
         validator=StringValidator(),
     )
