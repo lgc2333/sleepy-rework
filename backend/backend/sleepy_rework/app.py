@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -8,8 +9,17 @@ from fastapi.staticfiles import StaticFiles
 from . import api_v1
 from .config import config
 from .exc_handle import install_exc_handlers
+from .log import logger
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    logger.debug(f"Starting app with config: {config.model_dump_json()}")
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     openapi_url=f"{config.docs_url}/openapi.json" if config.docs_url else None,
     docs_url=f"{config.docs_url}" if config.docs_url else None,
     redoc_url=f"{config.docs_url}/redoc" if config.docs_url else None,

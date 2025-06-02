@@ -6,7 +6,6 @@
       "type": "debugpy",
       "request": "launch",
       "module": "sleepy_rework",
-      "cwd": "${workspaceFolder}/backend",
       "justMyCode": false,
       "env": {
         "SLEEPY_ENVIRONMENT": "dev"
@@ -24,7 +23,6 @@
       "type": "debugpy",
       "request": "launch",
       "module": "sleepy_rework_client_desktop",
-      "cwd": "${workspaceFolder}/backend",
       "justMyCode": false
     }
   ]

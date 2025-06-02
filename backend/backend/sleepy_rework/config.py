@@ -39,7 +39,9 @@ class Config(BaseConfig, BaseSettings):
     model_config = SettingsConfigDict(
         extra="ignore",
         env_prefix="sleepy_",
+        env_file=".env",
         env_file_encoding="utf-8",
+        env_nested_delimiter="__",
     )
 
     cls_environment: ClassVar[str | None] = None
@@ -95,8 +97,10 @@ class Config(BaseConfig, BaseSettings):
             return (
                 init_settings,
                 file_secret_settings,
+                # ---
                 toml_settings,
                 dotenv_settings,
+                # ---
                 env_settings,
             )
 
@@ -106,10 +110,13 @@ class Config(BaseConfig, BaseSettings):
         return (
             init_settings,
             file_secret_settings,
+            # ---
             env_toml_settings,
             env_dot_env_settings,
+            # ---
             toml_settings,
             dotenv_settings,
+            # ---
             env_settings,
         )
 
