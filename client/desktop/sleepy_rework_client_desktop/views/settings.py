@@ -1,17 +1,200 @@
-from typing import ClassVar
+from collections.abc import Sequence
+from typing import ClassVar, cast, override
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
+    BodyLabel,
+    ComboBox,
+    ConfigItem,
+    ExpandGroupSettingCard,
     FluentIcon,
+    IndicatorPosition,
+    LineEdit,
+    OptionsConfigItem,
     OptionsSettingCard,
+    OptionsValidator,
     SettingCardGroup,
     SmoothScrollArea,
+    SwitchButton,
     SwitchSettingCard,
+    qconfig,
 )
 
 from ..components import LineEditSettingCard, PasswordLineEditSettingCard
 from ..config import config
+
+
+class ExpandGroupWidget(QWidget):
+    def __init__(self, label: QWidget, widget: QWidget, parent: QWidget | None = None):
+        super().__init__(parent=parent)
+
+        self.setObjectName("ExpandGroupWidget")
+        self.setFixedHeight(60)
+
+        label.setParent(self)
+        widget.setParent(self)
+
+        self.hLayout = QHBoxLayout(self)
+        self.hLayout.setContentsMargins(48, 12, 48, 12)
+
+        self.hLayout.addWidget(label)
+        self.hLayout.addStretch(1)
+        self.hLayout.addWidget(widget)
+
+
+class OverrideExpandGroupSettingCard(ExpandGroupSettingCard):
+    def __init__(
+        self,
+        icon: str | QIcon | FluentIcon,
+        title: str,
+        autoTitle: str,
+        autoConfig: ConfigItem,
+        enableTitle: str,
+        enableConfig: ConfigItem,
+        isCustomTitle: str,
+        isCustomConfig: ConfigItem,
+        builtInTitle: str,
+        builtInWidget: QWidget,
+        customTitle: str,
+        customWidget: QWidget,
+        content: str | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(icon, title, content or "", parent)
+
+        self.autoConfig = autoConfig
+        self.enableConfig = enableConfig
+        self.isCustomConfig = isCustomConfig
+
+        self.autoSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.autoSwitch.setChecked(qconfig.get(autoConfig))
+        self.autoSwitch.checkedChanged.connect(self._onAutoSwitchChanged)
+
+        self.autoGroup = ExpandGroupWidget(
+            label=BodyLabel(autoTitle),
+            widget=self.autoSwitch,
+        )
+        self.addGroupWidget(self.autoGroup)
+
+        self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.enableSwitch.setChecked(qconfig.get(enableConfig))
+        self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
+
+        self.isCustomSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.isCustomSwitch.setChecked(qconfig.get(isCustomConfig))
+        self.isCustomSwitch.checkedChanged.connect(self._onIsCustomSwitchChanged)
+
+        self.enableGroup = ExpandGroupWidget(
+            label=BodyLabel(enableTitle),
+            widget=self.enableSwitch,
+        )
+        self.isCustomGroup = ExpandGroupWidget(
+            label=BodyLabel(isCustomTitle),
+            widget=self.isCustomSwitch,
+        )
+        self.builtInGroup = ExpandGroupWidget(
+            label=BodyLabel(builtInTitle),
+            widget=builtInWidget,
+        )
+        self.customGroup = ExpandGroupWidget(
+            label=BodyLabel(customTitle),
+            widget=customWidget,
+        )
+
+        self._onAutoSwitchChanged(qconfig.get(autoConfig))
+
+    def _onAutoSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(self.autoConfig, checked)
+        if checked:
+            self.addGroupWidget(self.enableGroup)
+            self._onEnableSwitchChanged(qconfig.get(self.enableConfig))
+        else:
+            self.removeGroupWidget(self.enableGroup)
+            self.removeGroupWidget(self.isCustomGroup)
+            self.removeGroupWidget(self.builtInGroup)
+            self.removeGroupWidget(self.customGroup)
+
+    def _onEnableSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(self.enableConfig, checked)
+        if checked:
+            self.addGroupWidget(self.isCustomGroup)
+            self._onIsCustomSwitchChanged(qconfig.get(self.isCustomConfig))
+        else:
+            self.removeGroupWidget(self.isCustomGroup)
+            self.removeGroupWidget(self.builtInGroup)
+            self.removeGroupWidget(self.customGroup)
+
+    def _onIsCustomSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(self.isCustomConfig, checked)
+        if checked:
+            self.addGroupWidget(self.customGroup)
+            self.removeGroupWidget(self.builtInGroup)
+        else:
+            self.removeGroupWidget(self.customGroup)
+            self.addGroupWidget(self.builtInGroup)
+
+    @override
+    def _adjustViewSize(self):
+        h = self.viewLayout.sizeHint().height()
+        self.spaceWidget.setFixedHeight(h)
+
+        if self.isExpand:
+            self.setFixedHeight(self.card.height() + h)
+
+
+class EnumStrOverrideExpandGroupSettingCard(OverrideExpandGroupSettingCard):
+    def __init__(
+        self,
+        icon: str | QIcon | FluentIcon,
+        title: str,
+        autoTitle: str,
+        autoConfig: ConfigItem,
+        enableTitle: str,
+        enableConfig: ConfigItem,
+        isCustomTitle: str,
+        isCustomConfig: ConfigItem,
+        builtInTitle: str,
+        builtInConfig: OptionsConfigItem,
+        builtInLabels: Sequence[str],
+        customTitle: str,
+        customConfig: ConfigItem,
+        content: str | None = None,
+        parent: QWidget | None = None,
+    ):
+        options = cast("OptionsValidator", builtInConfig.validator).options
+
+        self.builtInCombo = ComboBox()
+        self.builtInCombo.addItems(builtInLabels)
+        if (index := options.index(qconfig.get(builtInConfig))) >= 0:
+            self.builtInCombo.setCurrentIndex(index)
+        self.builtInCombo.currentIndexChanged.connect(
+            lambda index: qconfig.set(builtInConfig, options[index]),
+        )
+
+        self.customLineEdit = LineEdit()
+        self.customLineEdit.setText(qconfig.get(customConfig))
+        self.customLineEdit.textChanged.connect(
+            lambda text: qconfig.set(customConfig, text),
+        )
+
+        super().__init__(
+            icon,
+            title,
+            autoTitle,
+            autoConfig,
+            enableTitle,
+            enableConfig,
+            isCustomTitle,
+            isCustomConfig,
+            builtInTitle,
+            self.builtInCombo,
+            customTitle,
+            self.customLineEdit,
+            content,
+            parent,
+        )
 
 
 class SettingsPage(QWidget):
@@ -129,7 +312,6 @@ class SettingsPage(QWidget):
             title="设备 ID",
             content="此设备的唯一标识名称",
             configItem=config.deviceKey,
-            parent=self.scrollWidget,
             isReadOnly=True,
         )
         self.deviceSettingGroup.addSettingCard(self.deviceKeyCard)
@@ -139,7 +321,6 @@ class SettingsPage(QWidget):
             title="设备名称",
             content="设置此设备的显示名称（留空使用服务端配置，如为新设备则必须设置）",
             configItem=config.deviceName,
-            parent=self.scrollWidget,
         )
         self.deviceSettingGroup.addSettingCard(self.deviceNameCard)
 
@@ -148,8 +329,43 @@ class SettingsPage(QWidget):
             title="设备描述",
             content="设置此设备的详细描述（留空使用服务端配置）",
             configItem=config.deviceDescription,
-            parent=self.scrollWidget,
         )
         self.deviceSettingGroup.addSettingCard(self.deviceDescriptionCard)
+
+        self.deviceTypeOverrideCard = EnumStrOverrideExpandGroupSettingCard(
+            icon=FluentIcon.LIBRARY,
+            title="设备类型",
+            content="自定义此设备的显示类型",
+            autoTitle="自动检测并上报",
+            autoConfig=config.deviceEnableTypeDetect,
+            enableTitle="手动配置而不使用服务端配置",
+            enableConfig=config.deviceEnableTypeOverride,
+            isCustomTitle="使用自定义类型而不是内置选项",
+            isCustomConfig=config.deviceIsCustomTypeOverride,
+            builtInTitle="选择设备类型",
+            builtInConfig=config.deviceBuiltInTypeOverride,
+            builtInLabels=["台式", "笔记本", "手机", "平板", "手表", "其他"],
+            customTitle="输入设备类型",
+            customConfig=config.deviceCustomTypeOverride,
+        )
+        self.deviceSettingGroup.addSettingCard(self.deviceTypeOverrideCard)
+
+        self.deviceOSOverrideCard = EnumStrOverrideExpandGroupSettingCard(
+            icon=FluentIcon.LIBRARY,
+            title="设备操作系统",
+            content="自定义此设备显示的操作系统类型",
+            autoTitle="自动检测并上报",
+            autoConfig=config.deviceEnableOSDetect,
+            enableTitle="手动配置而不使用服务端配置",
+            enableConfig=config.deviceEnableOSOverride,
+            isCustomTitle="使用自定义操作系统而不是内置选项",
+            isCustomConfig=config.deviceIsCustomOSOverride,
+            builtInTitle="选择操作系统",
+            builtInConfig=config.deviceBuiltInOSOverride,
+            builtInLabels=["Windows", "macOS", "Linux", "Android", "iOS", "其他"],
+            customTitle="输入操作系统名称",
+            customConfig=config.deviceCustomOSOverride,
+        )
+        self.deviceSettingGroup.addSettingCard(self.deviceOSOverrideCard)
 
         self.scrollContentLayout.addWidget(self.deviceSettingGroup)

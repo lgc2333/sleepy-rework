@@ -1,5 +1,6 @@
 export enum DeviceType {
   PC = 'pc',
+  LAPTOP = 'laptop',
   PHONE = 'phone',
   TABLET = 'tablet',
   SMARTWATCH = 'smartwatch',
@@ -7,11 +8,12 @@ export enum DeviceType {
 }
 
 export enum DeviceOS {
-  WINDOWS = 'windows',
-  MACOS = 'macos',
-  LINUX = 'linux',
-  ANDROID = 'android',
-  IOS = 'ios',
+  WINDOWS = 'Windows',
+  MACOS = 'MacOS',
+  LINUX = 'Linux',
+  ANDROID = 'Android',
+  IOS = 'iOS',
+  WEAR_OS = 'Wear OS',
   UNKNOWN = 'unknown',
 }
 

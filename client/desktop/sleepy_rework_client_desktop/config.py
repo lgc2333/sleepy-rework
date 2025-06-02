@@ -17,6 +17,8 @@ from qfluentwidgets import (
 )
 from qframelesswindow.utils import getSystemAccentColor
 
+from sleepy_rework_types import DeviceOS, DeviceType
+
 configDir = user_config_dir("SleepyRework", roaming=True)
 configFilePath = configDir / "config.json"
 print(f"Config path: {configFilePath}")
@@ -84,6 +86,68 @@ class Config(QConfig):
         "device",
         "description",
         "",
+        validator=StringValidator(),
+    )
+
+    deviceEnableTypeDetect = ConfigItem(
+        "device",
+        "enableTypeDetect",
+        default=True,
+        validator=BoolValidator(),
+    )
+    deviceEnableTypeOverride = ConfigItem(
+        "device",
+        "enableTypeOverride",
+        default=False,
+        validator=BoolValidator(),
+    )
+    deviceIsCustomTypeOverride = ConfigItem(
+        "device",
+        "isCustomTypeOverride",
+        default=False,
+        validator=BoolValidator(),
+    )
+    deviceBuiltInTypeOverride = OptionsConfigItem(
+        "device",
+        "builtInTypeOverride",
+        DeviceType.PC,
+        validator=OptionsValidator(DeviceType),
+    )
+    deviceCustomTypeOverride = ConfigItem(
+        "device",
+        "customTypeOverride",
+        "unknown",
+        validator=StringValidator(),
+    )
+
+    deviceEnableOSDetect = ConfigItem(
+        "device",
+        "enableOSDetect",
+        default=True,
+        validator=BoolValidator(),
+    )
+    deviceEnableOSOverride = ConfigItem(
+        "device",
+        "enableOSOverride",
+        default=False,
+        validator=BoolValidator(),
+    )
+    deviceIsCustomOSOverride = ConfigItem(
+        "device",
+        "isCustomOSOverride",
+        default=False,
+        validator=BoolValidator(),
+    )
+    deviceBuiltInOSOverride = OptionsConfigItem(
+        "device",
+        "builtInOSOverride",
+        DeviceOS.UNKNOWN,
+        validator=OptionsValidator(DeviceOS.UNKNOWN),
+    )
+    deviceCustomOSOverride = ConfigItem(
+        "device",
+        "customOSOverride",
+        "unknown",
         validator=StringValidator(),
     )
 

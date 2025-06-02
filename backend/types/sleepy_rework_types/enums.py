@@ -3,6 +3,7 @@ from enum import StrEnum, auto
 
 class DeviceType(StrEnum):
     PC = auto()
+    LAPTOP = auto()
     PHONE = auto()
     TABLET = auto()
     SMARTWATCH = auto()
@@ -10,11 +11,11 @@ class DeviceType(StrEnum):
 
 
 class DeviceOS(StrEnum):
-    WINDOWS = auto()
-    MACOS = auto()
-    LINUX = auto()
-    ANDROID = auto()
-    IOS = auto()
+    WINDOWS = "Windows"
+    MACOS = "MacOS"
+    LINUX = "Linux"
+    ANDROID = "Android"
+    IOS = "iOS"
     UNKNOWN = auto()
 
 

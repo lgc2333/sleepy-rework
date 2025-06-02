@@ -26,9 +26,9 @@ class AbstractLineEditSettingCard(SettingCard):
         title: str,
         content: str | None = None,
         configItem: ConfigItem | None = None,
-        parent: QWidget | None = None,
         isReadOnly: bool = False,
         placeHolderText: str | None = None,
+        parent: QWidget | None = None,
     ):
         super().__init__(icon, title, content, parent)
         self.configItem = configItem

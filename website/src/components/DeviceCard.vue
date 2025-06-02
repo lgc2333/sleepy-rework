@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-import { OnlineStatus } from '../types'
+import { DeviceOS, DeviceType, OnlineStatus } from '../types'
 import type { DeviceInfo } from '../types'
 
 const { info } = defineProps<{ info: DeviceInfo }>()
@@ -10,13 +10,15 @@ const { info } = defineProps<{ info: DeviceInfo }>()
 const deviceIcon = computed(() => {
   if (info.device_type) {
     switch (info.device_type) {
-      case 'pc':
+      case DeviceType.PC:
+        return 'bi:pc-display'
+      case DeviceType.LAPTOP:
         return 'carbon:laptop'
-      case 'phone':
+      case DeviceType.PHONE:
         return 'carbon:mobile'
-      case 'tablet':
+      case DeviceType.TABLET:
         return 'carbon:tablet'
-      case 'smartwatch':
+      case DeviceType.SMARTWATCH:
         return 'carbon:watch'
     }
   }
@@ -26,33 +28,19 @@ const deviceIcon = computed(() => {
 const osIcon = computed(() => {
   if (info.device_os) {
     switch (info.device_os) {
-      case 'windows':
+      case DeviceOS.WINDOWS:
         return 'mage:microsoft-windows'
-      case 'macos':
-      case 'ios':
+      case DeviceOS.MACOS:
+      case DeviceOS.IOS:
         return 'mage:apple'
-      case 'linux':
-        return 'codicon:terminal-linux'
-      case 'android':
+      case DeviceOS.ANDROID:
         return 'cib:android'
     }
+    if (info.device_os.endsWith('Linux')) {
+      return 'cib:linux'
+    }
   }
-  return null
-})
-
-const osName = computed(() => {
-  if (!info.device_os) return null
-  const os = info.device_os
-  switch (os) {
-    case 'macos':
-      return 'macOS'
-    case 'ios':
-      return 'iOS'
-  }
-  return os
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  return 'icon-park-solid:coordinate-system'
 })
 
 const statusName = computed(() => {
@@ -155,9 +143,13 @@ onBeforeUnmount(() => {
         </div>
 
         <div flex="~ items-center justify-end gap-2" text-light text-sm my="1">
-          <div v-if="osIcon" flex="~ items-center gap-1" title="操作系统">
+          <div
+            v-if="info.device_os !== DeviceOS.UNKNOWN"
+            flex="~ items-center gap-1"
+            title="操作系统"
+          >
             <Icon :icon="osIcon" />
-            <span>{{ osName }}</span>
+            <span>{{ info.device_os }}</span>
           </div>
 
           <div v-if="info.online" flex="~ items-center gap-1">
