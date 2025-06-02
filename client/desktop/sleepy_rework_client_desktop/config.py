@@ -13,6 +13,7 @@ from qfluentwidgets import (
     QConfig,
     Theme,
     qconfig,
+    setTheme,
 )
 from qframelesswindow.utils import getSystemAccentColor
 
@@ -87,14 +88,18 @@ class Config(QConfig):
     )
 
 
+def _theme_config_changed(theme: Theme):
+    qconfig.set(qconfig.themeMode, theme)
+    setTheme(theme)
+
+
+Config.app_theme_mode.valueChanged.connect(_theme_config_changed)
+
+
 config = Config()
 qconfig.load(config_file_path, config)
 
-qconfig.set(
-    config.themeMode,
-    config.app_theme_mode.value,
-    save=False,
-)
+_theme_config_changed(qconfig.get(config.app_theme_mode))
 qconfig.set(
     config.themeColor,
     (

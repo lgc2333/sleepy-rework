@@ -1,9 +1,8 @@
 # ruff: noqa: N802, N803, N815
 
 from PyQt5.QtCore import Qt, QTextStream, pyqtSignal
-from PyQt5.QtGui import QWindow
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QWidget
 
 
 # https://stackoverflow.com/a/79574637
@@ -13,7 +12,7 @@ class QtSingleApplication(QApplication):
     def __init__(self, uid: str, *argv):
         super().__init__(*argv)
         self._uid = uid
-        self._activationWindow: QWindow | None = None
+        self._activationWindow: QWidget | None = None
         self._activateOnMessage: bool = False
 
         # Is there another instance running?
@@ -46,7 +45,7 @@ class QtSingleApplication(QApplication):
 
     def setActivationWindow(
         self,
-        activationWindow: QWindow,
+        activationWindow: QWidget,
         activateOnMessage: bool = True,
     ):
         self._activationWindow = activationWindow
