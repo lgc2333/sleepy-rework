@@ -1,9 +1,10 @@
 import sys
-from pathlib import Path
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
+
+from .assets import ICON_PATH
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -11,17 +12,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         super().__init__(parent)
         self.parent_ = parent
 
-        icon_path = Path(__file__).parent / "assets" / "icon.png"
-        self.setIcon(QIcon(str(icon_path)))
+        self.setIcon(QIcon(str(ICON_PATH)))
         self.setToolTip("Sleepy Rework")
 
-        self.create_menu()
+        self.createMenu()
+        self.activated.connect(self._onTrayActivated)
 
         self.show()
 
-        self.activated.connect(self.on_tray_activated)
-
-    def create_menu(self):
+    def createMenu(self):
         from qfluentwidgets import FluentIcon, SystemTrayMenu
 
         self.menu = SystemTrayMenu("Sleepy Rework", parent=self.parent_)
@@ -43,6 +42,6 @@ class SystemTrayIcon(QSystemTrayIcon):
     def quit_application(self):
         sys.exit(0)
 
-    def on_tray_activated(self, reason: QSystemTrayIcon.ActivationReason):
+    def _onTrayActivated(self, reason: QSystemTrayIcon.ActivationReason):
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self.show_main_window()

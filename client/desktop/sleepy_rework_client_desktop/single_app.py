@@ -1,5 +1,3 @@
-# ruff: noqa: N802, N803, N815
-
 from PyQt5.QtCore import Qt, QTextStream, pyqtSignal
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 from PyQt5.QtWidgets import QApplication, QWidget

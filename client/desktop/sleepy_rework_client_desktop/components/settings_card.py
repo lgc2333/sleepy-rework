@@ -1,15 +1,24 @@
-# ruff: noqa: N802, N803, N815
-
+from abc import abstractmethod
 from typing import override
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QLineEdit, QWidget
-from qfluentwidgets import ConfigItem, FluentIconBase, LineEdit, SettingCard, qconfig
+from PyQt5.QtWidgets import QWidget
+from qfluentwidgets import (
+    ConfigItem,
+    FluentIconBase,
+    LineEdit,
+    PasswordLineEdit,
+    SettingCard,
+    qconfig,
+)
 
 
-class LineEditSettingCard(SettingCard):
-    text_changed = pyqtSignal(str)
+class AbstractLineEditSettingCard(SettingCard):
+    textChanged = pyqtSignal(str)
+
+    @abstractmethod
+    def makeLineEdit(self) -> LineEdit: ...
 
     def __init__(
         self,
@@ -20,30 +29,27 @@ class LineEditSettingCard(SettingCard):
         parent: QWidget | None = None,
         isReadOnly: bool = False,
         placeHolderText: str | None = None,
-        echoMode: QLineEdit.EchoMode = QLineEdit.EchoMode.Normal,
     ):
         super().__init__(icon, title, content, parent)
         self.configItem = configItem
 
-        self.lineEdit = LineEdit(self)
+        self.lineEdit = self.makeLineEdit()
         self.lineEdit.setMinimumWidth(200)
         self.lineEdit.setReadOnly(isReadOnly)
         self.lineEdit.setPlaceholderText(placeHolderText)
-        self.lineEdit.setEchoMode(echoMode)
+        self.lineEdit.textChanged.connect(self._onTextChanged)
 
         if configItem:
             self.setValue(qconfig.get(configItem))
             configItem.valueChanged.connect(self.setValue)
 
-        self.lineEdit.textChanged.connect(self.__on_text_changed)
-
         self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def __on_text_changed(self, text: str):
+    def _onTextChanged(self, text: str):
         if self.configItem:
             qconfig.set(self.configItem, text)
-        self.text_changed.emit(text)
+        self.textChanged.emit(text)
 
     @override
     def setValue(self, value: str):
@@ -53,3 +59,15 @@ class LineEditSettingCard(SettingCard):
 
     def text(self) -> str:
         return self.lineEdit.text()
+
+
+class LineEditSettingCard(AbstractLineEditSettingCard):
+    @override
+    def makeLineEdit(self) -> LineEdit:
+        return LineEdit(parent=self)
+
+
+class PasswordLineEditSettingCard(AbstractLineEditSettingCard):
+    @override
+    def makeLineEdit(self) -> LineEdit:
+        return PasswordLineEdit(parent=self)

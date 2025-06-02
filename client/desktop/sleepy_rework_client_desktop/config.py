@@ -17,9 +17,9 @@ from qfluentwidgets import (
 )
 from qframelesswindow.utils import getSystemAccentColor
 
-config_dir = user_config_dir("SleepyRework", roaming=True)
-config_file_path = config_dir / "config.json"
-print(f"Config path: {config_file_path}")
+configDir = user_config_dir("SleepyRework", roaming=True)
+configFilePath = configDir / "config.json"
+print(f"Config path: {configFilePath}")
 
 
 class StringValidator(ConfigValidator):
@@ -29,58 +29,58 @@ class StringValidator(ConfigValidator):
 
 
 class Config(QConfig):
-    server_enable_send_status = ConfigItem(
+    serverEnableSendStatus = ConfigItem(
         "server",
-        "enable_send_status",
+        "enableSendStatus",
         default=False,
         validator=BoolValidator(),
     )
-    server_url = ConfigItem(
+    serverUrl = ConfigItem(
         "server",
         "url",
         "127.0.0.1:29306",
         validator=StringValidator(),
     )
-    server_secret = ConfigItem(
+    serverSecret = ConfigItem(
         "server",
         "secret",
         "sleepy",
         validator=StringValidator(),
     )
 
-    app_auto_start = ConfigItem(
+    appAutoStart = ConfigItem(
         "app",
-        "auto_start",
+        "autoStart",
         default=False,
         validator=BoolValidator(),
     )
-    app_start_minimized = ConfigItem(
+    appStartMinimized = ConfigItem(
         "app",
-        "start_minimized",
+        "startMinimized",
         default=False,
         validator=BoolValidator(),
     )
-    app_theme_mode = OptionsConfigItem(
+    appThemeMode = OptionsConfigItem(
         "app",
-        "theme_mode",
+        "themeMode",
         Theme.AUTO,
         OptionsValidator(Theme),
         EnumSerializer(Theme),
     )
 
-    device_key = ConfigItem(
+    deviceKey = ConfigItem(
         "device",
         "key",
         "",
         validator=StringValidator(),
     )
-    device_name = ConfigItem(
+    deviceName = ConfigItem(
         "device",
         "name",
         "Desktop Device",
         validator=StringValidator(),
     )
-    device_description = ConfigItem(
+    deviceDescription = ConfigItem(
         "device",
         "description",
         "",
@@ -88,18 +88,18 @@ class Config(QConfig):
     )
 
 
-def _theme_config_changed(theme: Theme):
+def _themeConfigChanged(theme: Theme):
     qconfig.set(qconfig.themeMode, theme)
     setTheme(theme)
 
 
-Config.app_theme_mode.valueChanged.connect(_theme_config_changed)
+Config.appThemeMode.valueChanged.connect(_themeConfigChanged)
 
 
 config = Config()
-qconfig.load(config_file_path, config)
+qconfig.load(configFilePath, config)
 
-_theme_config_changed(qconfig.get(config.app_theme_mode))
+_themeConfigChanged(qconfig.get(config.appThemeMode))
 qconfig.set(
     config.themeColor,
     (
@@ -110,11 +110,11 @@ qconfig.set(
     save=False,
 )
 
-if not config.device_key.value:
+if not config.deviceKey.value:
     import random
     import string
 
     qconfig.set(
-        config.device_key,
+        config.deviceKey,
         "".join(random.sample(string.ascii_letters + string.digits, 8)),
     )

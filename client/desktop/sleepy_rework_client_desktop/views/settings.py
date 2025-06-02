@@ -1,145 +1,155 @@
 from typing import ClassVar
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLineEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     FluentIcon,
     OptionsSettingCard,
+    SettingCardGroup,
     SmoothScrollArea,
-    SubtitleLabel,
     SwitchSettingCard,
 )
 
-from ..components import LineEditSettingCard
+from ..components import LineEditSettingCard, PasswordLineEditSettingCard
 from ..config import config
 
 
 class SettingsPage(QWidget):
-    route_key: ClassVar[str] = "settings"
+    routeKey: ClassVar[str] = "settings"
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent=parent)
-        self.setObjectName(self.route_key)
+        self.setObjectName(self.routeKey)
 
-        self.init_ui()
+        self.setupUI()
 
-    def init_ui(self) -> None:
-        self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+    def setupUI(self) -> None:
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(0)
 
-        self.scroll_area = SmoothScrollArea(self)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setStyleSheet(
+        self.scrollArea = SmoothScrollArea(self)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setStyleSheet(
             "background-color: transparent; border: none;",
         )
 
-        self.scroll_widget = QWidget()
-        self.scroll_content_layout = QVBoxLayout(self.scroll_widget)
-        self.scroll_content_layout.setContentsMargins(8, 8, 8, 8)
-        self.scroll_content_layout.setSpacing(8)
-        self.scroll_content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.scrollWidget = QWidget()
+        self.scrollContentLayout = QVBoxLayout(self.scrollWidget)
+        self.scrollContentLayout.setContentsMargins(8, 8, 8, 8)
+        self.scrollContentLayout.setSpacing(8)
+        self.scrollContentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.scroll_area.setWidget(self.scroll_widget)
-        self.main_layout.addWidget(self.scroll_area)
+        self.scrollArea.setWidget(self.scrollWidget)
+        self.mainLayout.addWidget(self.scrollArea)
 
-        self.create_server_settings()
-        self.create_app_settings()
-        self.create_device_settings()
+        self.createServerSettings()
+        self.createAppSettings()
+        self.createDeviceSettings()
 
-    def create_server_settings(self) -> None:
-        self.server_title_label = SubtitleLabel("服务器设置", parent=self.scroll_widget)
-        self.scroll_content_layout.addWidget(self.server_title_label)
+    def createServerSettings(self) -> None:
+        self.serverSettingGroup = SettingCardGroup(
+            "服务器设置",
+            parent=self.scrollWidget,
+        )
 
-        self.server_enable_send_status_card = SwitchSettingCard(
+        self.serverEnableSendStatusCard = SwitchSettingCard(
             icon=FluentIcon.SEND,
             title="启用状态发送",
             content="是否向服务器发送设备状态信息",
-            configItem=config.server_enable_send_status,
-            parent=self.scroll_widget,
+            configItem=config.serverEnableSendStatus,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.server_enable_send_status_card)
+        self.serverSettingGroup.addSettingCard(self.serverEnableSendStatusCard)
 
-        self.server_url_card = LineEditSettingCard(
+        self.serverUrlCard = LineEditSettingCard(
             icon=FluentIcon.LINK,
             title="服务器地址",
             content="设置连接的服务器地址",
-            configItem=config.server_url,
-            parent=self.scroll_widget,
+            configItem=config.serverUrl,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.server_url_card)
+        self.serverSettingGroup.addSettingCard(self.serverUrlCard)
 
-        self.server_secret_card = LineEditSettingCard(
+        self.serverSecretCard = PasswordLineEditSettingCard(
             icon=FluentIcon.CERTIFICATE,
             title="服务器密钥",
             content="设置连接服务器所需的密钥",
-            configItem=config.server_secret,
-            parent=self.scroll_widget,
-            echoMode=QLineEdit.EchoMode.Password,
+            configItem=config.serverSecret,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.server_secret_card)
+        self.serverSettingGroup.addSettingCard(self.serverSecretCard)
 
-    def create_app_settings(self) -> None:
-        self.app_title_label = SubtitleLabel("应用设置", parent=self.scroll_widget)
-        self.scroll_content_layout.addWidget(self.app_title_label)
+        self.scrollContentLayout.addWidget(self.serverSettingGroup)
 
-        self.app_auto_start_card = SwitchSettingCard(
+    def createAppSettings(self) -> None:
+        self.appSettingGroup = SettingCardGroup(
+            "应用设置",
+            parent=self.scrollWidget,
+        )
+
+        self.appAutoStartCard = SwitchSettingCard(
             icon=FluentIcon.POWER_BUTTON,
             title="开机自启动",
             content="是否在系统启动时自动启动应用",
-            configItem=config.app_auto_start,
-            parent=self.scroll_widget,
+            configItem=config.appAutoStart,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.app_auto_start_card)
+        self.appSettingGroup.addSettingCard(self.appAutoStartCard)
 
-        self.app_start_minimized_card = SwitchSettingCard(
+        self.appStartMinimizedCard = SwitchSettingCard(
             icon=FluentIcon.MINIMIZE,
             title="启动时最小化",
             content="是否在启动时自动最小化到系统托盘",
-            configItem=config.app_start_minimized,
-            parent=self.scroll_widget,
+            configItem=config.appStartMinimized,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.app_start_minimized_card)
+        self.appSettingGroup.addSettingCard(self.appStartMinimizedCard)
 
-        self.app_theme_card = OptionsSettingCard(
-            config.app_theme_mode,
+        self.appThemeCard = OptionsSettingCard(
+            config.appThemeMode,
             FluentIcon.BRUSH,
             "应用主题",
-            # "调整你的应用外观（重启后生效）",
             "调整你的应用外观",
             texts=["浅色", "深色", "跟随系统设置"],
-            parent=self.scroll_widget,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.app_theme_card)
+        self.appSettingGroup.addSettingCard(self.appThemeCard)
 
-    def create_device_settings(self) -> None:
-        self.device_title_label = SubtitleLabel("设备设置", parent=self.scroll_widget)
-        self.scroll_content_layout.addWidget(self.device_title_label)
+        self.scrollContentLayout.addWidget(self.appSettingGroup)
 
-        self.device_key_card = LineEditSettingCard(
+    def createDeviceSettings(self) -> None:
+        self.deviceSettingGroup = SettingCardGroup(
+            "设备设置",
+            parent=self.scrollWidget,
+        )
+
+        self.deviceKeyCard = LineEditSettingCard(
             icon=FluentIcon.TAG,
             title="设备 ID",
             content="此设备的唯一标识名称",
-            configItem=config.device_key,
-            parent=self.scroll_widget,
+            configItem=config.deviceKey,
+            parent=self.scrollWidget,
             isReadOnly=True,
         )
-        self.scroll_content_layout.addWidget(self.device_key_card)
+        self.deviceSettingGroup.addSettingCard(self.deviceKeyCard)
 
-        self.device_name_card = LineEditSettingCard(
+        self.deviceNameCard = LineEditSettingCard(
             icon=FluentIcon.PEOPLE,
             title="设备名称",
             content="设置此设备的显示名称（留空使用服务端配置，如为新设备则必须设置）",
-            configItem=config.device_name,
-            parent=self.scroll_widget,
+            configItem=config.deviceName,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.device_name_card)
+        self.deviceSettingGroup.addSettingCard(self.deviceNameCard)
 
-        self.device_description_card = LineEditSettingCard(
+        self.deviceDescriptionCard = LineEditSettingCard(
             icon=FluentIcon.EDIT,
             title="设备描述",
             content="设置此设备的详细描述（留空使用服务端配置）",
-            configItem=config.device_description,
-            parent=self.scroll_widget,
+            configItem=config.deviceDescription,
+            parent=self.scrollWidget,
         )
-        self.scroll_content_layout.addWidget(self.device_description_card)
+        self.deviceSettingGroup.addSettingCard(self.deviceDescriptionCard)
+
+        self.scrollContentLayout.addWidget(self.deviceSettingGroup)

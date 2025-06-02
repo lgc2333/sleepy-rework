@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 from typing import override
 
 from PyQt5.QtCore import QSize, Qt
@@ -7,6 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import MSFluentWindow, SplashScreen
 
+from .assets import ICON_PATH
 from .config import config  # noqa: F401
 from .single_app import QtSingleApplication
 
@@ -17,52 +17,51 @@ class MainWindow(MSFluentWindow):
         self.setWindowTitle("Sleepy Rework")
         self.resize(900, 650)
 
-        icon_path = Path(__file__).parent / "assets" / "icon.png"
-        self.setWindowIcon(QIcon(str(icon_path)))
+        self.setWindowIcon(QIcon(str(ICON_PATH)))
 
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(128, 128))
         self.show()
 
-        self.init_tray_icon()
-        self.init_ui()
+        self.setupTrayIcon()
+        self.setupUI()
 
         self.splashScreen.finish()
 
-    def init_tray_icon(self):
+    def setupTrayIcon(self):
         from .tray import SystemTrayIcon
 
-        self.tray_icon = SystemTrayIcon(self)
-        self.tray_icon.show()
+        self.trayIcon = SystemTrayIcon(self)
+        self.trayIcon.show()
 
-    def init_ui(self):
+    def setupUI(self):
         from qfluentwidgets import FluentIcon
 
         from .views import HomePage, SettingsPage
 
-        self.home_page = HomePage()
+        self.homePage = HomePage()
         self.addSubInterface(
-            self.home_page,
+            self.homePage,
             FluentIcon.HOME,
             "主页",
             FluentIcon.HOME_FILL,
         )
 
-        self.settings_page = SettingsPage()
+        self.settingsPage = SettingsPage()
         self.addSubInterface(
-            self.settings_page,
+            self.settingsPage,
             FluentIcon.SETTING,
             "设置",
         )
 
-        self.navigationInterface.setCurrentItem(self.home_page.route_key)
+        self.navigationInterface.setCurrentItem(self.homePage.routeKey)
 
     @override
     def closeEvent(self, a0: QCloseEvent | None):  # noqa: N802
         if not a0:
             return
 
-        if self.tray_icon.isVisible():
+        if self.trayIcon.isVisible():
             self.hide()
             a0.ignore()
         else:
