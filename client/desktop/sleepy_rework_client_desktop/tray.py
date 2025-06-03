@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
 
 from .assets import ICON_PATH
+from .utils.common import APP_NAME
 
 
 class SystemTrayIcon(QSystemTrayIcon):
@@ -13,7 +14,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent_ = parent
 
         self.setIcon(QIcon(str(ICON_PATH)))
-        self.setToolTip("Sleepy Rework")
+        self.setToolTip(APP_NAME)
 
         self.createMenu()
         self.activated.connect(self._onTrayActivated)
@@ -23,7 +24,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def createMenu(self):
         from qfluentwidgets import FluentIcon, SystemTrayMenu
 
-        self.menu = SystemTrayMenu("Sleepy Rework", parent=self.parent_)
+        self.menu = SystemTrayMenu(APP_NAME, parent=self.parent_)
         show_action = Action("显示窗口", self)
         show_action.setIcon(FluentIcon.LINK)
         show_action.triggered.connect(self.show_main_window)

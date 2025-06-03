@@ -10,13 +10,13 @@ from .assets import ICON_PATH
 from .config import config
 from .single_app import QtSingleApplication
 from .utils.auto_start import AutoStartManager
-from .utils.common import AUTO_START_OPT
+from .utils.common import APP_NAME, AUTO_START_OPT
 
 
 class MainWindow(MSFluentWindow):
     def __init__(self, show: bool = True):
         super().__init__()
-        self.setWindowTitle("Sleepy Rework")
+        self.setWindowTitle(APP_NAME)
         self.resize(900, 650)
 
         self.setWindowIcon(QIcon(str(ICON_PATH)))
