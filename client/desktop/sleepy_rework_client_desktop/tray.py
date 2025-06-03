@@ -4,16 +4,15 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
 
-from .assets import ICON_PATH
 from .utils.common import APP_NAME
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: QWidget, icon: QIcon):
         super().__init__(parent)
         self.parent_ = parent
 
-        self.setIcon(QIcon(str(ICON_PATH)))
+        self.setIcon(icon)
         self.setToolTip(APP_NAME)
 
         self.createMenu()

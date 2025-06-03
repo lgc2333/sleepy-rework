@@ -243,7 +243,9 @@ class SyncHttpApiClient(BaseHttpApiClient, SyncHttpApi):
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        return self.get_client().__exit__(exc_type, exc_value, traceback)
+        cli = self.get_client()
+        self._client = None
+        return cli.__exit__(exc_type, exc_value, traceback)
 
     @override
     def request(
@@ -257,12 +259,7 @@ class SyncHttpApiClient(BaseHttpApiClient, SyncHttpApi):
         try:
             resp = (
                 self.get_client()
-                .request(
-                    method,
-                    endpoint,
-                    params=query_params,
-                    json=body,
-                )
+                .request(method, endpoint, params=query_params, json=body)
                 .raise_for_status()
             )
         except HTTPStatusError as e:
@@ -296,7 +293,9 @@ class AsyncHttpApiClient(BaseHttpApiClient, AsyncHttpApi):
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        return await self.get_client().__aexit__(exc_type, exc_value, traceback)
+        cli = self.get_client()
+        self._client = None
+        return await cli.__aexit__(exc_type, exc_value, traceback)
 
     @override
     async def request(

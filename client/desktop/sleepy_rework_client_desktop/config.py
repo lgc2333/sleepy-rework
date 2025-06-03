@@ -1,5 +1,5 @@
 import sys
-from typing import Any, override
+from typing import Any, cast, override
 
 from nonestorage import user_config_dir
 from PyQt5.QtGui import QColor
@@ -14,6 +14,7 @@ from qfluentwidgets import (
     Theme,
     qconfig,
     setTheme,
+    setThemeColor,
 )
 from qframelesswindow.utils import getSystemAccentColor
 
@@ -152,27 +153,28 @@ class Config(QConfig):
     )
 
 
-def _themeConfigChanged(theme: Theme):
-    qconfig.set(qconfig.themeMode, theme)
-    setTheme(theme)
+def reApplyThemeMode(theme: Theme | None = None):
+    if theme is None:
+        theme = cast("Theme", qconfig.get(config.appThemeMode))
+    setTheme(theme, save=True, lazy=True)
 
 
-Config.appThemeMode.valueChanged.connect(_themeConfigChanged)
+def reApplyThemeColor():
+    color = (
+        getSystemAccentColor()
+        if sys.platform in ["win32", "darwin"]
+        else QColor("#f2a62a")
+    )
+    setThemeColor(color, save=True, lazy=True)
 
+
+Config.appThemeMode.valueChanged.connect(reApplyThemeMode)
 
 config = Config()
 qconfig.load(configFilePath, config)
 
-_themeConfigChanged(qconfig.get(config.appThemeMode))
-qconfig.set(
-    config.themeColor,
-    (
-        getSystemAccentColor()
-        if sys.platform in ["win32", "darwin"]
-        else QColor("#f2a62a")
-    ),
-    save=False,
-)
+reApplyThemeMode()
+reApplyThemeColor()
 
 if not config.deviceKey.value:
     import random
