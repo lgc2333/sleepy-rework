@@ -1,3 +1,6 @@
+# ruff: noqa: F403
+
+from .api import *
 from .config import (
     AppConfig as AppConfig,
     Config as Config,
@@ -21,3 +24,5 @@ from .models import (
     Info as Info,
     OpSuccess as OpSuccess,
 )
+
+__version__ = "0.1.0"

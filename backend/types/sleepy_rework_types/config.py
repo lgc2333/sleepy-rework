@@ -27,7 +27,7 @@ class AppConfig(BaseModel):
     proxy_headers: bool = True
     server_header: bool = True
     date_header: bool = True
-    forwarded_allow_ips: list[str] | str | None = None
+    forwarded_allow_ips: list[str] | str | None = "*"
     root_path: str = ""
     limit_concurrency: int | None = None
     backlog: int = 2048

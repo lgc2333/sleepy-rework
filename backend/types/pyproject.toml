@@ -1,11 +1,14 @@
 [project]
 name = "sleepy-rework-types"
-version = "0.1.0"
+dynamic = ["version"]
 requires-python = ">=3.12"
-dependencies = ["pydantic>=2.11.5"]
+dependencies = ["httpx>=0.28.1", "pydantic>=2.11.5"]
 
 [project.optional-dependencies]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "sleepy_rework_types/__init__.py"
