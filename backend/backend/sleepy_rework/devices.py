@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from typing import Any, Self
 
 from fastapi import WebSocket, WebSocketDisconnect
-from pydantic import ValidationError
 
 from sleepy_rework_types import (
     DeviceConfig,
@@ -166,12 +165,10 @@ class DeviceManager:
             return OnlineStatus.ONLINE
         return OnlineStatus.OFFLINE
 
-    def add(self, key: str, cfg: DeviceConfig) -> Device | None:
-        with suppress(ValidationError):
-            device = Device.new(key, cfg, update_handlers=[self.update_handler])
-            self.devices[key] = device
-            return device
-        return None
+    def add(self, key: str, cfg: DeviceConfig) -> Device:
+        device = Device.new(key, cfg, update_handlers=[self.update_handler])
+        self.devices[key] = device
+        return device
 
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)

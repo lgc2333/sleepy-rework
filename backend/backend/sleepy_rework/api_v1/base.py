@@ -132,15 +132,12 @@ async def add_device_http(
     device_key: str,
     info: DeviceInfoFromClient | None = None,
 ) -> Device:
-    device = None
-    if info:
-        device = device_manager.add(device_key, info)
-    if not device:
+    if not info:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="New device should provide essential info",
+            detail="New device should provide info",
         )
-    return device
+    return device_manager.add(device_key, info)
 
 
 @router.get(
@@ -230,7 +227,7 @@ async def update_device_info_http(
         201: {"model": OpSuccess},
         400: {
             "model": ErrDetail,
-            "description": "新设备缺少必要参数",
+            "description": "新设备缺少设备初始配置",
         },
         404: {
             "model": ErrDetail,
@@ -331,7 +328,7 @@ async def _(
         201: {"model": OpSuccess},
         400: {
             "model": ErrDetail,
-            "description": "新设备缺少必要参数",
+            "description": "新设备缺少设备初始配置",
         },
         404: {
             "model": ErrDetail,
