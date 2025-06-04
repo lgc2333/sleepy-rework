@@ -72,12 +72,6 @@ class FrontendStatusConfig(BaseModel):
     color: str
 
 
-class FrontendStatusConfigOptional(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    color: str | None = None
-
-
 class FrontendConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
 

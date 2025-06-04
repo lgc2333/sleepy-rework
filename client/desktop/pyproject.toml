@@ -12,6 +12,7 @@ dependencies = [
     "pylnk3>=0.4.3; sys_platform == 'win32'",
     "httpx[http2,socks]>=0.28.1",
     "qasync>=0.27.1",
+    "websockets>=15.0.1",
 ]
 
 [build-system]

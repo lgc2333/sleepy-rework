@@ -9,7 +9,12 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-from sleepy_rework_types import Config as BaseConfig, FrontendStatusConfig, OnlineStatus
+from sleepy_rework_types import (
+    Config as BaseConfig,
+    FrontendConfig,
+    FrontendStatusConfig,
+    OnlineStatus,
+)
 
 DEFAULT_FRONTEND_STATUSES = {
     OnlineStatus.ONLINE: FrontendStatusConfig(
@@ -32,6 +37,15 @@ DEFAULT_FRONTEND_STATUSES = {
         description="好像没有配置任何设备呢……",
         color="var(--color-unknown)",
     ),
+}
+
+FrontendConfig.model_config["json_schema_extra"] = {
+    "examples": [
+        FrontendConfig(
+            username="LgCookie",
+            statuses=DEFAULT_FRONTEND_STATUSES,
+        ).model_dump(),
+    ],
 }
 
 

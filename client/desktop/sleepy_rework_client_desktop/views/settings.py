@@ -2,8 +2,9 @@ from abc import abstractmethod
 from collections.abc import Sequence
 from typing import ClassVar, cast, override
 
+from cookit import copy_func_annotations
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QFocusEvent, QIcon
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
@@ -14,6 +15,7 @@ from qfluentwidgets import (
     FluentIconBase,
     IndicatorPosition,
     InfoBar,
+    InfoBarIcon,
     InfoBarPosition,
     LineEdit,
     OptionsConfigItem,
@@ -25,6 +27,8 @@ from qfluentwidgets import (
     SmoothScrollArea,
     SwitchButton,
     SwitchSettingCard,
+    TeachingTip,
+    TeachingTipTailPosition,
     qconfig,
 )
 
@@ -83,6 +87,62 @@ class LineEditSettingCard(AbstractLineEditSettingCard):
     @override
     def makeLineEdit(self) -> LineEdit:
         return LineEdit(parent=self)
+
+
+class StrictLineEditSettingCard(AbstractLineEditSettingCard):
+    class SLineEdit(LineEdit):
+        @override
+        def focusInEvent(self, e: QFocusEvent | None):
+            p = cast("StrictLineEditSettingCard", self.parent())
+            if p.lineEdit.isError():
+                p.createTip()
+            return super().focusInEvent(e)
+
+        @override
+        def focusOutEvent(self, e: QFocusEvent | None):
+            cast("StrictLineEditSettingCard", self.parent()).closeTip()
+            return super().focusOutEvent(e)
+
+    @copy_func_annotations(LineEditSettingCard.__init__)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tip: TeachingTip | None = None
+
+    @override
+    def makeLineEdit(self) -> LineEdit:
+        return self.SLineEdit(parent=self)
+
+    def createTip(self):
+        if self.tip:
+            return
+        self.tip = TeachingTip.create(
+            target=self.lineEdit,
+            icon=InfoBarIcon.ERROR,
+            title="错误",
+            content="配置项格式不符合要求",
+            tailPosition=TeachingTipTailPosition.BOTTOM,
+            isClosable=False,
+            isDeleteOnClose=False,
+            duration=-1,
+            parent=self,
+        )
+
+    def closeTip(self):
+        if not self.tip:
+            return
+        self.tip.close()
+        self.tip.deleteLater()
+        self.tip = None
+
+    @override
+    def _onTextChanged(self, text: str):
+        if self.configItem and (not self.configItem.validator.validate(text)):
+            self.lineEdit.setError(True)
+            self.createTip()
+        else:
+            self.lineEdit.setError(False)
+            self.closeTip()
+            super()._onTextChanged(text)
 
 
 class PasswordLineEditSettingCard(AbstractLineEditSettingCard):
@@ -275,13 +335,13 @@ class SettingsPage(QWidget):
     def createServerSettings(self) -> None:
         self.serverSettingGroup = SettingCardGroup("服务器设置")
 
-        self.serverEnableSendStatusCard = SwitchSettingCard(
-            icon=FluentIcon.SEND,
-            title="启用状态发送",
-            content="是否向服务器发送设备状态信息",
-            configItem=config.serverEnableSendStatus,
+        self.serverEnableConnectCard = SwitchSettingCard(
+            icon=FluentIcon.POWER_BUTTON,
+            title="启用连接",
+            content="是否启用与服务端的连接",
+            configItem=config.serverEnableConnect,
         )
-        self.serverSettingGroup.addSettingCard(self.serverEnableSendStatusCard)
+        self.serverSettingGroup.addSettingCard(self.serverEnableConnectCard)
 
         self.serverUrlCard = LineEditSettingCard(
             icon=FluentIcon.LINK,
@@ -298,6 +358,14 @@ class SettingsPage(QWidget):
             configItem=config.serverSecret,
         )
         self.serverSettingGroup.addSettingCard(self.serverSecretCard)
+
+        self.serverConnectProxyCard = StrictLineEditSettingCard(
+            icon=FluentIcon.GLOBE,
+            title="连接代理",
+            content="设置连接服务器时使用的代理（留空则不使用）",
+            configItem=config.serverConnectProxy,
+        )
+        self.serverSettingGroup.addSettingCard(self.serverConnectProxyCard)
 
         self.scrollContentLayout.addWidget(self.serverSettingGroup)
 

@@ -8,7 +8,6 @@ from .config import (
     DeviceConfig as DeviceConfig,
     FrontendConfig as FrontendConfig,
     FrontendStatusConfig as FrontendStatusConfig,
-    FrontendStatusConfigOptional as FrontendStatusConfigOptional,
 )
 from .enums import (
     DeviceOS as DeviceOS,

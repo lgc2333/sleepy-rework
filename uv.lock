@@ -3225,6 +3225,7 @@ dependencies = [
     { name = "pyqt5-qt5" },
     { name = "qasync" },
     { name = "sleepy-rework-types" },
+    { name = "websockets" },
 ]
 
 [package.metadata]
@@ -3238,6 +3239,7 @@ requires-dist = [
     { name = "pyqt5-qt5", marker = "sys_platform == 'win32'", specifier = "==5.15.2" },
     { name = "qasync", specifier = ">=0.27.1" },
     { name = "sleepy-rework-types", editable = "backend/types" },
+    { name = "websockets", specifier = ">=15.0.1" },
 ]
 
 [[package]]

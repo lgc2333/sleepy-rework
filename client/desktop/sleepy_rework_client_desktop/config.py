@@ -2,6 +2,7 @@ import sys
 from typing import Any, cast, override
 
 from nonestorage import user_config_dir
+from pydantic import AnyUrl, UrlConstraints
 from PyQt5.QtGui import QColor
 from qfluentwidgets import (
     BoolValidator,
@@ -30,11 +31,40 @@ class StringValidator(ConfigValidator):
     def validate(self, value: Any):  # pyright: ignore
         return isinstance(value, str)
 
+    @override
+    def correct(self, value: Any):
+        return str(value)
+
+
+class AnyProxyUrl(AnyUrl):
+    _constraints = UrlConstraints(
+        allowed_schemes=["http", "https", "socks5", "socks5h"],
+    )
+
+
+class ProxyURLValidator(ConfigValidator):
+    @override
+    def validate(self, value: Any):  # pyright: ignore
+        if not isinstance(value, str):
+            return False
+        if value:
+            try:
+                AnyProxyUrl(value)
+            except ValueError:
+                return False
+        return True
+
+    @override
+    def correct(self, value: Any):
+        if self.validate(value):
+            return value
+        return ""
+
 
 class Config(QConfig):
-    serverEnableSendStatus = ConfigItem(
+    serverEnableConnect = ConfigItem(
         "server",
-        "enableSendStatus",
+        "enableConnect",
         default=False,
         validator=BoolValidator(),
     )
@@ -49,6 +79,12 @@ class Config(QConfig):
         "secret",
         "sleepy",
         validator=StringValidator(),
+    )
+    serverConnectProxy = ConfigItem(
+        "server",
+        "connectProxy",
+        "",
+        validator=ProxyURLValidator(),
     )
 
     appAutoStart = ConfigItem(

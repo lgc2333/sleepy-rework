@@ -6,10 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from . import api_v1
+from . import __version__, api_v1
 from .config import config
 from .exc_handle import install_exc_handlers
 from .log import logger
+
+DESCRIPTION = f"""
+{api_v1.DESCRIPTION}
+"""
 
 
 @asynccontextmanager
@@ -19,6 +23,9 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
+    title="Sleepy Rework Backend",
+    description=DESCRIPTION,
+    version=__version__,
     lifespan=lifespan,
     openapi_url=f"{config.docs_url}/openapi.json" if config.docs_url else None,
     docs_url=f"{config.docs_url}" if config.docs_url else None,
