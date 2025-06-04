@@ -6,13 +6,18 @@ import qasync
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QCloseEvent, QIcon, QShowEvent
 from PyQt5.QtWidgets import QApplication
-from qfluentwidgets import MSFluentWindow, SplashScreen, SystemThemeListener, qconfig
+from qfluentwidgets import (
+    FluentIcon,
+    MSFluentWindow,
+    SplashScreen,
+    SystemThemeListener,
+    qconfig,
+)
 
 from .assets import ICON_PATH
 from .config import config, reApplyThemeColor, reApplyThemeMode
-from .single_app import QtSingleApplication
-from .utils.auto_start import AutoStartManager
 from .utils.common import APP_NAME, AUTO_START_OPT
+from .utils.single_app import QtSingleApplication
 
 
 class MainWindow(MSFluentWindow):
@@ -31,6 +36,7 @@ class MainWindow(MSFluentWindow):
         self.setupTrayIcon()
         self.setupThemeListener()
         self.setupUI()
+        self.restoreAutoStart()
 
         self.splashScreen.finish()
 
@@ -47,8 +53,6 @@ class MainWindow(MSFluentWindow):
         self.themeListener.start()
 
     def setupUI(self):
-        from qfluentwidgets import FluentIcon
-
         from .views import HomePage, SettingsPage
 
         self.homePage = HomePage()
@@ -67,6 +71,27 @@ class MainWindow(MSFluentWindow):
         )
 
         self.navigationInterface.setCurrentItem(self.homePage.routeKey)
+
+    def restoreAutoStart(self):
+        from .utils.auto_start import AutoStartManager
+
+        if not AutoStartManager:
+            return
+
+        config_auto_start_enabled: bool = qconfig.get(config.appAutoStart)
+        auto_start_enabled = AutoStartManager.is_enabled()
+        if auto_start_enabled == config_auto_start_enabled:
+            return
+
+        res = (
+            AutoStartManager.disable()
+            if auto_start_enabled
+            else AutoStartManager.enable()
+        )
+        if res:
+            return
+        print(f"Failed to restore autostart setting to {config_auto_start_enabled}")
+        qconfig.set(config.appAutoStart, auto_start_enabled)
 
     @override
     def showEvent(self, a0: QShowEvent | None):
@@ -111,22 +136,6 @@ def launch():
 
     app_close_event = asyncio.Event()
     app.aboutToQuit.connect(app_close_event.set)
-
-    if AutoStartManager:
-        config_auto_start_enabled: bool = qconfig.get(config.appAutoStart)
-        auto_start_enabled = AutoStartManager.is_enabled()
-        if auto_start_enabled != config_auto_start_enabled:
-            res = (
-                AutoStartManager.disable()
-                if auto_start_enabled
-                else AutoStartManager.enable()
-            )
-            if not res:
-                print(
-                    f"Failed to restore autostart setting"
-                    f" to {config_auto_start_enabled}",
-                )
-                qconfig.set(config.appAutoStart, auto_start_enabled)
 
     window = MainWindow(
         show=not (
