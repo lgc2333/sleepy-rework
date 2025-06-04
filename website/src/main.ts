@@ -1,5 +1,4 @@
-import '@unocss/reset/normalize.css'
-import '@unocss/reset/sanitize/sanitize.css'
+import '@unocss/reset/tailwind-compat.css'
 import 'virtual:uno.css'
 import { createApp } from 'vue'
 import Toast, { POSITION } from 'vue-toastification'

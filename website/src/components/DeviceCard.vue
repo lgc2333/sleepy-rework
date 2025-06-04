@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
 
 import { DeviceType, OnlineStatus } from '../types'
 import type { DeviceInfo } from '../types'
@@ -95,6 +95,8 @@ function onIconClick() {
   }
 }
 
+// 误报
+// eslint-disable-next-line vue/return-in-computed-property
 const statusName = computed(() => {
   switch (info.status) {
     case OnlineStatus.ONLINE:
@@ -104,12 +106,14 @@ const statusName = computed(() => {
     case OnlineStatus.OFFLINE:
       return '离线'
   }
-  return '未知'
 })
 
 function formatUpdate(timestamp: number) {
   const now = Date.now()
   const diff = now - timestamp
+
+  if (diff <= 0) return '0秒'
+
   const minutes = Math.floor(diff / (1000 * 60))
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
@@ -134,15 +138,21 @@ const appOpenedTime = ref(getAppOpenedTime())
 
 const updateTimer = ref<number | null>(null)
 
+function updateTimeCallback() {
+  lastUpdate.value = getLastUpdate()
+  appOpenedTime.value = getAppOpenedTime()
+}
+
 onMounted(() => {
-  setInterval(() => {
-    lastUpdate.value = getLastUpdate()
-    appOpenedTime.value = getAppOpenedTime()
-  }, 1000)
+  setInterval(updateTimeCallback, 1000)
 })
 
 onBeforeUnmount(() => {
   if (updateTimer.value !== null) clearInterval(updateTimer.value)
+})
+
+onUpdated(() => {
+  updateTimeCallback()
 })
 </script>
 
