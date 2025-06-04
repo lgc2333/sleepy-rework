@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
 
-from .utils.common import APP_NAME
+from .config import APP_NAME
 
 
 class SystemTrayIcon(QSystemTrayIcon):

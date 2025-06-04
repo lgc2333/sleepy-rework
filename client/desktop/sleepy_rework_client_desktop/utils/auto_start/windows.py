@@ -4,7 +4,8 @@ from typing import override
 
 from pylnk3 import Lnk, for_file
 
-from ..common import APP_NAME, get_start_args
+from ...config import APP_NAME
+from ..common import get_start_args
 from .base import BaseAutoStartManager
 
 FILE_PATH = Path(

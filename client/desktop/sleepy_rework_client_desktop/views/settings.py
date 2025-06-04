@@ -1,285 +1,138 @@
-from abc import abstractmethod
-from collections.abc import Sequence
-from typing import ClassVar, cast, override
+from typing import ClassVar, cast
 
-from cookit import copy_func_annotations
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFocusEvent, QIcon
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
-    ConfigItem,
-    ExpandGroupSettingCard,
     FluentIcon,
-    FluentIconBase,
     IndicatorPosition,
     InfoBar,
-    InfoBarIcon,
     InfoBarPosition,
     LineEdit,
-    OptionsConfigItem,
     OptionsSettingCard,
     OptionsValidator,
-    PasswordLineEdit,
-    SettingCard,
     SettingCardGroup,
     SmoothScrollArea,
     SwitchButton,
     SwitchSettingCard,
-    TeachingTip,
-    TeachingTipTailPosition,
     qconfig,
 )
 
 from ..config import config
 from ..utils.auto_start import AutoStartManager
+from ..widgets import (
+    BugFixedExpandGroupSettingCard,
+    ExpandGroupWidget,
+    LineEditSettingCard,
+    PasswordLineEditSettingCard,
+    StrictLineEditSettingCard,
+)
 
 
-class AbstractLineEditSettingCard(SettingCard):
-    textChanged = pyqtSignal(str)
-
-    @abstractmethod
-    def makeLineEdit(self) -> LineEdit: ...
-
+class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
     def __init__(
         self,
-        icon: str | QIcon | FluentIconBase,
-        title: str,
-        content: str | None = None,
-        configItem: ConfigItem | None = None,
-        isReadOnly: bool = False,
-        placeHolderText: str | None = None,
         parent: QWidget | None = None,
     ):
-        super().__init__(icon, title, content, parent)
-        self.configItem = configItem
-
-        self.lineEdit = self.makeLineEdit()
-        self.lineEdit.setMinimumWidth(200)
-        self.lineEdit.setReadOnly(isReadOnly)
-        self.lineEdit.setPlaceholderText(placeHolderText)
-        self.lineEdit.textChanged.connect(self._onTextChanged)
-
-        if configItem:
-            self.setValue(qconfig.get(configItem))
-            configItem.valueChanged.connect(self.setValue)
-
-        self.hBoxLayout.addWidget(self.lineEdit, 0, Qt.AlignmentFlag.AlignRight)
-        self.hBoxLayout.addSpacing(16)
-
-    def _onTextChanged(self, text: str):
-        if self.configItem:
-            qconfig.set(self.configItem, text)
-        self.textChanged.emit(text)
-
-    @override
-    def setValue(self, value: str):
-        self.lineEdit.setText(value)
-        if self.configItem:
-            qconfig.set(self.configItem, value)
-
-    def text(self) -> str:
-        return self.lineEdit.text()
-
-
-class LineEditSettingCard(AbstractLineEditSettingCard):
-    @override
-    def makeLineEdit(self) -> LineEdit:
-        return LineEdit(parent=self)
-
-
-class StrictLineEditSettingCard(AbstractLineEditSettingCard):
-    class SLineEdit(LineEdit):
-        @override
-        def focusInEvent(self, e: QFocusEvent | None):
-            p = cast("StrictLineEditSettingCard", self.parent())
-            if p.lineEdit.isError():
-                p.createTip()
-            return super().focusInEvent(e)
-
-        @override
-        def focusOutEvent(self, e: QFocusEvent | None):
-            cast("StrictLineEditSettingCard", self.parent()).closeTip()
-            return super().focusOutEvent(e)
-
-    @copy_func_annotations(LineEditSettingCard.__init__)
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tip: TeachingTip | None = None
-
-    @override
-    def makeLineEdit(self) -> LineEdit:
-        return self.SLineEdit(parent=self)
-
-    def createTip(self):
-        if self.tip:
-            return
-        self.tip = TeachingTip.create(
-            target=self.lineEdit,
-            icon=InfoBarIcon.ERROR,
-            title="错误",
-            content="配置项格式不符合要求",
-            tailPosition=TeachingTipTailPosition.BOTTOM,
-            isClosable=False,
-            isDeleteOnClose=False,
-            duration=-1,
-            parent=self,
+        super().__init__(
+            FluentIcon.CONNECT,
+            "设备类型",
+            "自定义此设备在前端显示的设备类型",
+            parent,
         )
 
-    def closeTip(self):
-        if not self.tip:
-            return
-        self.tip.close()
-        self.tip.deleteLater()
-        self.tip = None
+        options = cast(
+            "OptionsValidator",
+            config.deviceTypeOverrideValueBuiltIn.validator,
+        ).options
 
-    @override
-    def _onTextChanged(self, text: str):
-        if self.configItem and (not self.configItem.validator.validate(text)):
-            self.lineEdit.setError(True)
-            self.createTip()
-        else:
-            self.lineEdit.setError(False)
-            self.closeTip()
-            super()._onTextChanged(text)
-
-
-class PasswordLineEditSettingCard(AbstractLineEditSettingCard):
-    @override
-    def makeLineEdit(self) -> LineEdit:
-        return PasswordLineEdit(parent=self)
-
-
-class ExpandGroupWidget(QWidget):
-    def __init__(self, label: QWidget, widget: QWidget, parent: QWidget | None = None):
-        super().__init__(parent=parent)
-
-        self.setObjectName("ExpandGroupWidget")
-        self.setFixedHeight(60)
-
-        self.label = label
-        self.widget = widget
-        label.setParent(self)
-        widget.setParent(self)
-
-        self.hLayout = QHBoxLayout(self)
-        self.hLayout.setContentsMargins(48, 12, 48, 12)
-
-        self.hLayout.addWidget(label)
-        self.hLayout.addStretch(1)
-        self.hLayout.addWidget(widget)
-
-
-class OverrideExpandGroupSettingCard(ExpandGroupSettingCard):
-    def __init__(
-        self,
-        icon: str | QIcon | FluentIcon,
-        title: str,
-        autoTitle: str,
-        autoConfig: ConfigItem,
-        enableTitle: str,
-        enableConfig: ConfigItem,
-        isCustomTitle: str,
-        isCustomConfig: ConfigItem,
-        builtInTitle: str,
-        builtInConfig: OptionsConfigItem,
-        builtInLabels: Sequence[str],
-        customTitle: str,
-        customConfig: ConfigItem,
-        content: str | None = None,
-        parent: QWidget | None = None,
-    ):
-        super().__init__(icon, title, content or "", parent)
-
-        options = cast("OptionsValidator", builtInConfig.validator).options
-
-        self.autoConfig = autoConfig
-        self.enableConfig = enableConfig
-        self.isCustomConfig = isCustomConfig
-
-        self.autoSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.autoSwitch.setChecked(qconfig.get(autoConfig))
-        self.autoSwitch.checkedChanged.connect(self._onAutoSwitchChanged)
-
-        self.autoGroup = ExpandGroupWidget(
-            label=BodyLabel(autoTitle),
-            widget=self.autoSwitch,
+        self.useDefaultSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.useDefaultSwitch.setChecked(
+            qconfig.get(config.deviceTypeOverrideUseDefault),
         )
-        self.addGroupWidget(self.autoGroup)
+        self.useDefaultSwitch.checkedChanged.connect(self._onUseDefaultSwitchChanged)
+        self.useDefaultGroup = ExpandGroupWidget(
+            label=BodyLabel("使用默认值（台式电脑）"),
+            widget=self.useDefaultSwitch,
+        )
 
         self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.enableSwitch.setChecked(qconfig.get(enableConfig))
+        self.enableSwitch.setChecked(qconfig.get(config.deviceTypeOverrideEnable))
         self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
+        self.enableGroup = ExpandGroupWidget(
+            label=BodyLabel("覆盖服务端配置"),
+            widget=self.enableSwitch,
+        )
 
-        self.isCustomSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.isCustomSwitch.setChecked(qconfig.get(isCustomConfig))
-        self.isCustomSwitch.checkedChanged.connect(self._onIsCustomSwitchChanged)
+        self.useCustomSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.useCustomSwitch.setChecked(qconfig.get(config.deviceTypeOverrideUseCustom))
+        self.useCustomSwitch.checkedChanged.connect(self._onUseCustomSwitchChanged)
+        self.useCustomGroup = ExpandGroupWidget(
+            label=BodyLabel("自定义输入模式"),
+            widget=self.useCustomSwitch,
+        )
 
         self.builtInCombo = ComboBox()
-        self.builtInCombo.addItems(builtInLabels)
-        if (index := options.index(qconfig.get(builtInConfig))) >= 0:
-            self.builtInCombo.setCurrentIndex(index)
+        self.builtInCombo.addItems(
+            ["Windows", "macOS", "Linux", "Android", "iOS", "未知"],
+        )
+        currBuiltInIndex = options.index(
+            qconfig.get(config.deviceTypeOverrideValueBuiltIn),
+        )
+        if currBuiltInIndex >= 0:
+            self.builtInCombo.setCurrentIndex(currBuiltInIndex)
         self.builtInCombo.currentIndexChanged.connect(
-            lambda index: qconfig.set(builtInConfig, options[index]),
+            lambda index: qconfig.set(
+                config.deviceTypeOverrideValueBuiltIn,
+                options[index],
+            ),
+        )
+        self.builtInGroup = ExpandGroupWidget(
+            label=BodyLabel("选择设备类型"),
+            widget=self.builtInCombo,
         )
 
         self.customLineEdit = LineEdit()
-        self.customLineEdit.setText(qconfig.get(customConfig))
+        self.customLineEdit.setText(qconfig.get(config.deviceTypeOverrideValueCustom))
         self.customLineEdit.textChanged.connect(
-            lambda text: qconfig.set(customConfig, text),
-        )
-
-        self.enableGroup = ExpandGroupWidget(
-            label=BodyLabel(enableTitle),
-            widget=self.enableSwitch,
-        )
-        self.isCustomGroup = ExpandGroupWidget(
-            label=BodyLabel(isCustomTitle),
-            widget=self.isCustomSwitch,
-        )
-        self.builtInGroup = ExpandGroupWidget(
-            label=BodyLabel(builtInTitle),
-            widget=self.builtInCombo,
+            lambda text: qconfig.set(config.deviceTypeOverrideValueCustom, text),
         )
         self.customGroup = ExpandGroupWidget(
-            label=BodyLabel(customTitle),
+            label=BodyLabel("输入设备类型"),
             widget=self.customLineEdit,
         )
 
-        self._onAutoSwitchChanged(qconfig.get(autoConfig))
+        self.addGroupWidget(self.useDefaultGroup)
+        self._onUseDefaultSwitchChanged(
+            qconfig.get(config.deviceTypeOverrideUseDefault),
+        )
 
-    def addGroupWidget(self, widget: QWidget):
-        super().addGroupWidget(widget)
-        widget.show()
-
-    def removeGroupWidget(self, widget: QWidget):
-        super().removeGroupWidget(widget)
-        widget.hide()
-
-    def _onAutoSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(self.autoConfig, checked)
+    def _onUseDefaultSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(config.deviceTypeOverrideUseDefault, checked)
         if checked:
             self.removeGroupWidget(self.enableGroup)
-            self.removeGroupWidget(self.isCustomGroup)
+            self.removeGroupWidget(self.useCustomGroup)
             self.removeGroupWidget(self.builtInGroup)
             self.removeGroupWidget(self.customGroup)
         else:
             self.addGroupWidget(self.enableGroup)
-            self._onEnableSwitchChanged(qconfig.get(self.enableConfig))
+            self._onEnableSwitchChanged(qconfig.get(config.deviceTypeOverrideEnable))
 
     def _onEnableSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(self.enableConfig, checked)
+        qconfig.set(config.deviceTypeOverrideEnable, checked)
         if checked:
-            self.addGroupWidget(self.isCustomGroup)
-            self._onIsCustomSwitchChanged(qconfig.get(self.isCustomConfig))
+            self.addGroupWidget(self.useCustomGroup)
+            self._onUseCustomSwitchChanged(
+                qconfig.get(config.deviceTypeOverrideUseCustom),
+            )
         else:
-            self.removeGroupWidget(self.isCustomGroup)
+            self.removeGroupWidget(self.useCustomGroup)
             self.removeGroupWidget(self.builtInGroup)
             self.removeGroupWidget(self.customGroup)
 
-    def _onIsCustomSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(self.isCustomConfig, checked)
+    def _onUseCustomSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(config.deviceTypeOverrideUseCustom, checked)
 
         if checked:
             self.removeGroupWidget(self.builtInGroup)
@@ -288,13 +141,63 @@ class OverrideExpandGroupSettingCard(ExpandGroupSettingCard):
             self.addGroupWidget(self.builtInGroup)
             self.removeGroupWidget(self.customGroup)
 
-    @override
-    def _adjustViewSize(self):
-        h = sum(w.maximumSize().height() + 3 for w in self.widgets) - 3
-        self.spaceWidget.setFixedHeight(h)
 
-        if self.isExpand:
-            self.setFixedHeight(self.card.height() + h)
+class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(
+            FluentIcon.TILES,
+            "设备操作系统",
+            "自定义此设备在前端显示的操作系统类型",
+            parent,
+        )
+
+        self.useDefaultSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.useDefaultSwitch.setChecked(qconfig.get(config.deviceOSOverrideUseDetect))
+        self.useDefaultSwitch.checkedChanged.connect(self._onUseDefaultSwitchChanged)
+        self.useDefaultGroup = ExpandGroupWidget(
+            label=BodyLabel("使用自动检测结果"),
+            widget=self.useDefaultSwitch,
+        )
+
+        self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.enableSwitch.setChecked(qconfig.get(config.deviceOSOverrideEnable))
+        self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
+        self.enableGroup = ExpandGroupWidget(
+            label=BodyLabel("覆盖服务端配置"),
+            widget=self.enableSwitch,
+        )
+
+        self.customLineEdit = LineEdit()
+        self.customLineEdit.setText(qconfig.get(config.deviceOSOverrideValue))
+        self.customLineEdit.textChanged.connect(
+            lambda text: qconfig.set(config.deviceOSOverrideValue, text),
+        )
+        self.customGroup = ExpandGroupWidget(
+            label=BodyLabel("输入操作系统"),
+            widget=self.customLineEdit,
+        )
+
+        self.addGroupWidget(self.useDefaultGroup)
+        self._onUseDefaultSwitchChanged(qconfig.get(config.deviceOSOverrideUseDetect))
+
+    def _onUseDefaultSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(config.deviceOSOverrideUseDetect, checked)
+        if checked:
+            self.removeGroupWidget(self.enableGroup)
+            self.removeGroupWidget(self.customGroup)
+        else:
+            self.addGroupWidget(self.enableGroup)
+            self._onEnableSwitchChanged(qconfig.get(config.deviceOSOverrideEnable))
+
+    def _onEnableSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(config.deviceOSOverrideEnable, checked)
+        if checked:
+            self.addGroupWidget(self.customGroup)
+        else:
+            self.removeGroupWidget(self.customGroup)
 
 
 class SettingsPage(QWidget):
@@ -428,47 +331,10 @@ class SettingsPage(QWidget):
         )
         self.deviceSettingGroup.addSettingCard(self.deviceDescriptionCard)
 
-        self.deviceTypeOverrideCard = OverrideExpandGroupSettingCard(
-            icon=FluentIcon.CONNECT,
-            title="设备类型",
-            content="自定义此设备的显示类型",
-            autoTitle="自动检测",
-            autoConfig=config.deviceTypeOverrideUseDetect,
-            enableTitle="覆盖服务端配置",
-            enableConfig=config.deviceTypeOverrideEnable,
-            isCustomTitle="自定义输入模式",
-            isCustomConfig=config.deviceTypeOverrideUseCustom,
-            builtInTitle="选择设备类型",
-            builtInConfig=config.deviceTypeOverrideValueBuiltIn,
-            builtInLabels=[
-                "台式电脑",
-                "笔记本电脑",
-                "手机",
-                "平板电脑",
-                "智能手表",
-                "未知",
-            ],
-            customTitle="输入设备类型",
-            customConfig=config.deviceTypeOverrideValueCustom,
-        )
+        self.deviceTypeOverrideCard = DeviceTypeOverrideGroupSettingCard()
         self.deviceSettingGroup.addSettingCard(self.deviceTypeOverrideCard)
 
-        self.deviceOSOverrideCard = OverrideExpandGroupSettingCard(
-            icon=FluentIcon.TILES,
-            title="设备操作系统",
-            content="自定义此设备显示的操作系统类型",
-            autoTitle="自动检测",
-            autoConfig=config.deviceOSOverrideUseDetect,
-            enableTitle="覆盖服务端配置",
-            enableConfig=config.deviceOSOverrideEnable,
-            isCustomTitle="自定义输入模式",
-            isCustomConfig=config.deviceOSOverrideUseCustom,
-            builtInTitle="选择操作系统",
-            builtInConfig=config.deviceOSOverrideValueBuiltIn,
-            builtInLabels=["Windows", "macOS", "Linux", "Android", "iOS", "未知"],
-            customTitle="输入操作系统名称",
-            customConfig=config.deviceOSOverrideValueCustom,
-        )
+        self.deviceOSOverrideCard = DeviceOSOverrideGroupSettingCard()
         self.deviceSettingGroup.addSettingCard(self.deviceOSOverrideCard)
 
         self.scrollContentLayout.addWidget(self.deviceSettingGroup)

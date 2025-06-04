@@ -10,15 +10,6 @@ class DeviceType(StrEnum):
     UNKNOWN = auto()
 
 
-class DeviceOS(StrEnum):
-    WINDOWS = "Windows"
-    MACOS = "MacOS"
-    LINUX = "Linux"
-    ANDROID = "Android"
-    IOS = "iOS"
-    UNKNOWN = auto()
-
-
 class OnlineStatus(StrEnum):
     ONLINE = auto()
     OFFLINE = auto()

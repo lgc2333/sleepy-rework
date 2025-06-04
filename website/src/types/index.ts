@@ -6,17 +6,6 @@ export enum DeviceType {
   SMARTWATCH = 'smartwatch',
   UNKNOWN = 'unknown',
 }
-
-export enum DeviceOS {
-  WINDOWS = 'Windows',
-  MACOS = 'MacOS',
-  LINUX = 'Linux',
-  ANDROID = 'Android',
-  IOS = 'iOS',
-  WEAR_OS = 'Wear OS',
-  UNKNOWN = 'unknown',
-}
-
 export enum OnlineStatus {
   ONLINE = 'online',
   OFFLINE = 'offline',
@@ -45,7 +34,7 @@ export interface DeviceInfo {
   name: string
   description?: string | null
   device_type: DeviceType | string
-  device_os: DeviceOS | string
+  device_os: string | 'unknown'
   remove_when_offline: boolean
   data?: DeviceData | null
   online: boolean

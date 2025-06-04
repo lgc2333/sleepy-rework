@@ -19,9 +19,13 @@ from qfluentwidgets import (
 )
 from qframelesswindow.utils import getSystemAccentColor
 
-from sleepy_rework_types import DeviceOS, DeviceType
+from sleepy_rework_types import DeviceType
 
-configDir = user_config_dir("SleepyRework", roaming=True)
+APP_NAME = "Sleepy Rework Desktop Client"
+APP_ID = "sleepy_rework_client_desktop"
+APP_PKG_NAME = "top.lgc2333.sleepy_rework.client_desktop"
+
+configDir = user_config_dir(APP_NAME, roaming=True)
 configFilePath = configDir / "config.json"
 print(f"Config path: {configFilePath}")
 
@@ -126,10 +130,10 @@ class Config(QConfig):
         validator=StringValidator(),
     )
 
-    deviceTypeOverrideUseDetect = ConfigItem(
+    deviceTypeOverrideUseDefault = ConfigItem(
         "device",
-        "typeOverrideUseDetect",
-        default=True,
+        "typeOverrideUseDefault",
+        default=False,
         validator=BoolValidator(),
     )
     deviceTypeOverrideEnable = ConfigItem(
@@ -169,24 +173,16 @@ class Config(QConfig):
         default=False,
         validator=BoolValidator(),
     )
-    deviceOSOverrideUseCustom = ConfigItem(
+    deviceOSOverrideValue = ConfigItem(
         "device",
-        "osOverrideUseCustom",
-        default=False,
-        validator=BoolValidator(),
-    )
-    deviceOSOverrideValueBuiltIn = OptionsConfigItem(
-        "device",
-        "osOverrideValueBuiltIn",
-        DeviceOS.WINDOWS,
-        validator=OptionsValidator(DeviceOS.UNKNOWN),
-    )
-    deviceOSOverrideValueCustom = ConfigItem(
-        "device",
-        "osOverrideValueCustom",
+        "osOverrideValue",
         "unknown",
         validator=StringValidator(),
     )
+
+
+config = Config()
+qconfig.load(configFilePath, config)
 
 
 def reApplyThemeMode(theme: Theme | None = None):
@@ -206,13 +202,10 @@ def reApplyThemeColor():
 
 Config.appThemeMode.valueChanged.connect(reApplyThemeMode)
 
-config = Config()
-qconfig.load(configFilePath, config)
-
 reApplyThemeMode()
 reApplyThemeColor()
 
-if not config.deviceKey.value:
+if not qconfig.get(config.deviceKey):
     import random
     import string
 

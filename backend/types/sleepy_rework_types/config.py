@@ -1,10 +1,11 @@
 import ssl
 from ipaddress import IPv4Address
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, IPvAnyAddress, field_validator
 
-from .enums import DeviceOS, DeviceType, OnlineStatus
+from .enums import DeviceType, OnlineStatus
 
 
 class AppConfig(BaseModel):
@@ -62,7 +63,7 @@ class DeviceConfig(BaseModel):
     name: str | None = None
     description: str | None = None
     device_type: DeviceType | str = DeviceType.UNKNOWN
-    device_os: DeviceOS | str = DeviceOS.UNKNOWN
+    device_os: str | Literal["unknown"] = "unknown"  # noqa: PYI051
     remove_when_offline: bool = False
 
 

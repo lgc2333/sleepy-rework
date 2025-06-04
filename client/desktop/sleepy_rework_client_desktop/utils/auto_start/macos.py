@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import override
 from xml.sax.saxutils import escape
 
-from ..common import APP_PKG_NAME, get_start_args
+from ...config import APP_PKG_NAME
+from ..common import get_start_args
 from .base import BaseAutoStartManager
 
 FILE_PATH = Path(f"~/Library/LaunchAgents/{APP_PKG_NAME}.plist").expanduser()

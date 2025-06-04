@@ -15,8 +15,8 @@ from qfluentwidgets import (
 )
 
 from .assets import ICON_PATH
-from .config import config, reApplyThemeColor, reApplyThemeMode
-from .utils.common import APP_NAME, AUTO_START_OPT
+from .config import APP_NAME, config, reApplyThemeColor, reApplyThemeMode
+from .utils.common import AUTO_START_OPT
 from .utils.single_app import QtSingleApplication
 
 
