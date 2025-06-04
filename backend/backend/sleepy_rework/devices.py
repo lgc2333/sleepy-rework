@@ -7,17 +7,19 @@ from dataclasses import dataclass, field
 from typing import Any, Self
 
 from fastapi import WebSocket, WebSocketDisconnect
+from pydantic import ValidationError
 
 from sleepy_rework_types import (
     DeviceConfig,
     DeviceInfo,
     DeviceInfoFromClient,
+    DeviceInfoFromClientWS,
     OnlineStatus,
 )
 
 from .config import config
 from .log import logger
-from .utils import combine_model_from_model
+from .utils import combine_model_from_model, deep_update
 
 type Co[T] = Coroutine[Any, Any, T]
 type DeviceStatusUpdateHandler = Callable[[Device], Co[Any]]
@@ -27,6 +29,7 @@ type ManagerStatusUpdateHandler = Callable[["DeviceManager", Device], Co[Any]]
 @dataclass
 class Device:
     key: str
+    config: DeviceConfig
     info: DeviceInfo
 
     update_handlers: list[DeviceStatusUpdateHandler] = field(default_factory=list)
@@ -38,6 +41,7 @@ class Device:
     def new(cls, key: str, cfg: DeviceConfig, **kwargs) -> Self:
         return cls(
             key=key,
+            config=DeviceConfig(**cfg.model_dump(exclude_unset=True)),
             info=DeviceInfo(**cfg.model_dump(exclude_unset=True)),
             **kwargs,
         )
@@ -58,11 +62,20 @@ class Device:
         self.info.online = False
         asyncio.create_task(self.run_handlers())
 
+    def _replace_info(self, new_info: DeviceInfoFromClient):
+        return DeviceInfo.model_validate(
+            deep_update(
+                self.config.model_dump(exclude_unset=True),
+                new_info.model_dump(exclude_unset=True),
+            ),
+        )
+
     async def update(
         self,
         data: DeviceInfoFromClient | None = None,
         online: bool = True,
         in_long_conn: bool = False,
+        replace: bool = False,
     ):
         if self._timer is not None:
             self._timer.cancel()
@@ -86,11 +99,19 @@ class Device:
                     logger.error("Error closing WebSocket connection")
 
         if data is not None:
-            self.info = combine_model_from_model(self.info, data)
+            if replace:
+                self.info = self._replace_info(data)
+            else:
+                self.info = combine_model_from_model(self.info, data)
         self.info.online = online
         self.info.long_connection = in_long_conn
         self.info.last_update_time = int(time.time() * 1000)
 
+        asyncio.create_task(self.run_handlers())
+
+    async def update_config(self, config: DeviceConfig):
+        self.config = config
+        self.info = self._replace_info(self.info)
         asyncio.create_task(self.run_handlers())
 
     async def handle_ws(self, ws: WebSocket):
@@ -108,8 +129,10 @@ class Device:
 
         while True:
             try:
-                data = DeviceInfoFromClient.model_validate_json(await ws.receive_text())
-                await self.update(data, in_long_conn=True)
+                data = DeviceInfoFromClientWS.model_validate_json(
+                    await ws.receive_text(),
+                )
+                await self.update(data, in_long_conn=True, replace=data.replace)
             except WebSocketDisconnect:
                 break
             except Exception:
@@ -143,10 +166,12 @@ class DeviceManager:
             return OnlineStatus.ONLINE
         return OnlineStatus.OFFLINE
 
-    def add(self, key: str, cfg: DeviceConfig) -> Device:
-        device = Device.new(key, cfg, update_handlers=[self.update_handler])
-        self.devices[key] = device
-        return device
+    def add(self, key: str, cfg: DeviceConfig) -> Device | None:
+        with suppress(ValidationError):
+            device = Device.new(key, cfg, update_handlers=[self.update_handler])
+            self.devices[key] = device
+            return device
+        return None
 
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)

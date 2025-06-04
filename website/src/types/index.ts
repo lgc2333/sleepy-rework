@@ -33,8 +33,8 @@ export interface DeviceData {
 export interface DeviceInfo {
   name: string
   description?: string | null
-  device_type: DeviceType | string
-  device_os: string | 'unknown'
+  device_type?: DeviceType | string | null
+  device_os?: string | null
   remove_when_offline: boolean
   data?: DeviceData | null
   online: boolean

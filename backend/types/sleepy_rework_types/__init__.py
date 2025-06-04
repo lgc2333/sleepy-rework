@@ -21,6 +21,7 @@ from .models import (
     DeviceData as DeviceData,
     DeviceInfo as DeviceInfo,
     DeviceInfoFromClient as DeviceInfoFromClient,
+    DeviceInfoFromClientWS as DeviceInfoFromClientWS,
     ErrDetail as ErrDetail,
     Info as Info,
     OpSuccess as OpSuccess,

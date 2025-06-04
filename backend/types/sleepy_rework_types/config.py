@@ -1,7 +1,6 @@
 import ssl
 from ipaddress import IPv4Address
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, IPvAnyAddress, field_validator
 
@@ -60,10 +59,10 @@ class CORSConfig(BaseModel):
 
 
 class DeviceConfig(BaseModel):
-    name: str | None = None
+    name: str = "Unnamed Device"
     description: str | None = None
-    device_type: DeviceType | str = DeviceType.UNKNOWN
-    device_os: str | Literal["unknown"] = "unknown"  # noqa: PYI051
+    device_type: DeviceType | str | None = None
+    device_os: str | None = None
     remove_when_offline: bool = False
 
 

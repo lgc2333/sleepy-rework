@@ -1,8 +1,10 @@
 import sys
+import traceback
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from cookit.common.signal import Signal
 from qfluentwidgets import ConfigItem, qconfig
 
 from sleepy_rework_types import DeviceType
@@ -75,3 +77,13 @@ def get_device_os() -> str | None:
     if qconfig.get(config.deviceOSOverrideEnable):
         return qconfig.get(config.deviceOSOverrideValue)
     return None
+
+
+async def signal_exc_handler(_: Signal, e: Exception) -> Exception:
+    traceback.print_exception(e)
+    return e
+
+
+class SafeLoggedSignal[**A, R](Signal[A, R, Exception]):
+    def __init__(self) -> None:
+        super().__init__(signal_exc_handler)

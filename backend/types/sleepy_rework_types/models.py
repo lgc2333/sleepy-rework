@@ -33,9 +33,11 @@ class DeviceInfoFromClient(DeviceConfig):
     data: DeviceData | None = None
 
 
-class DeviceInfo(DeviceInfoFromClient):
-    name: str  # pyright: ignore  # make name required
+class DeviceInfoFromClientWS(DeviceInfoFromClient):
+    replace: bool = False
 
+
+class DeviceInfo(DeviceInfoFromClient):
     online: bool = False
     last_update_time: int | None = None
     long_connection: bool = False

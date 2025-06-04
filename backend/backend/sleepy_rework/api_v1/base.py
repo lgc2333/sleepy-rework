@@ -1,12 +1,22 @@
 import asyncio
+from typing import Annotated
 
 from debouncer import DebounceOptions, debounce
-from fastapi import APIRouter, Response, WebSocket, WebSocketDisconnect, status
+from fastapi import (
+    APIRouter,
+    Query,
+    Response,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 
 from sleepy_rework_types import (
+    DeviceConfig,
     DeviceInfoFromClient,
+    DeviceInfoFromClientWS,
     ErrDetail,
     FrontendConfig,
     Info,
@@ -122,12 +132,93 @@ async def add_device_http(
     device_key: str,
     info: DeviceInfoFromClient | None = None,
 ) -> Device:
-    if (not info) or (not info.name):
+    device = None
+    if info:
+        device = device_manager.add(device_key, info)
+    if not device:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="New device should provide essential info",
         )
-    return device_manager.add(device_key, info)
+    return device
+
+
+@router.get(
+    "/device/{device_key}/config",
+    dependencies=[AuthDep],
+    summary="获取设备配置",
+    responses={
+        200: {"model": OpSuccess},
+        404: {
+            "model": ErrDetail,
+            "description": "未找到设备",
+        },
+        422: {
+            "model": ErrDetail,
+            "description": "请求体解析失败",
+        },
+    },
+)
+async def _(
+    device_key: str,
+    exclude_unset: Annotated[bool, Query()] = False,
+):
+    if device_key in device_manager.devices:
+        return device_manager.devices[device_key].config.model_dump(
+            exclude_unset=exclude_unset,
+        )
+    if device_key in config.devices:
+        return config.devices[device_key].model_dump(
+            exclude_unset=exclude_unset,
+        )
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+
+@router.put(
+    "/device/{device_key}/config",
+    dependencies=[AuthDep],
+    summary="临时修改设备配置",
+    responses={
+        200: {"model": OpSuccess},
+        201: {"model": OpSuccess},
+        400: {
+            "model": ErrDetail,
+            "description": "新设备缺少必要参数",
+        },
+        404: {
+            "model": ErrDetail,
+            "description": "未找到设备，且服务端不允许添加新设备",
+        },
+        422: {
+            "model": ErrDetail,
+            "description": "请求体解析失败",
+        },
+    },
+)
+async def _(response: Response, device_key: str, new_config: DeviceConfig):
+    device = find_device_http(device_key)
+    if device:
+        await device.update_config(new_config)
+    else:
+        response.status_code = status.HTTP_201_CREATED
+    config.devices[device_key] = new_config
+    return OpSuccess()
+
+
+async def update_device_info_http(
+    response: Response,
+    device_key: str,
+    info: DeviceInfoFromClient | None = None,
+    is_replace: bool = False,
+):
+    device = find_device_http(device_key)
+    if device:
+        await device.update(info, replace=is_replace)
+    else:
+        device = await add_device_http(device_key, info)
+        response.status_code = status.HTTP_201_CREATED
+        await device.update()
+    return OpSuccess()
 
 
 @router.patch(
@@ -145,7 +236,10 @@ async def add_device_http(
             "model": ErrDetail,
             "description": "未在配置中找到设备，且服务端不允许添加新设备",
         },
-        422: {"model": ErrDetail, "description": "请求体解析失败"},
+        422: {
+            "model": ErrDetail,
+            "description": "请求体解析失败",
+        },
     },
 )
 async def _(
@@ -156,7 +250,7 @@ async def _(
     """
     ### ⚠️ 注意！数据更新机制
 
-    调用此接口仅会更新你提交的部分数据，且为字典深度更新，也就是
+    以 PATCH 方法调用此接口仅会更新你提交的部分数据，且为字典深度更新，也就是
 
     如果后端当前已存储以下数据：
 
@@ -202,8 +296,6 @@ async def _(
     }
     ```
 
-    如果你需要清除某字段，如果该字段可以为 null，将字段设为 null 即可达成相同效果
-
     ### 实时推送
 
     使用 WebSocket 连接到本路径可以实时推送设备状态
@@ -212,11 +304,11 @@ async def _(
 
     当断开连接时，设备将被立即设为离线
 
+    针对 WS 连接消息体中新增了一个 `replace` 字段，如设置为 `true` 则与 PUT 请求一样是替换设备状态
+
     ### 新设备连接
 
-    当一个未在配置文件中定义 device_key 的设备连接时，其必须在首次连接时提供必要参数，否则将被拒绝请求
-
-    必要参数指在 DeviceInfo 中被重载的原先为可选值的字段，目前仅有 name
+    当一个未在配置文件中定义 device_key 的设备连接时，其配置将设置为首次请求发送的数据
 
     ### 在线状态超时机制
 
@@ -227,14 +319,86 @@ async def _(
     当某设备已通过 WebSocket 连接到后端，依然 HTTP 请求本接口，或新建一个 WebSocket 连接时，旧连接将自动断开
     """
 
-    device = find_device_http(device_key)
-    if device:
-        await device.update(info)
-    else:
-        device = await add_device_http(device_key, info)
-        response.status_code = status.HTTP_201_CREATED
-        await device.update()
-    return OpSuccess()
+    return await update_device_info_http(response, device_key, info, is_replace=False)
+
+
+@router.put(
+    "/device/{device_key}/info",
+    dependencies=[AuthDep],
+    summary="替换当前设备状态",
+    responses={
+        200: {"model": OpSuccess},
+        201: {"model": OpSuccess},
+        400: {
+            "model": ErrDetail,
+            "description": "新设备缺少必要参数",
+        },
+        404: {
+            "model": ErrDetail,
+            "description": "未找到设备，且服务端不允许添加新设备",
+        },
+        422: {
+            "model": ErrDetail,
+            "description": "请求体解析失败",
+        },
+    },
+)
+async def _(
+    response: Response,
+    device_key: str,
+    info: DeviceInfoFromClient | None = None,
+):
+    """
+    ### ⚠️ 注意！数据更新机制
+
+    以 PUT 方法请求本接口时，将会将 服务端当前设备配置 与 当前请求体 进行字典合并，之后完全替换当前设备信息
+
+    如后端当前配置为：
+
+    ```json
+    {
+        "name": "Sample Device",
+        "description": "Device Description balabalabala",
+    }
+    ```
+
+    当前存储数据为：
+
+    ```json
+    {
+        "name": "Sample Device",
+        "description": "Device Description balabalabala",
+        "data": {
+            "additional_statuses": [ "喵呜喵呜呜~" ]
+        }
+    }
+    ```
+
+    如果你提交下面数据：
+
+    ```json
+    {
+        "description": "New description",
+        "data": {}
+    }
+    ```
+
+    那么当前存储数据将更新为：
+
+    ```json
+    {
+        "name": "Sample Device",
+        "description": "New description",
+        "data": {}
+    }
+    ```
+
+    ### 其他信息
+
+    请参考 PATCH 方法的文档
+    """
+
+    return await update_device_info_http(response, device_key, info, is_replace=True)
 
 
 @router.websocket("/device/{device_key}/info", dependencies=[AuthDep])
@@ -252,7 +416,7 @@ async def _(ws: WebSocket, device_key: str):
             return
         device = await add_device_http(
             device_key,
-            DeviceInfoFromClient.model_validate_json(data),
+            DeviceInfoFromClientWS.model_validate_json(data),
         )
         await device.update(in_long_conn=True)
     await device.handle_ws(ws)

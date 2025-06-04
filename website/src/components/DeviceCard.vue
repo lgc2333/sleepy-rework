@@ -8,21 +8,20 @@ import type { DeviceInfo } from '../types'
 const { info } = defineProps<{ info: DeviceInfo }>()
 
 const deviceIcon = computed(() => {
-  if (info.device_type) {
-    switch (info.device_type) {
-      case DeviceType.PC:
-        return 'bi:pc-display'
-      case DeviceType.LAPTOP:
-        return 'carbon:laptop'
-      case DeviceType.PHONE:
-        return 'carbon:mobile'
-      case DeviceType.TABLET:
-        return 'carbon:tablet'
-      case DeviceType.SMARTWATCH:
-        return 'carbon:watch'
-    }
+  switch (info.device_type) {
+    case DeviceType.PC:
+      return 'bi:pc-display'
+    case DeviceType.LAPTOP:
+      return 'carbon:laptop'
+    case DeviceType.PHONE:
+      return 'carbon:mobile'
+    case DeviceType.TABLET:
+      return 'carbon:tablet'
+    case DeviceType.SMARTWATCH:
+      return 'carbon:watch'
+    default:
+      return 'carbon:application'
   }
-  return 'carbon:application'
 })
 
 const debianFishCakeEaster = ref(false)
@@ -30,45 +29,47 @@ const debianFishCakeEaster = ref(false)
 const osIcon = computed(() => {
   if (debianFishCakeEaster.value) return 'noto:fish-cake-with-swirl'
 
-  const os = info.device_os.toLowerCase()
+  if (info.device_os) {
+    const os = info.device_os.toLowerCase()
 
-  if (os.startsWith('atlas')) return 'simple-icons:atlasos'
-  if (os.startsWith('windows')) return 'mage:microsoft-windows'
+    if (os.startsWith('atlas')) return 'simple-icons:atlasos'
+    if (os.startsWith('windows')) return 'mage:microsoft-windows'
 
-  if (os.startsWith('macos') || os.startsWith('ios')) return 'cib:apple'
+    if (os.startsWith('macos') || os.startsWith('ios')) return 'cib:apple'
 
-  if (os.startsWith('debian')) return 'mdi:debian'
-  if (os.startsWith('ubuntu')) return 'ri:ubuntu-line'
-  if (os.startsWith('kubuntu')) return 'simple-icons:kubuntu'
-  if (os.startsWith('fedora')) return 'mdi:fedora'
-  if (os.includes('mint')) return 'mdi:linux-mint'
-  if (os.startsWith('manjaro')) return 'mdi:manjaro'
-  if (os.startsWith('centos')) return 'la:centos'
-  if (os.startsWith('gentoo')) return 'mdi:gentoo'
-  if (os.startsWith('alma')) return 'simple-icons:almalinux'
-  if (os.startsWith('kali')) return 'simple-icons:kalilinux'
-  if (os.startsWith('popos')) return 'simple-icons:popos'
-  if (os.startsWith('rocky')) return 'simple-icons:rockylinux'
-  if (os.startsWith('alpine')) return 'simple-icons:alpinelinux'
-  if (os.startsWith('endeavouros')) return 'simple-icons:endeavouros'
-  if (os.startsWith('cachyos')) return 'mdi:arch'
-  if (os.startsWith('arch')) return 'mdi:arch'
-  if (os.startsWith('deepin')) return 'simple-icons:deepin'
-  if (os.endsWith('linux')) return 'cib:linux'
+    if (os.startsWith('debian')) return 'mdi:debian'
+    if (os.startsWith('ubuntu')) return 'ri:ubuntu-line'
+    if (os.startsWith('kubuntu')) return 'simple-icons:kubuntu'
+    if (os.startsWith('fedora')) return 'mdi:fedora'
+    if (os.includes('mint')) return 'mdi:linux-mint'
+    if (os.startsWith('manjaro')) return 'mdi:manjaro'
+    if (os.startsWith('centos')) return 'la:centos'
+    if (os.startsWith('gentoo')) return 'mdi:gentoo'
+    if (os.startsWith('alma')) return 'simple-icons:almalinux'
+    if (os.startsWith('kali')) return 'simple-icons:kalilinux'
+    if (os.startsWith('popos')) return 'simple-icons:popos'
+    if (os.startsWith('rocky')) return 'simple-icons:rockylinux'
+    if (os.startsWith('alpine')) return 'simple-icons:alpinelinux'
+    if (os.startsWith('endeavouros')) return 'simple-icons:endeavouros'
+    if (os.startsWith('cachyos')) return 'mdi:arch'
+    if (os.startsWith('arch')) return 'mdi:arch'
+    if (os.startsWith('deepin')) return 'simple-icons:deepin'
+    if (os.endsWith('linux')) return 'cib:linux'
 
-  if (os.startsWith('coloros')) return 'simple-icons:oppo'
-  if (os.startsWith('hyperos')) return 'simple-icons:xiaomi'
-  if (os.startsWith('miui')) return 'simple-icons:xiaomi'
-  if (os.startsWith('one ui')) return 'arcticons:oneui-dark'
-  if (os.startsWith('realme')) return 'arcticons:realme-community'
-  if (os.startsWith('emui')) return 'simple-icons:huawei'
-  if (os.startsWith('harmonyos')) return 'ant-design:harmony-o-s-outlined'
-  if (os.startsWith('lineage')) return 'simple-icons:lineageos'
-  if (os.startsWith('crdroid')) return 'cib:android'
-  if (os.startsWith('pixel experience')) return 'cib:android'
-  if (os.startsWith('evolutionx')) return 'cib:android'
-  if (os.startsWith('miku')) return 'tdesign:green-onion'
-  if (os.endsWith('android')) return 'cib:android'
+    if (os.startsWith('coloros')) return 'simple-icons:oppo'
+    if (os.startsWith('hyperos')) return 'simple-icons:xiaomi'
+    if (os.startsWith('miui')) return 'simple-icons:xiaomi'
+    if (os.startsWith('one ui')) return 'arcticons:oneui-dark'
+    if (os.startsWith('realme')) return 'arcticons:realme-community'
+    if (os.startsWith('emui')) return 'simple-icons:huawei'
+    if (os.startsWith('harmonyos')) return 'ant-design:harmony-o-s-outlined'
+    if (os.startsWith('lineage')) return 'simple-icons:lineageos'
+    if (os.startsWith('crdroid')) return 'cib:android'
+    if (os.startsWith('pixel experience')) return 'cib:android'
+    if (os.startsWith('evolutionx')) return 'cib:android'
+    if (os.startsWith('miku')) return 'tdesign:green-onion'
+    if (os.endsWith('android')) return 'cib:android'
+  }
 
   return 'icon-park-solid:coordinate-system'
 })
@@ -206,7 +207,7 @@ onUpdated(() => {
 
         <div flex="~ items-center justify-end gap-2 wrap" text-light text-sm my="1">
           <div
-            v-if="info.device_os !== 'unknown'"
+            v-if="info.device_os"
             flex="~ items-center gap-1"
             title="操作系统"
             @dblclick="onIconClick"

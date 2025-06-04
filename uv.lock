@@ -118,19 +118,14 @@ wheels = [
 
 [[package]]
 name = "cookit"
-version = "0.11.6"
+version = "0.12.0.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/22/bc/13e8afc1fceff318e0b16cf5945712aced4c2a9ca6b769e40d9a56a8c7ef/cookit-0.11.6.tar.gz", hash = "sha256:0b79fcb8ccbd15320aae79a1590a2390043cfbf5f0a674e51c0a1399b5468018", size = 35677, upload-time = "2025-05-17T15:31:43.477Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/67/f73a4e468ba555cd4b4e30f875926c6b11012732eefca9250a2bffe294ad/cookit-0.12.0.post1.tar.gz", hash = "sha256:ba533a504945ab83c249122130bdd7fb6aa99152c94d3230acf413d99ea5e25e", size = 37313, upload-time = "2025-06-04T13:35:05.483Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/42/778dd09dd08acc366613ea7fbdf66d40c45a88586040afb4ebb76e3df538/cookit-0.11.6-py3-none-any.whl", hash = "sha256:e83995d3609094c98e714a8ea788f88498db974ed3aedbe960e47989748a2afb", size = 36342, upload-time = "2025-05-17T15:31:42.243Z" },
-]
-
-[package.optional-dependencies]
-pyd = [
-    { name = "pydantic" },
+    { url = "https://files.pythonhosted.org/packages/0a/5f/b0b665a63b1afd02e2206a6eee5ffe5893bbe47463015a0a32674c27556f/cookit-0.12.0.post1-py3-none-any.whl", hash = "sha256:5b9f8fd9ad6602942ffcdaadc3545c24e92e2cf366aa727dafb67c34964ba2ab", size = 37201, upload-time = "2025-06-04T13:35:04.435Z" },
 ]
 
 [[package]]
@@ -3193,7 +3188,6 @@ wheels = [
 name = "sleepy-rework"
 source = { editable = "backend/backend" }
 dependencies = [
-    { name = "cookit", extra = ["pyd"] },
     { name = "fastapi" },
     { name = "pydantic" },
     { name = "pydantic-settings", extra = ["toml"] },
@@ -3204,7 +3198,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cookit", extras = ["pyd"], specifier = ">=0.11.6" },
     { name = "fastapi", specifier = ">=0.115.12" },
     { name = "pydantic", specifier = ">=2.11.5" },
     { name = "pydantic-settings", extras = ["toml"], specifier = ">=2.9.1" },
@@ -3217,12 +3210,14 @@ requires-dist = [
 name = "sleepy-rework-client-desktop"
 source = { editable = "client/desktop" }
 dependencies = [
+    { name = "cookit" },
     { name = "httpx", extra = ["http2", "socks"] },
     { name = "nonestorage" },
     { name = "pylnk3", marker = "sys_platform == 'win32'" },
     { name = "pyqt-fluent-widgets", extra = ["full"] },
     { name = "pyqt5" },
     { name = "pyqt5-qt5" },
+    { name = "python-debouncer" },
     { name = "qasync" },
     { name = "sleepy-rework-types" },
     { name = "websockets" },
@@ -3230,6 +3225,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cookit", specifier = ">=0.12.0.post1" },
     { name = "httpx", extras = ["http2", "socks"], specifier = ">=0.28.1" },
     { name = "nonestorage", specifier = ">=0.1.0" },
     { name = "pylnk3", marker = "sys_platform == 'win32'", specifier = ">=0.4.3" },
@@ -3237,6 +3233,7 @@ requires-dist = [
     { name = "pyqt5", specifier = ">=5.15.11" },
     { name = "pyqt5-qt5", marker = "sys_platform != 'win32'", specifier = ">=5.15.2" },
     { name = "pyqt5-qt5", marker = "sys_platform == 'win32'", specifier = "==5.15.2" },
+    { name = "python-debouncer", specifier = ">=0.1.5" },
     { name = "qasync", specifier = ">=0.27.1" },
     { name = "sleepy-rework-types", editable = "backend/types" },
     { name = "websockets", specifier = ">=15.0.1" },
