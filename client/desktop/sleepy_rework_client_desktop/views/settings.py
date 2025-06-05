@@ -290,6 +290,12 @@ class SettingsPage(QWidget):
         self.setupUI()
 
         config.appAutoStart.valueChanged.connect(self.onAutoStartChanged)
+        self.serverEnableConnectCard.switchButton.checkedChanged.connect(
+            self.onEnableConnectSwitchChange,
+        )
+        self.onEnableConnectSwitchChange(
+            self.serverEnableConnectCard.switchButton.isChecked(),
+        )
 
     def setupUI(self) -> None:
         self.mainLayout = QVBoxLayout(self)
@@ -444,3 +450,9 @@ class SettingsPage(QWidget):
                 parent=self.appAutoStartCard,
             )
         self.appAutoStartCard.switchButton.setEnabled(True)
+
+    def onEnableConnectSwitchChange(self, connected: bool) -> None:
+        self.serverUrlCard.lineEdit.setDisabled(connected)
+        self.serverSecretCard.lineEdit.setDisabled(connected)
+        self.serverConnectProxyCard.lineEdit.setDisabled(connected)
+        self.deviceKeyCard.lineEdit.setDisabled(connected)

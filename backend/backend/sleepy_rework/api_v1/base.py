@@ -12,6 +12,7 @@ from fastapi import (
 )
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
+from pydantic import ValidationError
 
 from sleepy_rework_types import (
     DeviceConfig,
@@ -22,10 +23,12 @@ from sleepy_rework_types import (
     FrontendConfig,
     Info,
     OpSuccess,
+    WSErr,
 )
 
 from ..config import config
 from ..devices import Device, device_manager
+from ..exc_handle import transform_exc_detail
 from ..log import logger
 from .deps import AuthDep
 
@@ -129,16 +132,11 @@ def find_device_http(device_key: str) -> Device | None:
     return device
 
 
-async def add_device_http(
+async def add_device(
     device_key: str,
     info: DeviceInfoFromClient | None = None,
 ) -> Device:
-    if not info:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="New device should provide info",
-        )
-    return device_manager.add(device_key, info)
+    return device_manager.add(device_key, info or DeviceInfoFromClient())
 
 
 @router.get(
@@ -179,10 +177,6 @@ async def _(
     responses={
         200: {"model": OpSuccess},
         201: {"model": OpSuccess},
-        400: {
-            "model": ErrDetail,
-            "description": "新设备缺少必要参数",
-        },
         404: {
             "model": ErrDetail,
             "description": "未找到设备，且服务端不允许添加新设备",
@@ -213,7 +207,7 @@ async def update_device_info_http(
     if device:
         await device.update(info, replace=is_replace)
     else:
-        device = await add_device_http(device_key, info)
+        device = await add_device(device_key, info)
         response.status_code = status.HTTP_201_CREATED
         await device.update()
     return device.info
@@ -226,10 +220,6 @@ async def update_device_info_http(
     responses={
         200: {"model": DeviceInfo},
         201: {"model": DeviceInfo},
-        400: {
-            "model": ErrDetail,
-            "description": "新设备缺少设备初始配置",
-        },
         404: {
             "model": ErrDetail,
             "description": "未在配置中找到设备，且服务端不允许添加新设备",
@@ -399,9 +389,22 @@ async def _(
     return await update_device_info_http(response, device_key, info, is_replace=True)
 
 
+async def close_ws_use_http_exc(ws: WebSocket, exc: HTTPException):
+    we = WSErr(code=exc.status_code, detail=transform_exc_detail(exc.detail))
+    await ws.close(
+        code=status.WS_1008_POLICY_VIOLATION,
+        reason=we.model_dump_json(exclude_unset=True),
+    )
+
+
 @router.websocket("/device/{device_key}/info", dependencies=[AuthDep])
 async def _(ws: WebSocket, device_key: str):
-    device = find_device_http(device_key)
+    try:
+        device = find_device_http(device_key)
+    except HTTPException as e:
+        await close_ws_use_http_exc(ws, e)
+        return
+
     await ws.accept()
     if not device:
         try:
@@ -410,11 +413,37 @@ async def _(ws: WebSocket, device_key: str):
                 timeout=config.poll_offline_timeout,
             )
         except TimeoutError:
-            await add_device_http("", None)  # always raise error
+            await close_ws_use_http_exc(
+                ws,
+                HTTPException(status.HTTP_408_REQUEST_TIMEOUT),
+            )
             return
-        device = await add_device_http(
-            device_key,
-            DeviceInfoFromClientWS.model_validate_json(data),
+
+        try:
+            device = await add_device(
+                device_key,
+                DeviceInfoFromClientWS.model_validate_json(data),
+            )
+            await device.update(in_long_conn=True)
+        except Exception as e:
+            logger.exception(f"WebSocket error while adding device '{device_key}'")
+            code = (
+                status.HTTP_422_UNPROCESSABLE_ENTITY
+                if isinstance(e, ValidationError)
+                else status.HTTP_400_BAD_REQUEST
+            )
+            await close_ws_use_http_exc(ws, HTTPException(code))
+            return
+
+    try:
+        await device.handle_ws(ws)
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        logger.exception(f"WebSocket error while handling device '{device_key}'")
+        code = (
+            status.HTTP_422_UNPROCESSABLE_ENTITY
+            if isinstance(e, ValidationError)
+            else status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-        await device.update(in_long_conn=True)
-    await device.handle_ws(ws)
+        await close_ws_use_http_exc(ws, HTTPException(code))

@@ -22,6 +22,7 @@ from qframelesswindow.utils import getSystemAccentColor
 from sleepy_rework_types import DeviceType
 
 APP_NAME = "Sleepy Rework Desktop Client"
+APP_NAME_NO_SPACE = APP_NAME.replace(" ", "")
 APP_ID = "sleepy_rework_client_desktop"
 APP_PKG_NAME = "top.lgc2333.sleepy_rework.client_desktop"
 
@@ -125,7 +126,7 @@ class Config(QConfig):
     deviceName = ConfigItem(
         "device",
         "name",
-        "Desktop Device",
+        "",
         validator=StringValidator(),
     )
     deviceDescription = ConfigItem(

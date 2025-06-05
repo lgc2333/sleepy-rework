@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import traceback
 from typing import override
 
 import qasync
@@ -21,24 +22,21 @@ from .utils.single_app import QtSingleApplication
 
 
 class MainWindow(MSFluentWindow):
-    def __init__(self, show: bool = True):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
         self.resize(900, 650)
-
         self.setWindowIcon(QIcon(str(ICON_PATH)))
 
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(128, 128))
-        if show:
-            self.show()
 
+    def setup(self):
         self.setupTrayIcon()
         self.setupThemeListener()
         self.setupUI()
         self.restoreAutoStart()
         self.setupInfoClient()
-
         self.splashScreen.finish()
 
     def setupTrayIcon(self):
@@ -123,6 +121,15 @@ class MainWindow(MSFluentWindow):
         a0.accept()
 
 
+async def _async_setup(app: QtSingleApplication):
+    show = not ((AUTO_START_OPT in sys.argv) and qconfig.get(config.appStartMinimized))
+    window = MainWindow()
+    app.setActivationWindow(window)
+    if show:
+        window.show()
+    window.setup()
+
+
 def launch():
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough,
@@ -145,12 +152,13 @@ def launch():
     app_close_event = asyncio.Event()
     app.aboutToQuit.connect(app_close_event.set)
 
-    window = MainWindow(
-        show=not (
-            (AUTO_START_OPT in sys.argv) and qconfig.get(config.appStartMinimized)
-        ),
-    )
-    app.setActivationWindow(window)
+    def async_setup_callback(task: asyncio.Task):
+        if e := task.exception():
+            traceback.print_exception(e)
+            app_close_event.set()
 
     with event_loop:
+        event_loop.create_task(
+            _async_setup(app),
+        ).add_done_callback(async_setup_callback)
         event_loop.run_until_complete(app_close_event.wait())

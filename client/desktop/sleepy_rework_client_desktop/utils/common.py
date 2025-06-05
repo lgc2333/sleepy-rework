@@ -2,7 +2,7 @@ import sys
 import traceback
 from pathlib import Path
 
-from cookit.common.signal import Signal
+from cookit import Signal
 
 AUTO_START_OPT = "--auto-start"
 

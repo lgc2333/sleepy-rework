@@ -12,6 +12,11 @@ class ErrDetail(BaseModel):
     data: Any = None
 
 
+class WSErr(BaseModel):
+    code: int
+    detail: ErrDetail
+
+
 class OpSuccess(BaseModel):
     success: Literal[True] = True
 

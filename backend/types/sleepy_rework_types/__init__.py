@@ -25,6 +25,7 @@ from .models import (
     ErrDetail as ErrDetail,
     Info as Info,
     OpSuccess as OpSuccess,
+    WSErr as WSErr,
 )
 
 __version__ = "0.1.0"

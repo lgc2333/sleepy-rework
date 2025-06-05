@@ -4,8 +4,16 @@ from asyncio import Task
 from typing import Any, Literal, Self, cast, overload
 
 from websockets import ClientConnection, connect
+from websockets.http11 import USER_AGENT as UA_BASE
 
+from ..config import APP_NAME_NO_SPACE
 from ..utils.common import SafeLoggedSignal
+
+
+def get_ua():
+    from .. import __version__
+
+    return f"{UA_BASE} {APP_NAME_NO_SPACE}/{__version__}"
 
 
 class RetryWSClient[D: str | bytes]:
@@ -47,6 +55,8 @@ class RetryWSClient[D: str | bytes]:
     ):
         self.retry_sleep: int = retry_sleep
         self.connect_kwargs = kwargs
+        if "user_agent_header" not in self.connect_kwargs:
+            self.connect_kwargs["user_agent_header"] = get_ua()
 
         self._endpoint: str = endpoint
         self._decode: bool = decode

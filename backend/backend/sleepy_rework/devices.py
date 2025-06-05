@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Self
 
 from cookit import copy_func_annotations
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 
 from sleepy_rework_types import (
     DeviceConfig,
@@ -134,8 +134,8 @@ class Device:
             with suppress(Exception):
                 await old_connection.close()
 
-        while True:
-            try:
+        try:
+            while True:
                 data = DeviceInfoFromClientWS.model_validate_json(
                     await ws.receive_text(),
                 )
@@ -145,14 +145,10 @@ class Device:
                     replace=data.replace,
                 )
                 await ws.send_text(updated.model_dump_json())
-            except WebSocketDisconnect:
-                break
-            except Exception:
-                logger.exception("WebSocket error")
-                break
-        self._ws_connection = None
-        if self._timer is None:
-            await self.update(online=False)
+        finally:
+            self._ws_connection = None
+            if self._timer is None:
+                await self.update(online=False)
 
 
 class DeviceManager:
@@ -160,8 +156,10 @@ class DeviceManager:
         self.devices: dict[str, Device] = {}
         self.update_handlers: list[ManagerStatusUpdateHandler] = []
 
-        if config:
-            for key, cfg in config.items():
+        if not config:
+            return
+        for key, cfg in config.items():
+            if not cfg.remove_when_offline:
                 self.add(key, cfg)
 
     @property

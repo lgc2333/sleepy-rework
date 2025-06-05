@@ -6,6 +6,7 @@ from types import EllipsisType, TracebackType
 from typing import Any, Never, Self, override
 
 from httpx import AsyncClient, Client, HTTPStatusError, Response
+from httpx._client import USER_AGENT as UA_BASE
 from pydantic import BaseModel
 
 from ..config import FrontendConfig
@@ -157,7 +158,7 @@ class BaseHttpApiClient(ABC):
         from .. import __version__
 
         headers = {
-            "User-Agent": f"sleepy-rework-types/{__version__}",
+            "User-Agent": f"{UA_BASE} sleepy-rework-types/{__version__}",
             "Authorization": f"Bearer {self.secret}",
         }
         if self.app_ua:
