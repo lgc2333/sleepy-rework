@@ -139,14 +139,16 @@ class RetryWSClient[D: str | bytes]:
 
         return await fut
 
-    def _task_cleanup(self):
-        self._run_task = None
+    def _task_cleanup(self, task: Task):
+        if self._run_task is task:
+            self._run_task = None
         self.on_background_stopped.task_gather(self)
 
     def run_in_background(self):
         if self._run_task is None:
-            self._run_task = Task(self._run())
-            self._run_task.add_done_callback(lambda _: self._task_cleanup())
+            task = Task(self._run())
+            self._run_task = task
+            self._run_task.add_done_callback(lambda _: self._task_cleanup(task))
             self.on_background_started.task_gather(self)
         return self._run_task
 
@@ -154,7 +156,7 @@ class RetryWSClient[D: str | bytes]:
         if self._run_task is None:
             return None
         task = self._run_task
-        self._task_cleanup()
+        task.cancel()
         return task
 
     def stop_background(self):

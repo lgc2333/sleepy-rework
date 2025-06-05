@@ -37,7 +37,7 @@ class MainWindow(MSFluentWindow):
         self.setupThemeListener()
         self.setupUI()
         self.restoreAutoStart()
-        self.setupClient()
+        self.setupInfoClient()
 
         self.splashScreen.finish()
 
@@ -95,7 +95,7 @@ class MainWindow(MSFluentWindow):
         qconfig.set(config.appAutoStart, auto_start_enabled)
 
     @override
-    def setupClient(self):
+    def setupInfoClient(self):
         from .client.info import info_feeder
 
         if qconfig.get(config.serverEnableConnect):

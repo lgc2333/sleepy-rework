@@ -92,7 +92,7 @@ class DeviceInfoFeeder(RetryWSClient[str]):
 
 
 info_feeder = DeviceInfoFeeder(
-    qconfig.get(config.serverUrl),
+    qconfig.get(config.serverUrl).replace("http", "ws", 1),
     qconfig.get(config.serverSecret),
     DeviceInfoFromClientWS.model_validate(get_initial_device_info_dict()),
     proxy=qconfig.get(config.serverConnectProxy) or True,
@@ -107,7 +107,7 @@ def on_config_enable_change(v: bool):
 
 
 def on_config_url_change(v: str):
-    info_feeder.endpoint = v
+    info_feeder.endpoint = v.replace("http", "ws", 1)
 
 
 def on_config_secret_change(v: str):
