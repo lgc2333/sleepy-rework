@@ -83,5 +83,8 @@ class DeviceInfoFeeder(RetryWSClient[str]):
 info_feeder = DeviceInfoFeeder(
     qconfig.get(config.serverUrl),
     qconfig.get(config.serverSecret),
+    DeviceInfoFromClientWS(
+        name=qconfig.get(config.deviceName),
+    ),
     proxy=qconfig.get(config.serverConnectProxy),
 )

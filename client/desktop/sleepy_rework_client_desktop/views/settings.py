@@ -1,17 +1,18 @@
-from typing import ClassVar, cast
+from typing import ClassVar
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
+    ConfigItem,
     FluentIcon,
     IndicatorPosition,
     InfoBar,
     InfoBarPosition,
     LineEdit,
+    OptionsConfigItem,
     OptionsSettingCard,
-    OptionsValidator,
     SettingCardGroup,
     SmoothScrollArea,
     SwitchButton,
@@ -30,6 +31,44 @@ from ..widgets import (
 )
 
 
+def connectLineEditToConfig(
+    lineEdit: LineEdit,
+    config: ConfigItem,
+    init: bool = True,
+):
+    if init:
+        lineEdit.setText(qconfig.get(config))
+    lineEdit.textChanged.connect(lambda text: qconfig.set(config, text))
+    config.valueChanged.connect(lineEdit.setText)
+
+
+def connectSwitchToConfig(
+    switch: SwitchButton,
+    config: ConfigItem,
+    init: bool = True,
+):
+    if init:
+        switch.setChecked(qconfig.get(config))
+    switch.checkedChanged.connect(lambda checked: qconfig.set(config, checked))
+    config.valueChanged.connect(switch.setChecked)
+
+
+def connectComboBoxToConfig(
+    comboBox: ComboBox,
+    config: OptionsConfigItem,
+    init: bool = True,
+):
+    options: list = config.options
+    if init:
+        comboBox.setCurrentIndex(options.index(qconfig.get(config)))
+    comboBox.currentIndexChanged.connect(
+        lambda index: qconfig.set(config, options[index]),
+    )
+    config.valueChanged.connect(
+        lambda value: comboBox.setCurrentIndex(options.index(value)),
+    )
+
+
 class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
     def __init__(
         self,
@@ -42,14 +81,10 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             parent,
         )
 
-        options = cast(
-            "OptionsValidator",
-            config.deviceTypeOverrideValueBuiltIn.validator,
-        ).options
-
         self.useDefaultSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.useDefaultSwitch.setChecked(
-            qconfig.get(config.deviceTypeOverrideUseDefault),
+        connectSwitchToConfig(
+            self.useDefaultSwitch,
+            config.deviceTypeOverrideUseDefault,
         )
         self.useDefaultSwitch.checkedChanged.connect(self._onUseDefaultSwitchChanged)
         self.useDefaultGroup = ExpandGroupWidget(
@@ -58,7 +93,10 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.enableSwitch.setChecked(qconfig.get(config.deviceTypeOverrideEnable))
+        connectSwitchToConfig(
+            self.enableSwitch,
+            config.deviceTypeOverrideEnable,
+        )
         self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
         self.enableGroup = ExpandGroupWidget(
             label=BodyLabel("覆盖服务端配置"),
@@ -66,7 +104,10 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.useCustomSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.useCustomSwitch.setChecked(qconfig.get(config.deviceTypeOverrideUseCustom))
+        connectSwitchToConfig(
+            self.useCustomSwitch,
+            config.deviceTypeOverrideUseCustom,
+        )
         self.useCustomSwitch.checkedChanged.connect(self._onUseCustomSwitchChanged)
         self.useCustomGroup = ExpandGroupWidget(
             label=BodyLabel("自定义输入模式"),
@@ -75,18 +116,11 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
 
         self.builtInCombo = ComboBox()
         self.builtInCombo.addItems(
-            ["Windows", "macOS", "Linux", "Android", "iOS", "未知"],
+            ["台式电脑", "笔记本电脑", "手机", "平板电脑", "智能手表", "未知"],
         )
-        currBuiltInIndex = options.index(
-            qconfig.get(config.deviceTypeOverrideValueBuiltIn),
-        )
-        if currBuiltInIndex >= 0:
-            self.builtInCombo.setCurrentIndex(currBuiltInIndex)
-        self.builtInCombo.currentIndexChanged.connect(
-            lambda index: qconfig.set(
-                config.deviceTypeOverrideValueBuiltIn,
-                options[index],
-            ),
+        connectComboBoxToConfig(
+            self.builtInCombo,
+            config.deviceTypeOverrideValueBuiltIn,
         )
         self.builtInGroup = ExpandGroupWidget(
             label=BodyLabel("选择设备类型"),
@@ -94,9 +128,9 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.customLineEdit = LineEdit()
-        self.customLineEdit.setText(qconfig.get(config.deviceTypeOverrideValueCustom))
-        self.customLineEdit.textChanged.connect(
-            lambda text: qconfig.set(config.deviceTypeOverrideValueCustom, text),
+        connectLineEditToConfig(
+            self.customLineEdit,
+            config.deviceTypeOverrideValueCustom,
         )
         self.customGroup = ExpandGroupWidget(
             label=BodyLabel("输入设备类型（留空设为未知）"),
@@ -109,7 +143,6 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
     def _onUseDefaultSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(config.deviceTypeOverrideUseDefault, checked)
         if checked:
             self.removeGroupWidget(self.enableGroup)
             self.removeGroupWidget(self.useCustomGroup)
@@ -120,7 +153,6 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             self._onEnableSwitchChanged(qconfig.get(config.deviceTypeOverrideEnable))
 
     def _onEnableSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(config.deviceTypeOverrideEnable, checked)
         if checked:
             self.addGroupWidget(self.useCustomGroup)
             self._onUseCustomSwitchChanged(
@@ -132,8 +164,6 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             self.removeGroupWidget(self.customGroup)
 
     def _onUseCustomSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(config.deviceTypeOverrideUseCustom, checked)
-
         if checked:
             self.removeGroupWidget(self.builtInGroup)
             self.addGroupWidget(self.customGroup)
@@ -155,7 +185,10 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.useDefaultSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.useDefaultSwitch.setChecked(qconfig.get(config.deviceOSOverrideUseDetect))
+        connectSwitchToConfig(
+            self.useDefaultSwitch,
+            config.deviceOSOverrideUseDetect,
+        )
         self.useDefaultSwitch.checkedChanged.connect(self._onUseDefaultSwitchChanged)
         self.useDefaultGroup = ExpandGroupWidget(
             label=BodyLabel("使用自动检测结果"),
@@ -163,7 +196,10 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
-        self.enableSwitch.setChecked(qconfig.get(config.deviceOSOverrideEnable))
+        connectSwitchToConfig(
+            self.enableSwitch,
+            config.deviceOSOverrideEnable,
+        )
         self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
         self.enableGroup = ExpandGroupWidget(
             label=BodyLabel("覆盖服务端配置"),
@@ -171,9 +207,9 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         )
 
         self.customLineEdit = LineEdit()
-        self.customLineEdit.setText(qconfig.get(config.deviceOSOverrideValue))
-        self.customLineEdit.textChanged.connect(
-            lambda text: qconfig.set(config.deviceOSOverrideValue, text),
+        connectLineEditToConfig(
+            self.customLineEdit,
+            config.deviceOSOverrideValue,
         )
         self.customGroup = ExpandGroupWidget(
             label=BodyLabel("输入操作系统（留空设为未知）"),
@@ -184,7 +220,6 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
         self._onUseDefaultSwitchChanged(qconfig.get(config.deviceOSOverrideUseDetect))
 
     def _onUseDefaultSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(config.deviceOSOverrideUseDetect, checked)
         if checked:
             self.removeGroupWidget(self.enableGroup)
             self.removeGroupWidget(self.customGroup)
@@ -193,11 +228,56 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             self._onEnableSwitchChanged(qconfig.get(config.deviceOSOverrideEnable))
 
     def _onEnableSwitchChanged(self, checked: bool) -> None:
-        qconfig.set(config.deviceOSOverrideEnable, checked)
         if checked:
             self.addGroupWidget(self.customGroup)
         else:
             self.removeGroupWidget(self.customGroup)
+
+
+class DeviceRemoveWhenOfflineOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(
+            FluentIcon.DELETE,
+            "设备离线自动删除",
+            "是否让后端在设备离线时自动删除此设备信息",
+            parent,
+        )
+
+        self.enableSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        connectSwitchToConfig(
+            self.enableSwitch,
+            config.deviceRemoveWhenOfflineOverrideEnable,
+        )
+        self.enableSwitch.checkedChanged.connect(self._onEnableSwitchChanged)
+        self.enableGroup = ExpandGroupWidget(
+            label=BodyLabel("覆盖服务端配置"),
+            widget=self.enableSwitch,
+        )
+
+        self.valueSwitch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        connectSwitchToConfig(
+            self.valueSwitch,
+            config.deviceRemoveWhenOfflineOverrideValue,
+        )
+        self.valueGroup = ExpandGroupWidget(
+            label=BodyLabel("是否自动删除"),
+            widget=self.valueSwitch,
+        )
+
+        self.addGroupWidget(self.enableGroup)
+        self._onEnableSwitchChanged(
+            qconfig.get(config.deviceRemoveWhenOfflineOverrideEnable),
+        )
+
+    def _onEnableSwitchChanged(self, checked: bool) -> None:
+        qconfig.set(config.deviceRemoveWhenOfflineOverrideEnable, checked)
+        if checked:
+            self.addGroupWidget(self.valueGroup)
+        else:
+            self.removeGroupWidget(self.valueGroup)
 
 
 class SettingsPage(QWidget):
@@ -334,10 +414,18 @@ class SettingsPage(QWidget):
         self.deviceSettingGroup.addSettingCard(self.deviceDescriptionCard)
 
         self.deviceTypeOverrideCard = DeviceTypeOverrideGroupSettingCard()
+        self.deviceTypeOverrideCard.setExpand(True)
         self.deviceSettingGroup.addSettingCard(self.deviceTypeOverrideCard)
 
         self.deviceOSOverrideCard = DeviceOSOverrideGroupSettingCard()
+        self.deviceOSOverrideCard.setExpand(True)
         self.deviceSettingGroup.addSettingCard(self.deviceOSOverrideCard)
+
+        self.deviceRemoveWhenOfflineOverrideCard = (
+            DeviceRemoveWhenOfflineOverrideGroupSettingCard()
+        )
+        self.deviceRemoveWhenOfflineOverrideCard.setExpand(True)
+        self.deviceSettingGroup.addSettingCard(self.deviceRemoveWhenOfflineOverrideCard)
 
         self.scrollContentLayout.addWidget(self.deviceSettingGroup)
 

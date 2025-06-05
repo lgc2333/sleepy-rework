@@ -138,7 +138,7 @@ class Config(QConfig):
     deviceTypeOverrideUseDefault = ConfigItem(
         "device",
         "typeOverrideUseDefault",
-        default=False,
+        default=True,
         validator=BoolValidator(),
     )
     deviceTypeOverrideEnable = ConfigItem(
@@ -183,6 +183,19 @@ class Config(QConfig):
         "osOverrideValue",
         "",
         validator=StringValidator(),
+    )
+
+    deviceRemoveWhenOfflineOverrideEnable = ConfigItem(
+        "device",
+        "removeWhenOfflineOverrideEnable",
+        default=False,
+        validator=BoolValidator(),
+    )
+    deviceRemoveWhenOfflineOverrideValue = ConfigItem(
+        "device",
+        "removeWhenOfflineOverrideValue",
+        default=False,
+        validator=BoolValidator(),
     )
 
 
