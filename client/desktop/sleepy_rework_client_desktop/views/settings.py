@@ -14,7 +14,7 @@ from qfluentwidgets import (
     OptionsConfigItem,
     OptionsSettingCard,
     SettingCardGroup,
-    SmoothScrollArea,
+    SingleDirectionScrollArea,
     SwitchButton,
     SwitchSettingCard,
     qconfig,
@@ -302,24 +302,23 @@ class SettingsPage(QWidget):
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
 
-        self.scrollArea = SmoothScrollArea(self)
+        self.scrollArea = SingleDirectionScrollArea(orient=Qt.Orientation.Vertical)
         self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setStyleSheet(
-            "background-color: transparent; border: none;",
-        )
 
         self.scrollWidget = QWidget()
         self.scrollContentLayout = QVBoxLayout(self.scrollWidget)
         self.scrollContentLayout.setContentsMargins(8, 8, 8, 8)
         self.scrollContentLayout.setSpacing(8)
-        self.scrollContentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
         self.scrollArea.setWidget(self.scrollWidget)
+
+        self.scrollArea.enableTransparentBackground()
         self.mainLayout.addWidget(self.scrollArea)
 
         self.createServerSettings()
         self.createAppSettings()
         self.createDeviceSettings()
+
+        self.scrollContentLayout.addStretch()
 
     def createServerSettings(self) -> None:
         self.serverSettingGroup = SettingCardGroup("服务设置")

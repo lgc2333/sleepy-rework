@@ -4,11 +4,12 @@ import traceback
 from typing import override
 
 import qasync
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QLocale, QSize, Qt
 from PyQt5.QtGui import QCloseEvent, QIcon, QShowEvent
 from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import (
     FluentIcon,
+    FluentTranslator,
     MSFluentWindow,
     SplashScreen,
     SystemThemeListener,
@@ -145,6 +146,9 @@ def launch():
         sys.exit(0)
 
     app.setQuitOnLastWindowClosed(False)
+
+    translator = FluentTranslator(QLocale(QLocale.Chinese, QLocale.China))
+    app.installTranslator(translator)
 
     event_loop = qasync.QEventLoop(app)
     asyncio.set_event_loop(event_loop)
