@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "sleepy-rework-types": ["types-js/src"],
+      "sleepy-rework-types": ["types/js/src"],
       "sleepy-rework-website": ["website/src"]
     }
   },

@@ -5400,9 +5400,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sleepy-rework-types@workspace:^, sleepy-rework-types@workspace:types-js":
+"sleepy-rework-types@workspace:^, sleepy-rework-types@workspace:types/js":
   version: 0.0.0-use.local
-  resolution: "sleepy-rework-types@workspace:types-js"
+  resolution: "sleepy-rework-types@workspace:types/js"
   dependencies:
     dumble: "npm:^0.2.2"
     openapi-typescript: "npm:^7.8.0"

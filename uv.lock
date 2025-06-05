@@ -3237,13 +3237,13 @@ requires-dist = [
     { name = "pyqt5-qt5", marker = "sys_platform == 'win32'", specifier = "==5.15.2" },
     { name = "python-debouncer", specifier = ">=0.1.5" },
     { name = "qasync", specifier = ">=0.27.1" },
-    { name = "sleepy-rework-types", editable = "types-python" },
+    { name = "sleepy-rework-types", editable = "types/python" },
     { name = "websockets", specifier = ">=15.0.1" },
 ]
 
 [[package]]
 name = "sleepy-rework-types"
-source = { editable = "types-python" }
+source = { editable = "types/python" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
@@ -3468,7 +3468,7 @@ dev = [
     { name = "ruff", specifier = ">=0.11.11" },
     { name = "sleepy-rework", editable = "backend" },
     { name = "sleepy-rework-client-desktop", editable = "client/desktop" },
-    { name = "sleepy-rework-types", editable = "types-python" },
+    { name = "sleepy-rework-types", editable = "types/python" },
 ]
 
 [[package]]
