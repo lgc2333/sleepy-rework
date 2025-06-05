@@ -30,8 +30,9 @@ pythonVersion = "3.12"
 typeCheckingMode = "standard"
 reportShadowedImports = false
 exclude = ["**/node_modules", "**/.venv"]
+stubPath = "stubs"
 executionEnvironments = [
-    { root = "typings", reportIncompatibleMethodOverride = false, reportSelfClsParameterName = false },
+    { root = "stubs", reportIncompatibleMethodOverride = false, reportSelfClsParameterName = false },
     { root = "." },
 ]
 
