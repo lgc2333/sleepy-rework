@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { useDark } from '@vueuse/core'
+import type { FrontendConfig, Info } from 'sleepy-rework-types'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import DeviceCard from './components/DeviceCard.vue'
-import { createWS, request } from './services'
-import type { FrontendConfig, Info } from './types'
+import { client, createWS, immutableToastOptions } from './services'
 
 const config = ref<FrontendConfig | null>(null)
 const info = ref<Info | null>(null)
@@ -20,18 +21,19 @@ function toggleDark() {
   })
 }
 
-const ws = createWS('/info', {
+const toast = useToast()
+
+const ws = createWS('/api/v1/info', {
   onOpen: () => {
-    request('/config/frontend', 'GET', {
-      timeout: false,
-      draggable: false,
-      closeButton: false,
-      closeOnClick: false,
-    })
+    client
+      .GET('/api/v1/config/frontend')
       .then((res) => {
-        config.value = res
+        config.value = res.data!
       })
-      .catch()
+      .catch((e) => {
+        console.error(e)
+        toast.error('获取前端配置失败，请刷新页面重试', immutableToastOptions)
+      })
   },
   onMessage: (data) => {
     info.value = data

@@ -5,14 +5,21 @@
   "private": true,
   "packageManager": "yarn@4.9.1",
   "workspaces": [
+    "types-js",
     "website"
   ],
+  "scripts": {
+    "build": "yarn workspaces foreach -Wpt run build",
+    "clean": "yarn workspaces foreach -Wpt run clean"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "dumble": "^0.2.2",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.5.3",
+    "sleepy-rework-types": "workspace:^",
     "typescript": "^5.8.3"
   }
 }

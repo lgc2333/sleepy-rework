@@ -1,3 +1,13 @@
+import createClient from 'openapi-fetch'
+import type {
+  ErrDetail,
+  WsHeaders,
+  WsPath,
+  WsPathParams,
+  WsQueryParams,
+  WsRecvData,
+  paths,
+} from 'sleepy-rework-types'
 import { TYPE, useToast } from 'vue-toastification'
 import type {
   ToastContent,
@@ -5,19 +15,10 @@ import type {
   ToastOptions,
 } from 'vue-toastification/dist/types/types'
 
-import type {
-  ApiMethod,
-  ApiPath,
-  ApiResponse,
-  ErrDetail,
-  WsMessage,
-  WsPath,
-} from '../types'
-
 const toast = useToast()
 
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL || window.location.origin}/api/v1`
-const WS_BASE = API_BASE.replace(/^http/, 'ws')
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin
+export const WS_BASE = API_BASE.replace(/^http/, 'ws')
 
 export class ApiError extends Error {
   constructor(
@@ -34,41 +35,33 @@ export class ApiError extends Error {
   }
 }
 
-export async function request<T extends ApiPath, M extends ApiMethod<T>>(
-  path: T,
-  method: M,
-  toastOptions: Omit<ToastOptions, 'type'> = {},
-): Promise<ApiResponse<T, M>> {
-  const options: RequestInit = {
-    method: method as string,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }
+export const immutableToastOptions = {
+  timeout: false,
+  draggable: false,
+  closeButton: false,
+  closeOnClick: false,
+} satisfies ToastOptions
 
-  let resp: Response
-  let data: any
-  try {
-    resp = await fetch(`${API_BASE}${path}`, options)
-    data = await resp.json()
-  } catch (e) {
-    toast.error(`请求出错：${e}`, toastOptions)
-    throw e
-  }
-
-  if (!resp.ok) {
-    const e = new ApiError(resp.status, data)
-    toast.error(`请求出错：${e}`, toastOptions)
-    throw e
-  }
-  return data
-}
+export const client = createClient<paths>({ baseUrl: API_BASE })
+client.use({
+  onResponse: async ({ response }) => {
+    if (!response.ok) {
+      throw new ApiError(response.status, await response.json())
+    }
+  },
+  onError: ({ error }) => {
+    return error instanceof Error ? error : new Error(`${error}`)
+  },
+})
 
 export function createWS<T extends WsPath>(
   endpoint: T,
   options: {
+    headers?: WsHeaders<T>
+    path?: WsPathParams<T>
+    query?: WsQueryParams<T>
     onOpen?: (event: Event) => void
-    onMessage?: (data: WsMessage<T>) => void
+    onMessage?: (data: WsRecvData<T>) => void
     onError?: (event: Event) => void
     onClose?: (event: CloseEvent) => void
   } = {},
@@ -104,13 +97,7 @@ export function createWS<T extends WsPath>(
     if (!firstConnect) {
       updateStickingToast({
         content: `正在连接服务端`,
-        options: {
-          type: TYPE.INFO,
-          timeout: false,
-          draggable: false,
-          closeButton: false,
-          closeOnClick: false,
-        },
+        options: { type: TYPE.INFO, ...immutableToastOptions },
       })
     }
     firstConnect = false
@@ -125,7 +112,7 @@ export function createWS<T extends WsPath>(
 
     ws.addEventListener('message', (event) => {
       try {
-        const data = JSON.parse(event.data) as WsMessage<T>
+        const data = JSON.parse(event.data) as WsRecvData<T>
         options.onMessage?.(data)
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error)
@@ -145,13 +132,7 @@ export function createWS<T extends WsPath>(
       if (stopped) return
       updateStickingToast({
         content: `服务端连接${connected ? '断开' : '失败'} (${ev.code})，3 秒后重连`,
-        options: {
-          type: TYPE.ERROR,
-          timeout: false,
-          draggable: false,
-          closeButton: false,
-          closeOnClick: false,
-        },
+        options: { type: TYPE.ERROR, ...immutableToastOptions },
       })
       connected = false
       options.onClose?.(ev)

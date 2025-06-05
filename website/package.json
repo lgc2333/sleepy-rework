@@ -1,11 +1,12 @@
 {
   "name": "sleepy-rework-website",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "packageManager": "yarn@4.9.1",
   "scripts": {
     "build": "vue-tsc -b && vite build",
+    "clean": "rimraf dist",
     "dev": "vite",
     "preview": "vite preview"
   },
@@ -15,6 +16,8 @@
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "@vueuse/core": "^13.3.0",
+    "openapi-fetch": "^0.14.0",
+    "rimraf": "^6.0.1",
     "sass-embedded": "^1.89.0",
     "unocss": "^66.1.2",
     "vite": "^6.3.5",

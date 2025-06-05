@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
+import type { DeviceInfo } from 'sleepy-rework-types'
 import { computed, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
-
-import { DeviceType, OnlineStatus } from '../types'
-import type { DeviceInfo } from '../types'
 
 const { info } = defineProps<{ info: DeviceInfo }>()
 
 const deviceIcon = computed(() => {
   switch (info.device_type) {
-    case DeviceType.PC:
+    case 'pc':
       return 'bi:pc-display'
-    case DeviceType.LAPTOP:
+    case 'laptop':
       return 'carbon:laptop'
-    case DeviceType.PHONE:
+    case 'phone':
       return 'carbon:mobile'
-    case DeviceType.TABLET:
+    case 'tablet':
       return 'carbon:tablet'
-    case DeviceType.SMARTWATCH:
+    case 'smartwatch':
       return 'carbon:watch'
     default:
       return 'carbon:application'
@@ -96,17 +94,16 @@ function onIconClick() {
   }
 }
 
-// 误报
-// eslint-disable-next-line vue/return-in-computed-property
 const statusName = computed(() => {
   switch (info.status) {
-    case OnlineStatus.ONLINE:
+    case 'online':
       return '在线'
-    case OnlineStatus.IDLE:
+    case 'idle':
       return '闲置'
-    case OnlineStatus.OFFLINE:
+    case 'offline':
       return '离线'
   }
+  return '未知'
 })
 
 function formatUpdate(timestamp: number) {

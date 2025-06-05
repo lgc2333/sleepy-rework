@@ -16,7 +16,7 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["backend/*", "client/desktop"]
+members = ["types-python", "backend", "client/desktop"]
 
 [tool.uv.sources]
 sleepy-rework = { workspace = true }

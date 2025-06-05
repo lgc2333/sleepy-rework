@@ -3186,7 +3186,7 @@ wheels = [
 
 [[package]]
 name = "sleepy-rework"
-source = { editable = "backend/backend" }
+source = { editable = "backend" }
 dependencies = [
     { name = "cookit" },
     { name = "fastapi" },
@@ -3237,13 +3237,13 @@ requires-dist = [
     { name = "pyqt5-qt5", marker = "sys_platform == 'win32'", specifier = "==5.15.2" },
     { name = "python-debouncer", specifier = ">=0.1.5" },
     { name = "qasync", specifier = ">=0.27.1" },
-    { name = "sleepy-rework-types", editable = "backend/types" },
+    { name = "sleepy-rework-types", editable = "types-python" },
     { name = "websockets", specifier = ">=15.0.1" },
 ]
 
 [[package]]
 name = "sleepy-rework-types"
-source = { editable = "backend/types" }
+source = { editable = "types-python" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
@@ -3466,9 +3466,9 @@ dev = [
 dev = [
     { name = "basedpyright", specifier = ">=1.29.2" },
     { name = "ruff", specifier = ">=0.11.11" },
-    { name = "sleepy-rework", editable = "backend/backend" },
+    { name = "sleepy-rework", editable = "backend" },
     { name = "sleepy-rework-client-desktop", editable = "client/desktop" },
-    { name = "sleepy-rework-types", editable = "backend/types" },
+    { name = "sleepy-rework-types", editable = "types-python" },
 ]
 
 [[package]]

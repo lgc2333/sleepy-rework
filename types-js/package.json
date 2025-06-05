@@ -1,0 +1,22 @@
+{
+  "name": "sleepy-rework-types",
+  "version": "0.1.0",
+  "packageManager": "yarn@4.9.1",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "generate": "openapi-typescript http://127.0.0.1:29306/docs/openapi.json -o src/schema.ts && yarn format",
+    "build:src": "tsc -b && dumble",
+    "build": "yarn generate && yarn build:src",
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+    "format": "prettier --ignore-path -cw src"
+  },
+  "devDependencies": {
+    "dumble": "^0.2.2",
+    "openapi-typescript": "^7.8.0",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "sleepy-rework-types": ["types-js/src"],
+      "sleepy-rework-website": ["website/src"]
+    }
+  },
+  "files": []
+}
