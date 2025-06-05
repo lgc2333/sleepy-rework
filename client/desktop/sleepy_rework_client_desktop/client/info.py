@@ -8,6 +8,11 @@ from sleepy_rework_types import DeviceInfo, DeviceInfoFromClientWS
 
 from ..config import config
 from ..utils.common import SafeLoggedSignal, deep_update
+from ..utils.info.shared import (
+    get_device_os,
+    get_device_type,
+    get_initial_device_info_dict,
+)
 from .base import RetryWSClient
 
 THROTTLE = 1
@@ -21,11 +26,9 @@ class DeviceInfoFeeder(RetryWSClient[str]):
         initial_info: DeviceInfoFromClientWS | None = None,
         **kwargs,
     ):
-        kwargs.setdefault("additional_headers", {})
-        kwargs["additional_headers"]["Authorization"] = f"Bearer {secret}"
-
         super().__init__(endpoint, decode=True, **kwargs)
 
+        self.update_secret(secret)
         self.initial_info = initial_info or DeviceInfoFromClientWS()
 
         self._server_side_info: DeviceInfo | None = None
@@ -50,6 +53,14 @@ class DeviceInfoFeeder(RetryWSClient[str]):
             await self.ws.send(msg)
 
         self._debounced_send_buf = _debounced_send_buf
+
+    @property
+    def server_side_info(self) -> DeviceInfo | None:
+        return self._server_side_info
+
+    def update_secret(self, secret: str):
+        self.connect_kwargs.setdefault("additional_headers", {})
+        self.connect_kwargs["additional_headers"]["Authorization"] = f"Bearer {secret}"
 
     def update_info(self, info: DeviceInfoFromClientWS | None = None):
         if not info:
@@ -83,8 +94,96 @@ class DeviceInfoFeeder(RetryWSClient[str]):
 info_feeder = DeviceInfoFeeder(
     qconfig.get(config.serverUrl),
     qconfig.get(config.serverSecret),
-    DeviceInfoFromClientWS(
-        name=qconfig.get(config.deviceName),
-    ),
-    proxy=qconfig.get(config.serverConnectProxy),
+    DeviceInfoFromClientWS.model_validate(get_initial_device_info_dict()),
+    proxy=qconfig.get(config.serverConnectProxy) or True,
+)
+
+
+def on_config_enable_change(v: bool):
+    if v:
+        info_feeder.run_in_background()
+    else:
+        info_feeder.stop_background()
+
+
+def on_config_url_change(v: str):
+    info_feeder.endpoint = v
+
+
+def on_config_secret_change(v: str):
+    info_feeder.update_secret(v)
+
+
+def on_config_proxy_change(v: str):
+    info_feeder.proxy = v or True
+
+
+def on_config_device_attr_change(attr: str, v: Any | None):
+    # if v is None, meaning using server side config
+    # then we need to remove the attr from server side stored data
+    # so we replace the entire info with target attr excluded
+
+    v_is_none = v is None
+    v = v or None
+    setattr(info_feeder.initial_info, attr, v)
+
+    if not v_is_none:
+        info_feeder.update_info(DeviceInfoFromClientWS.model_validate({attr: v}))
+        return
+
+    info_feeder.initial_info.model_fields_set.remove(attr)
+
+    info = info_feeder.server_side_info
+    if info:
+        info = DeviceInfoFromClientWS.model_validate(
+            info.model_dump(exclude_unset=True),
+        )
+        setattr(info, attr, None)
+        info.model_fields_set.remove(attr)
+    else:
+        info = info_feeder.initial_info
+
+    info.replace = True
+    info_feeder.update_info(info)
+
+
+def on_config_device_type_change(_: Any):
+    on_config_device_attr_change("device_type", get_device_type())
+
+
+def on_config_device_os_change(_: Any):
+    on_config_device_attr_change("device_os", get_device_os())
+
+
+def on_config_device_auto_remove_change(_: Any):
+    on_config_device_attr_change(
+        "remove_when_offline",
+        (
+            qconfig.get(config.deviceRemoveWhenOfflineOverrideValue)
+            if qconfig.get(config.deviceRemoveWhenOfflineOverrideEnable)
+            else None
+        ),
+    )
+
+
+config.serverEnableConnect.valueChanged.connect(on_config_enable_change)
+config.serverUrl.valueChanged.connect(on_config_url_change)
+config.serverSecret.valueChanged.connect(on_config_secret_change)
+config.serverConnectProxy.valueChanged.connect(on_config_proxy_change)
+
+config.deviceTypeOverrideUseDefault.valueChanged.connect(on_config_device_type_change)
+config.deviceTypeOverrideEnable.valueChanged.connect(on_config_device_type_change)
+config.deviceTypeOverrideUseCustom.valueChanged.connect(on_config_device_type_change)
+config.deviceTypeOverrideValueBuiltIn.valueChanged.connect(on_config_device_type_change)
+config.deviceTypeOverrideValueCustom.valueChanged.connect(on_config_device_type_change)
+
+config.deviceOSOverrideUseDetect.valueChanged.connect(on_config_device_os_change)
+config.deviceOSOverrideEnable.valueChanged.connect(on_config_device_os_change)
+config.deviceOSOverrideValue.valueChanged.connect(on_config_device_os_change)
+
+config.deviceRemoveWhenOfflineOverrideEnable.valueChanged.connect(
+    on_config_device_auto_remove_change,
+)
+config.deviceRemoveWhenOfflineOverrideValue.valueChanged.connect(
+    on_config_device_auto_remove_change,
 )

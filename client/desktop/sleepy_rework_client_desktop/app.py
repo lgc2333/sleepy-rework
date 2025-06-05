@@ -37,6 +37,7 @@ class MainWindow(MSFluentWindow):
         self.setupThemeListener()
         self.setupUI()
         self.restoreAutoStart()
+        self.setupClient()
 
         self.splashScreen.finish()
 
@@ -92,6 +93,13 @@ class MainWindow(MSFluentWindow):
             return
         print(f"Failed to restore autostart setting to {config_auto_start_enabled}")
         qconfig.set(config.appAutoStart, auto_start_enabled)
+
+    @override
+    def setupClient(self):
+        from .client.info import info_feeder
+
+        if qconfig.get(config.serverEnableConnect):
+            info_feeder.run_in_background()
 
     @override
     def showEvent(self, a0: QShowEvent | None):
