@@ -171,6 +171,10 @@ def on_config_key_change(_: Any):
     info_feeder.endpoint = get_ws_url()
 
 
+def on_config_name_change(v: Any):
+    on_config_device_attr_change("name", v or None)
+
+
 def on_config_description_change(v: Any):
     on_config_device_attr_change("description", v or None)
 
@@ -201,6 +205,7 @@ config.serverSecret.valueChanged.connect(on_config_secret_change)
 config.serverConnectProxy.valueChanged.connect(on_config_proxy_change)
 
 config.deviceKey.valueChanged.connect(on_config_key_change)
+config.deviceName.valueChanged.connect(on_config_name_change)
 config.deviceDescription.valueChanged.connect(on_config_description_change)
 
 config.deviceTypeOverrideUseDefault.valueChanged.connect(on_config_device_type_change)
