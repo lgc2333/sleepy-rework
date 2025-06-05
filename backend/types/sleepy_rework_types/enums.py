@@ -7,6 +7,7 @@ class DeviceType(StrEnum):
     PHONE = auto()
     TABLET = auto()
     SMARTWATCH = auto()
+    UNKNOWN = ""
 
 
 class OnlineStatus(StrEnum):

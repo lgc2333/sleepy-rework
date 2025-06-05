@@ -99,7 +99,7 @@ class DeviceTypeOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             lambda text: qconfig.set(config.deviceTypeOverrideValueCustom, text),
         )
         self.customGroup = ExpandGroupWidget(
-            label=BodyLabel("输入设备类型"),
+            label=BodyLabel("输入设备类型（留空设为未知）"),
             widget=self.customLineEdit,
         )
 
@@ -176,7 +176,7 @@ class DeviceOSOverrideGroupSettingCard(BugFixedExpandGroupSettingCard):
             lambda text: qconfig.set(config.deviceOSOverrideValue, text),
         )
         self.customGroup = ExpandGroupWidget(
-            label=BodyLabel("输入操作系统"),
+            label=BodyLabel("输入操作系统（留空设为未知）"),
             widget=self.customLineEdit,
         )
 
@@ -236,7 +236,7 @@ class SettingsPage(QWidget):
         self.createDeviceSettings()
 
     def createServerSettings(self) -> None:
-        self.serverSettingGroup = SettingCardGroup("服务器设置")
+        self.serverSettingGroup = SettingCardGroup("服务设置")
 
         self.serverEnableConnectCard = SwitchSettingCard(
             icon=FluentIcon.POWER_BUTTON,
@@ -246,18 +246,19 @@ class SettingsPage(QWidget):
         )
         self.serverSettingGroup.addSettingCard(self.serverEnableConnectCard)
 
-        self.serverUrlCard = LineEditSettingCard(
+        self.serverUrlCard = StrictLineEditSettingCard(
             icon=FluentIcon.LINK,
-            title="服务器地址",
-            content="设置连接的服务器地址",
+            title="服务端地址",
+            content="设置连接的服务端地址",
             configItem=config.serverUrl,
+            errorTip="请输入正确的 HTTP URL",
         )
         self.serverSettingGroup.addSettingCard(self.serverUrlCard)
 
         self.serverSecretCard = PasswordLineEditSettingCard(
             icon=FluentIcon.CERTIFICATE,
-            title="服务器密钥",
-            content="设置连接服务器所需的密钥",
+            title="服务端密钥",
+            content="设置连接服务端所需的密钥",
             configItem=config.serverSecret,
         )
         self.serverSettingGroup.addSettingCard(self.serverSecretCard)
@@ -265,8 +266,9 @@ class SettingsPage(QWidget):
         self.serverConnectProxyCard = StrictLineEditSettingCard(
             icon=FluentIcon.GLOBE,
             title="连接代理",
-            content="设置连接服务器时使用的代理（留空则不使用）",
+            content="设置连接服务端时使用的代理（留空则不使用）",
             configItem=config.serverConnectProxy,
+            errorTip="请输入正确的 HTTP / SOCKS URL",
         )
         self.serverSettingGroup.addSettingCard(self.serverConnectProxyCard)
 

@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from typing import cast, override
 
-from cookit import copy_func_annotations
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFocusEvent, QIcon
 from PyQt5.QtWidgets import QWidget
@@ -85,23 +84,41 @@ class StrictLineEditSettingCard(AbstractLineEditSettingCard):
             cast("StrictLineEditSettingCard", self.parent()).closeTip()
             return super().focusOutEvent(e)
 
-    @copy_func_annotations(LineEditSettingCard.__init__)
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tip: TeachingTip | None = None
+    def __init__(
+        self,
+        icon: str | QIcon | FluentIconBase,
+        title: str,
+        content: str | None = None,
+        configItem: ConfigItem | None = None,
+        isReadOnly: bool = False,
+        placeHolderText: str | None = None,
+        errorTip: str | None = None,
+        parent: QWidget | None = None,
+    ):
+        self.errorTip = errorTip or ""
+        self.tipWidget: TeachingTip | None = None
+        super().__init__(
+            icon,
+            title,
+            content,
+            configItem,
+            isReadOnly,
+            placeHolderText,
+            parent,
+        )
 
     @override
     def makeLineEdit(self) -> LineEdit:
         return self.SLineEdit(parent=self)
 
     def createTip(self):
-        if self.tip:
+        if self.tipWidget:
             return
-        self.tip = TeachingTip.create(
+        self.tipWidget = TeachingTip.create(
             target=self.lineEdit,
             icon=InfoBarIcon.ERROR,
-            title="错误",
-            content="配置项格式不符合要求",
+            title="格式不符合要求",
+            content=self.errorTip,
             tailPosition=TeachingTipTailPosition.BOTTOM,
             isClosable=False,
             isDeleteOnClose=False,
@@ -110,11 +127,11 @@ class StrictLineEditSettingCard(AbstractLineEditSettingCard):
         )
 
     def closeTip(self):
-        if not self.tip:
+        if not self.tipWidget:
             return
-        self.tip.close()
-        self.tip.deleteLater()
-        self.tip = None
+        self.tipWidget.close()
+        self.tipWidget.deleteLater()
+        self.tipWidget = None
 
     @override
     def _onTextChanged(self, text: str):

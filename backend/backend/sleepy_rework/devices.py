@@ -1,11 +1,12 @@
 import asyncio
 import time
-from asyncio import Future, TaskGroup, TimerHandle, get_running_loop
+from asyncio import Future, Lock, TaskGroup, TimerHandle, get_running_loop
 from collections.abc import Callable, Coroutine
 from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import Any, Self
 
+from cookit import copy_func_annotations
 from fastapi import WebSocket, WebSocketDisconnect
 
 from sleepy_rework_types import (
@@ -32,18 +33,14 @@ class Device:
     info: DeviceInfo
 
     update_handlers: list[DeviceStatusUpdateHandler] = field(default_factory=list)
-
+    _update_lock: Lock = field(default_factory=Lock)
     _timer: TimerHandle | None = None
     _ws_connection: WebSocket | None = None
 
     @classmethod
     def new(cls, key: str, cfg: DeviceConfig, **kwargs) -> Self:
-        return cls(
-            key=key,
-            config=DeviceConfig(**cfg.model_dump(exclude_unset=True)),
-            info=DeviceInfo(**cfg.model_dump(exclude_unset=True)),
-            **kwargs,
-        )
+        info = DeviceInfo.model_validate(cfg.model_dump(exclude_unset=True))
+        return cls(key=key, config=cfg, info=info, **kwargs)
 
     def handle_update[F: DeviceStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)
@@ -69,7 +66,7 @@ class Device:
             ),
         )
 
-    async def update(
+    async def _update(
         self,
         data: DeviceInfoFromClient | None = None,
         online: bool = True,
@@ -107,11 +104,22 @@ class Device:
         self.info.last_update_time = int(time.time() * 1000)
 
         asyncio.create_task(self.run_handlers())
+        return self.info
 
-    async def update_config(self, config: DeviceConfig):
+    @copy_func_annotations(_update)
+    async def update(self, *args, **kwargs):
+        async with self._update_lock:
+            return await self._update(*args, **kwargs)
+
+    async def _update_config(self, config: DeviceConfig):
         self.config = config
         self.info = self._replace_info(self.info)
         asyncio.create_task(self.run_handlers())
+
+    @copy_func_annotations(_update_config)
+    async def update_config(self, *args, **kwargs):
+        async with self._update_lock:
+            return await self.update_config(*args, **kwargs)
 
     async def handle_ws(self, ws: WebSocket):
         old_connection = self._ws_connection
@@ -131,7 +139,12 @@ class Device:
                 data = DeviceInfoFromClientWS.model_validate_json(
                     await ws.receive_text(),
                 )
-                await self.update(data, in_long_conn=True, replace=data.replace)
+                updated = await self.update(
+                    data,
+                    in_long_conn=True,
+                    replace=data.replace,
+                )
+                await ws.send_text(updated.model_dump_json())
             except WebSocketDisconnect:
                 break
             except Exception:

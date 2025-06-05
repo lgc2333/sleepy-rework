@@ -2,7 +2,7 @@ import sys
 from typing import Any, cast, override
 
 from nonestorage import user_config_dir
-from pydantic import AnyUrl, UrlConstraints
+from pydantic import AnyHttpUrl, AnyUrl, UrlConstraints
 from PyQt5.QtGui import QColor
 from qfluentwidgets import (
     BoolValidator,
@@ -46,14 +46,19 @@ class AnyProxyUrl(AnyUrl):
     )
 
 
-class ProxyURLValidator(ConfigValidator):
+class URLValidator(ConfigValidator):
+    def __init__(self, url: type[AnyUrl], default: str = "") -> None:
+        super().__init__()
+        self.url = url
+        self.default = default
+
     @override
     def validate(self, value: Any):  # pyright: ignore
         if not isinstance(value, str):
             return False
         if value:
             try:
-                AnyProxyUrl(value)
+                self.url(value)
             except ValueError:
                 return False
         return True
@@ -62,7 +67,7 @@ class ProxyURLValidator(ConfigValidator):
     def correct(self, value: Any):
         if self.validate(value):
             return value
-        return ""
+        return self.default
 
 
 class Config(QConfig):
@@ -75,8 +80,8 @@ class Config(QConfig):
     serverUrl = ConfigItem(
         "server",
         "url",
-        "127.0.0.1:29306",
-        validator=StringValidator(),
+        "http://127.0.0.1:29306",
+        validator=URLValidator(AnyHttpUrl, "http://127.0.0.1:29306"),
     )
     serverSecret = ConfigItem(
         "server",
@@ -88,7 +93,7 @@ class Config(QConfig):
         "server",
         "connectProxy",
         "",
-        validator=ProxyURLValidator(),
+        validator=URLValidator(AnyProxyUrl),
     )
 
     appAutoStart = ConfigItem(
@@ -157,7 +162,7 @@ class Config(QConfig):
     deviceTypeOverrideValueCustom = ConfigItem(
         "device",
         "typeOverrideValueCustom",
-        "unknown",
+        "",
         validator=StringValidator(),
     )
 
@@ -176,7 +181,7 @@ class Config(QConfig):
     deviceOSOverrideValue = ConfigItem(
         "device",
         "osOverrideValue",
-        "unknown",
+        "",
         validator=StringValidator(),
     )
 

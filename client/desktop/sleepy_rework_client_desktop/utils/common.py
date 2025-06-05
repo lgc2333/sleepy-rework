@@ -87,3 +87,22 @@ async def signal_exc_handler(_: Signal, e: Exception) -> Exception:
 class SafeLoggedSignal[**A, R](Signal[A, R, Exception]):
     def __init__(self) -> None:
         super().__init__(signal_exc_handler)
+
+
+# from pydantic.v1.utils
+def deep_update[KT, VT, KS, VS](
+    mapping: dict[KT, VT],
+    *updating_mappings: dict[KS, VS],
+) -> dict[KT | KS, VT | VS]:
+    updated_mapping: dict[KT | KS, VT | VS] = mapping.copy()  # type: ignore
+    for updating_mapping in updating_mappings:
+        for k, v in updating_mapping.items():
+            if (
+                k in updated_mapping
+                and isinstance((u := updated_mapping[k]), dict)
+                and isinstance(v, dict)
+            ):
+                updated_mapping[k] = deep_update(u, v)
+            else:
+                updated_mapping[k] = v
+    return updated_mapping

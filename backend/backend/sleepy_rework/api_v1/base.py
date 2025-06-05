@@ -15,6 +15,7 @@ from fastapi.responses import PlainTextResponse
 
 from sleepy_rework_types import (
     DeviceConfig,
+    DeviceInfo,
     DeviceInfoFromClient,
     DeviceInfoFromClientWS,
     ErrDetail,
@@ -215,7 +216,7 @@ async def update_device_info_http(
         device = await add_device_http(device_key, info)
         response.status_code = status.HTTP_201_CREATED
         await device.update()
-    return OpSuccess()
+    return device.info
 
 
 @router.patch(
@@ -223,8 +224,8 @@ async def update_device_info_http(
     dependencies=[AuthDep],
     summary="更新当前设备状态",
     responses={
-        200: {"model": OpSuccess},
-        201: {"model": OpSuccess},
+        200: {"model": DeviceInfo},
+        201: {"model": DeviceInfo},
         400: {
             "model": ErrDetail,
             "description": "新设备缺少设备初始配置",
@@ -243,7 +244,7 @@ async def _(
     response: Response,
     device_key: str,
     info: DeviceInfoFromClient | None = None,
-) -> OpSuccess:
+):
     """
     ### ⚠️ 注意！数据更新机制
 
@@ -295,7 +296,7 @@ async def _(
 
     ### 实时推送
 
-    使用 WebSocket 连接到本路径可以实时推送设备状态
+    使用 WebSocket 连接到本路径可以实时推送设备状态，在推送一条状态以后会返回当前状态
 
     连接后推送一条状态设备才会被设置为在线，且保持连接时将一直考虑为设备在线
 
@@ -324,8 +325,8 @@ async def _(
     dependencies=[AuthDep],
     summary="替换当前设备状态",
     responses={
-        200: {"model": OpSuccess},
-        201: {"model": OpSuccess},
+        200: {"model": DeviceInfo},
+        201: {"model": DeviceInfo},
         400: {
             "model": ErrDetail,
             "description": "新设备缺少设备初始配置",

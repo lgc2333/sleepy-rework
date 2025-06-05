@@ -3,6 +3,7 @@ name = "sleepy-rework"
 dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
+    "cookit>=0.12.0.post1",
     "fastapi>=0.115.12",
     "pydantic>=2.11.5",
     "pydantic-settings[toml]>=2.9.1",
