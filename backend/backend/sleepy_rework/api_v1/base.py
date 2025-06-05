@@ -389,6 +389,33 @@ async def _(
     return await update_device_info_http(response, device_key, info, is_replace=True)
 
 
+@router.delete(
+    "/device/{device_key}/info",
+    dependencies=[AuthDep],
+    summary="删除当前设备状态",
+    responses={
+        200: {"model": OpSuccess},
+        404: {
+            "model": ErrDetail,
+            "description": "未找到设备",
+        },
+        422: {
+            "model": ErrDetail,
+            "description": "请求体解析失败",
+        },
+    },
+)
+async def _(device_key: str):
+    device = device_manager.devices.get(device_key)
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Device '{device_key}' not found",
+        )
+    await device_manager.remove(device_key)
+    return OpSuccess()
+
+
 async def close_ws_use_http_exc(ws: WebSocket, exc: HTTPException):
     we = WSErr(code=exc.status_code, detail=transform_exc_detail(exc.detail))
     await ws.close(

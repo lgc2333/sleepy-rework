@@ -66,6 +66,16 @@ class Device:
             ),
         )
 
+    async def close_ws(self):
+        if not self._ws_connection:
+            return
+        ws = self._ws_connection
+        self._ws_connection = None
+        try:
+            await ws.close()
+        except Exception:
+            logger.error("Error closing WebSocket connection")
+
     async def _update(
         self,
         data: DeviceInfoFromClient | None = None,
@@ -75,10 +85,11 @@ class Device:
     ):
         if self._timer is not None:
             self._timer.cancel()
-
-        if in_long_conn or (not online):
             self._timer = None
-        else:
+
+        if not online:
+            await self.close_ws()
+        elif not in_long_conn:
             self._timer = get_running_loop().call_later(
                 config.poll_offline_timeout,
                 self.offline_timer_handler,
@@ -89,10 +100,7 @@ class Device:
                     f" but received HTTP update data request."
                     f" Will disconnect WebSocket.",
                 )
-                try:
-                    await self._ws_connection.close()
-                except Exception:
-                    logger.error("Error closing WebSocket connection")
+                await self.close_ws()
 
         if data is not None:
             if replace:
@@ -181,12 +189,20 @@ class DeviceManager:
         self.devices[key] = device
         return device
 
+    async def remove(self, key: str) -> None:
+        device = self.devices.pop(key)
+        await device.update(online=False)
+
     def handle_update[F: ManagerStatusUpdateHandler](self, handler: F) -> F:
         self.update_handlers.append(handler)
         return handler
 
     async def update_handler(self, device: Device):
-        if (not device.info.online) and device.info.remove_when_offline:
+        if (
+            (not device.info.online)
+            and device.info.remove_when_offline
+            and device.key in self.devices
+        ):
             del self.devices[device.key]
 
         async with TaskGroup() as tg:
