@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from typing import cast, override
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFocusEvent, QIcon
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFocusEvent, QIcon
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     ConfigItem,
     FluentIconBase,
@@ -18,7 +18,7 @@ from qfluentwidgets import (
 
 
 class AbstractLineEditSettingCard(SettingCard):
-    textChanged = pyqtSignal(str)
+    textChanged = Signal(str)
 
     @abstractmethod
     def makeLineEdit(self) -> LineEdit: ...
@@ -30,7 +30,7 @@ class AbstractLineEditSettingCard(SettingCard):
         content: str | None = None,
         configItem: ConfigItem | None = None,
         isReadOnly: bool = False,
-        placeHolderText: str | None = None,
+        placeHolderText: str = "",
         parent: QWidget | None = None,
     ):
         super().__init__(icon, title, content, parent)
@@ -91,7 +91,7 @@ class StrictLineEditSettingCard(AbstractLineEditSettingCard):
         content: str | None = None,
         configItem: ConfigItem | None = None,
         isReadOnly: bool = False,
-        placeHolderText: str | None = None,
+        placeHolderText: str = "",
         errorTip: str | None = None,
         parent: QWidget | None = None,
     ):

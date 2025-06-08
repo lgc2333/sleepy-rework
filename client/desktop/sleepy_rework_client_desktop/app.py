@@ -4,9 +4,9 @@ import traceback
 from typing import override
 
 import qasync
-from PyQt5.QtCore import QLocale, QSize, Qt
-from PyQt5.QtGui import QCloseEvent, QIcon, QShowEvent
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtCore import QLocale, QSize, Qt
+from PySide6.QtGui import QCloseEvent, QIcon, QShowEvent
+from PySide6.QtWidgets import QApplication
 from qfluentwidgets import (
     FluentIcon,
     FluentTranslator,
@@ -93,7 +93,6 @@ class MainWindow(MSFluentWindow):
         print(f"Failed to restore autostart setting to {config_auto_start_enabled}")
         qconfig.set(config.appAutoStart, auto_start_enabled)
 
-    @override
     def setupInfoClient(self):
         from .utils.activity import activity_detector
         from .utils.client.info import info_feeder
@@ -104,13 +103,13 @@ class MainWindow(MSFluentWindow):
         activity_detector.setup()
 
     @override
-    def showEvent(self, a0: QShowEvent | None):
+    def showEvent(self, a0: QShowEvent):
         # reApplyThemeMode()
         reApplyThemeColor()
         super().showEvent(a0)
 
     @override
-    def closeEvent(self, a0: QCloseEvent | None):  # noqa: N802
+    def closeEvent(self, a0: QCloseEvent):  # noqa: N802
         if not a0:
             return
 
@@ -150,7 +149,9 @@ def launch():
 
     app.setQuitOnLastWindowClosed(False)
 
-    translator = FluentTranslator(QLocale(QLocale.Chinese, QLocale.China))
+    translator = FluentTranslator(
+        QLocale(QLocale.Language.Chinese, QLocale.Country.China),
+    )
     app.installTranslator(translator)
 
     event_loop = qasync.QEventLoop(app)

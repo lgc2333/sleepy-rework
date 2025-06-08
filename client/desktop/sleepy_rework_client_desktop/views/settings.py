@@ -1,7 +1,7 @@
 from typing import ClassVar
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,

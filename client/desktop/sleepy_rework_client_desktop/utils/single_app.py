@@ -1,11 +1,11 @@
-from PyQt5.QtCore import Qt, QTextStream, pyqtSignal
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
-from PyQt5.QtWidgets import QApplication, QWidget
+from PySide6.QtCore import QStringConverter, Qt, QTextStream, Signal
+from PySide6.QtNetwork import QLocalServer, QLocalSocket
+from PySide6.QtWidgets import QApplication, QWidget
 
 
 # https://stackoverflow.com/a/79574637
 class QtSingleApplication(QApplication):
-    messageReceived = pyqtSignal(str)
+    messageReceived = Signal(str)
 
     def __init__(self, uid: str, *argv):
         super().__init__(*argv)
@@ -21,7 +21,7 @@ class QtSingleApplication(QApplication):
         if self._isRunning:
             # Yes, there is.
             self._outStream = QTextStream(self._outSocket)
-            self._outStream.setCodec("utf-8")
+            self._outStream.setEncoding(QStringConverter.Encoding.Utf8)
         else:
             # No, there isn't.
             self._outSocket = None
@@ -76,7 +76,7 @@ class QtSingleApplication(QApplication):
         if not self._inSocket:
             return
         self._inStream = QTextStream(self._inSocket)
-        self._inStream.setCodec("utf-8")
+        self._inStream.setEncoding(QStringConverter.Encoding.Utf8)
         self._inSocket.readyRead.connect(self._onReadyRead)
         if self._activateOnMessage:
             self.activateWindow()

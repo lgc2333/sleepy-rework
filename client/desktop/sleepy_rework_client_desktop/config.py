@@ -4,7 +4,7 @@ from typing import Any, cast, override
 
 from nonestorage import user_config_dir
 from pydantic import AnyHttpUrl, AnyUrl, UrlConstraints
-from PyQt5.QtGui import QColor
+from PySide6.QtGui import QColor
 from qfluentwidgets import (
     BoolValidator,
     ConfigItem,
@@ -36,9 +36,9 @@ if not FROZEN:
     APP_PKG_NAME += ".dev"
 
 configFilePath = (
-    (Path.cwd() / "client_desktop.json")
+    (user_config_dir(APP_NAME, roaming=True) / "config.json")
     if FROZEN
-    else (user_config_dir(APP_NAME, roaming=True) / "config.json")
+    else (Path.cwd() / "client_desktop.json")
 )
 print(f"Config path: {configFilePath}")
 

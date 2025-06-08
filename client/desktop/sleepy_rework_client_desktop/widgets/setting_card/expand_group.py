@@ -1,6 +1,6 @@
 from typing import override
 
-from PyQt5.QtWidgets import QHBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QWidget
 from qfluentwidgets import ExpandGroupSettingCard
 
 

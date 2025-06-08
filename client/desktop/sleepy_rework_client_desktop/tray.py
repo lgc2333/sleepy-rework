@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QSystemTrayIcon, QWidget
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
 
 from .config import APP_NAME

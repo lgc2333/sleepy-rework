@@ -12,7 +12,8 @@ dev = [
     "sleepy-rework-client-desktop",
     # tools
     "basedpyright>=1.29.2",
-    "ruff>=0.11.11",
+    "ruff>=0.11.13",
+    "nuitka>=2.7.6",
 ]
 
 [tool.uv.workspace]
