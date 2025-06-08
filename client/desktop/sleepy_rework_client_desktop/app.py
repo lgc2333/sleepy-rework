@@ -17,7 +17,13 @@ from qfluentwidgets import (
 )
 
 from .assets import ICON_PATH
-from .config import APP_NAME, config, reApplyThemeColor, reApplyThemeMode
+from .config import (
+    APP_NAME,
+    APP_SINGLETON_ID,
+    config,
+    reApplyThemeColor,
+    reApplyThemeMode,
+)
 from .utils.common import AUTO_START_OPT
 from .utils.single_app import QtSingleApplication
 
@@ -141,7 +147,7 @@ def launch():
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
-    app = QtSingleApplication("sleepy_rework_desktop_client", sys.argv)
+    app = QtSingleApplication(APP_SINGLETON_ID, sys.argv)
 
     if app.isRunning():
         print("Another instance is already running.")

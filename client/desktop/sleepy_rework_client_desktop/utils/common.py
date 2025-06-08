@@ -4,12 +4,14 @@ from pathlib import Path
 
 from cookit import Signal
 
+from ..config import FROZEN
+
 AUTO_START_OPT = "--auto-start"
 
 
 def get_start_args(auto_start: bool = True) -> list[str]:
     args = []
-    if getattr(sys, "frozen", False):
+    if FROZEN:
         args.append(sys.executable)
     else:
         assert __package__

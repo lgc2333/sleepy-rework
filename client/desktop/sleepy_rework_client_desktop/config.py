@@ -21,9 +21,12 @@ from qframelesswindow.utils import getSystemAccentColor
 
 from sleepy_rework_types import DeviceType
 
+FROZEN = getattr(sys, "frozen", False)
+
 APP_NAME = "Sleepy Rework Desktop Client"
 APP_NAME_NO_SPACE = APP_NAME.replace(" ", "")
 APP_ID = "sleepy_rework_client_desktop"
+APP_SINGLETON_ID = f"{APP_ID}.frozen" if FROZEN else APP_ID
 APP_PKG_NAME = "top.lgc2333.sleepy_rework.client_desktop"
 
 configDir = user_config_dir(APP_NAME, roaming=True)
