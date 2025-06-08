@@ -7,13 +7,9 @@ from qfluentwidgets import qconfig
 
 from sleepy_rework_types import DeviceInfo, DeviceInfoFromClientWS
 
-from ..config import config
-from ..utils.common import SafeLoggedSignal, deep_update
-from ..utils.info.shared import (
-    get_device_os,
-    get_device_type,
-    get_initial_device_info_dict,
-)
+from ...config import config
+from ..common import SafeLoggedSignal, deep_update
+from ..info.shared import get_device_os, get_device_type, get_initial_device_info_dict
 from .base import RetryWSClient
 
 THROTTLE = 1

@@ -95,7 +95,7 @@ class MainWindow(MSFluentWindow):
 
     @override
     def setupInfoClient(self):
-        from .client.info import info_feeder
+        from .utils.client.info import info_feeder
 
         if qconfig.get(config.serverEnableConnect):
             info_feeder.run_in_background()

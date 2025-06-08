@@ -6,12 +6,12 @@ from typing import Any, Literal, Self, cast, overload
 from websockets import ClientConnection, connect
 from websockets.http11 import USER_AGENT as UA_BASE
 
-from ..config import APP_NAME_NO_SPACE
-from ..utils.common import SafeLoggedSignal
+from ...config import APP_NAME_NO_SPACE
+from ..common import SafeLoggedSignal
 
 
 def get_ua():
-    from .. import __version__
+    from ... import __version__
 
     return f"{UA_BASE} {APP_NAME_NO_SPACE}/{__version__}"
 
