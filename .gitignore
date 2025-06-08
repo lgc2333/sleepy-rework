@@ -817,3 +817,4 @@ FodyWeavers.xsd
 sleepy.toml
 sleepy.*.toml
 private
+client_desktop.json

@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from typing import Any, cast, override
 
 from nonestorage import user_config_dir
@@ -21,16 +22,24 @@ from qframelesswindow.utils import getSystemAccentColor
 
 from sleepy_rework_types import DeviceType
 
-FROZEN = getattr(sys, "frozen", False)
+FROZEN: bool = getattr(sys, "frozen", False)
 
-APP_NAME = "Sleepy Rework Desktop Client"
-APP_NAME_NO_SPACE = APP_NAME.replace(" ", "")
+APP_NAME = "Sleepy Rework Client Desktop"
+APP_NAME_NO_SPACE = "SleepyReworkClientDesktop"
 APP_ID = "sleepy_rework_client_desktop"
-APP_SINGLETON_ID = f"{APP_ID}.frozen" if FROZEN else APP_ID
 APP_PKG_NAME = "top.lgc2333.sleepy_rework.client_desktop"
 
-configDir = user_config_dir(APP_NAME, roaming=True)
-configFilePath = configDir / "config.json"
+if not FROZEN:
+    APP_NAME += " [DEV]"
+    APP_NAME_NO_SPACE += "-Dev"
+    APP_ID += "-dev"
+    APP_PKG_NAME += ".dev"
+
+configFilePath = (
+    (Path.cwd() / "client_desktop.json")
+    if FROZEN
+    else (user_config_dir(APP_NAME, roaming=True) / "config.json")
+)
 print(f"Config path: {configFilePath}")
 
 
