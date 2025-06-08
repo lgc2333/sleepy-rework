@@ -95,10 +95,13 @@ class MainWindow(MSFluentWindow):
 
     @override
     def setupInfoClient(self):
+        from .utils.activity import activity_detector
         from .utils.client.info import info_feeder
 
         if qconfig.get(config.serverEnableConnect):
             info_feeder.run_in_background()
+
+        activity_detector.setup()
 
     @override
     def showEvent(self, a0: QShowEvent | None):

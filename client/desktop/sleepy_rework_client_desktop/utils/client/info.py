@@ -5,9 +5,15 @@ from debouncer import DebounceOptions, debounce
 from pydantic import BaseModel
 from qfluentwidgets import qconfig
 
-from sleepy_rework_types import DeviceInfo, DeviceInfoFromClientWS
+from sleepy_rework_types import (
+    DeviceCurrentApp,
+    DeviceData,
+    DeviceInfo,
+    DeviceInfoFromClientWS,
+)
 
 from ...config import config
+from ..activity import BaseActivityDetector, activity_detector
 from ..common import SafeLoggedSignal, deep_update
 from ..info.shared import get_device_os, get_device_type, get_initial_device_info_dict
 from .base import RetryWSClient
@@ -220,3 +226,23 @@ config.deviceRemoveWhenOfflineOverrideEnable.valueChanged.connect(
 config.deviceRemoveWhenOfflineOverrideValue.valueChanged.connect(
     on_config_device_auto_remove_change,
 )
+
+
+if activity_detector is not None:
+
+    @activity_detector.on_idle_change.connect
+    async def on_idle_change(_: BaseActivityDetector, idle: bool):
+        info_feeder.update_info(
+            DeviceInfoFromClientWS(idle=idle),
+        )
+
+    @activity_detector.on_current_app_update.connect
+    async def on_current_app_change(
+        _: BaseActivityDetector,
+        data: DeviceCurrentApp | None,
+    ):
+        info_feeder.update_info(
+            DeviceInfoFromClientWS(
+                data=DeviceData(current_app=data),
+            ),
+        )
