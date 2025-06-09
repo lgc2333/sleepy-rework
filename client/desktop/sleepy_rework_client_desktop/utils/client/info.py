@@ -232,6 +232,7 @@ if activity_detector is not None:
 
     @activity_detector.on_idle_change.connect
     async def on_idle_change(_: BaseActivityDetector, idle: bool):
+        info_feeder.initial_info.idle = idle
         info_feeder.update_info(
             DeviceInfoFromClientWS(idle=idle),
         )
@@ -241,6 +242,11 @@ if activity_detector is not None:
         _: BaseActivityDetector,
         data: DeviceCurrentApp | None,
     ):
+        initial_data = info_feeder.initial_info.data
+        if not initial_data:
+            initial_data = DeviceData()
+            info_feeder.initial_info.data = initial_data
+        initial_data.current_app = data
         info_feeder.update_info(
             DeviceInfoFromClientWS(
                 data=DeviceData(current_app=data),
