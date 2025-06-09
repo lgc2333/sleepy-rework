@@ -79,16 +79,16 @@ onUnmounted(() => {
       gap="4"
       m="2"
     >
-      <div text-3xl font-medium>{{ config.username }}'s Status</div>
+      <div text="3xl center" font-medium>{{ config.username }}'s Status</div>
       <div
-        text-4xl
+        text="4xl center"
         font-bold
         :style="`color: ${currentStatus!.color}`"
         transition-color
       >
         {{ currentStatus!.name }}
       </div>
-      <div>{{ currentStatus!.description }}</div>
+      <div text="center">{{ currentStatus!.description }}</div>
 
       <template v-if="info.devices && Object.keys(info.devices).length">
         <div gap-2 class="devices-grid">
