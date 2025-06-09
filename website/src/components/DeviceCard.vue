@@ -164,7 +164,7 @@ onUpdated(() => {
     min-w="200px"
   >
     <div :indicator="info.status" w-1 transition-all duration-500></div>
-    <div flex="~ 1 col justify-center">
+    <div flex="~ 1 col justify-between">
       <div mx="2" my="1px">
         <div flex="~ items-center" my="1">
           <Icon :icon="deviceIcon" text="2xl" mr="2" />
@@ -201,7 +201,9 @@ onUpdated(() => {
             </div>
           </template>
         </div>
+      </div>
 
+      <div mx="2" my="1px">
         <div flex="~ items-center justify-end gap-2 wrap" text-light text-sm my="1">
           <div
             v-if="info.device_os"

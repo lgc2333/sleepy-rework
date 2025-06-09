@@ -74,6 +74,7 @@ onUnmounted(() => {
       p-8
       rounded-xl
       w="fit"
+      max-w="4xl"
       flex="~ col items-center"
       gap="4"
       m="2"
