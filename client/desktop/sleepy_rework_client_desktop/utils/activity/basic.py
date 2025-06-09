@@ -10,13 +10,13 @@ from sleepy_rework_types import DeviceBatteryStatus, DeviceCurrentApp
 
 from ..common import SafeLoggedSignal, wrap_async
 
-BATTERY_CHECK_INTERVAL = 60
+BATTERY_CHECK_INTERVAL = 3
 
 
 def transform_battery_status(data: sbattery) -> DeviceBatteryStatus:
     return DeviceBatteryStatus(
         percent=data.percent,
-        time_left=data.secsleft,
+        time_left=data.secsleft if data.secsleft > 0 else None,
         charging=data.power_plugged,
     )
 
