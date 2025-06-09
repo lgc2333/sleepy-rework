@@ -2,7 +2,7 @@ from pathlib import Path
 from shlex import quote
 from typing import override
 
-from ...config import APP_ID, APP_NAME
+from ...consts import APP_ID, APP_NAME
 from ..common import get_start_args
 from .base import BaseAutoStartManager
 

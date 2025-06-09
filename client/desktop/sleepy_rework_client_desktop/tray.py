@@ -2,7 +2,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
 
-from .config import APP_NAME
+from .consts import APP_NAME
 
 
 class SystemTrayIcon(QSystemTrayIcon):

@@ -4,7 +4,7 @@ from typing import override
 
 from pylnk3 import Lnk, for_file
 
-from ...config import APP_NAME
+from ...consts import APP_NAME
 from ..common import get_start_args
 from .base import BaseAutoStartManager
 

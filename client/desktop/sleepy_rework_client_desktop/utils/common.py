@@ -6,7 +6,7 @@ from pathlib import Path
 
 from cookit import Signal
 
-from ..config import FROZEN
+from ..consts import FROZEN
 
 AUTO_START_OPT = "--auto-start"
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import override
 from xml.sax.saxutils import escape
 
-from ...config import APP_PKG_NAME
+from ...consts import APP_PKG_NAME
 from ..common import get_start_args
 from .base import BaseAutoStartManager
 
