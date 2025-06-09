@@ -1,5 +1,3 @@
-import sys
-
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon, QWidget
 from qfluentwidgets import Action
@@ -40,7 +38,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent_.activateWindow()
 
     def quit_application(self):
-        sys.exit(0)
+        from .app import app
+
+        app.quit()
 
     def _onTrayActivated(self, reason: QSystemTrayIcon.ActivationReason):
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:

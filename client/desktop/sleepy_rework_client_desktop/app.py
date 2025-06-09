@@ -133,15 +133,16 @@ async def _async_setup(app: QtSingleApplication):
     window.setup()
 
 
+QApplication.setHighDpiScaleFactorRoundingPolicy(
+    Qt.HighDpiScaleFactorRoundingPolicy.PassThrough,
+)
+QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+
+app = QtSingleApplication(APP_ID, sys.argv)
+
+
 def launch():
-    QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough,
-    )
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-
-    app = QtSingleApplication(APP_ID, sys.argv)
-
     if app.isRunning():
         print("Another instance is already running.")
         app.sendMessage("114514")

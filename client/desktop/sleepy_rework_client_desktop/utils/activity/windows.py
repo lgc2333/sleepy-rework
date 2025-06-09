@@ -11,7 +11,7 @@ from sleepy_rework_types import DeviceCurrentApp
 
 from .base import BaseActivityDetector
 
-CHECK_INTERVAL = 5
+CHECK_INTERVAL = 1
 IDLE_TIME = 300
 MOUSE_IDLE_THRESHOLD = 5
 
