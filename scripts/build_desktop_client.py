@@ -12,7 +12,7 @@ import sys
 #     "--plugin-enable=pyside6",
 #     "--include-package-data=sleepy_rework_client_desktop",
 #     # metadata
-#     "--product-name=Sleepy Rework Client Desktop",
+#     "--product-name=Sleepy Rework Desktop Client",
 #     f"--product-version={version}",
 #     # windows
 #     "--windows-icon-from-ico=client/desktop/sleepy_rework_client_desktop/assets/icon.png",
@@ -30,7 +30,7 @@ a = [
     "--onefile",
     "--windowed",
     *("--icon", "../client/desktop/sleepy_rework_client_desktop/assets/icon.png"),
-    *("--name", "Sleepy Rework Client Desktop"),
+    *("--name", "Sleepy Rework Desktop Client"),
     *("--specpath", "build"),
     *("--collect-all", "sleepy_rework_client_desktop"),
     "client/desktop/main.py",
