@@ -216,7 +216,7 @@ onUpdated(() => {
                 当前应用已驻前台{{ appOpenedTime }}
               </template>
             </template>
-            <template v-if="info.data?.current_app.name">
+            <template v-else-if="info.data?.current_app.name">
               离线前应用：{{ info.data.current_app.name }}
             </template>
           </div>
