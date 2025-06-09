@@ -145,14 +145,9 @@ async def add_device(
     summary="获取设备配置",
     responses={
         200: {"model": OpSuccess},
-        404: {
-            "model": ErrDetail,
-            "description": "未找到设备",
-        },
-        422: {
-            "model": ErrDetail,
-            "description": "请求体解析失败",
-        },
+        401: {"model": ErrDetail, "description": "鉴权失败"},
+        404: {"model": ErrDetail, "description": "未找到设备"},
+        422: {"model": ErrDetail, "description": "请求体解析失败"},
     },
 )
 async def _(
@@ -177,14 +172,12 @@ async def _(
     responses={
         200: {"model": OpSuccess},
         201: {"model": OpSuccess},
+        401: {"model": ErrDetail, "description": "鉴权失败"},
         404: {
             "model": ErrDetail,
             "description": "未找到设备，且服务端不允许添加新设备",
         },
-        422: {
-            "model": ErrDetail,
-            "description": "请求体解析失败",
-        },
+        422: {"model": ErrDetail, "description": "请求体解析失败"},
     },
 )
 async def _(response: Response, device_key: str, new_config: DeviceConfig):
@@ -220,14 +213,12 @@ async def update_device_info_http(
     responses={
         200: {"model": DeviceInfo},
         201: {"model": DeviceInfo},
+        401: {"model": ErrDetail, "description": "鉴权失败"},
         404: {
             "model": ErrDetail,
             "description": "未在配置中找到设备，且服务端不允许添加新设备",
         },
-        422: {
-            "model": ErrDetail,
-            "description": "请求体解析失败",
-        },
+        422: {"model": ErrDetail, "description": "请求体解析失败"},
     },
 )
 async def _(
@@ -317,18 +308,13 @@ async def _(
     responses={
         200: {"model": DeviceInfo},
         201: {"model": DeviceInfo},
-        400: {
-            "model": ErrDetail,
-            "description": "新设备缺少设备初始配置",
-        },
+        400: {"model": ErrDetail, "description": "新设备缺少设备初始配置"},
+        401: {"model": ErrDetail, "description": "鉴权失败"},
         404: {
             "model": ErrDetail,
             "description": "未找到设备，且服务端不允许添加新设备",
         },
-        422: {
-            "model": ErrDetail,
-            "description": "请求体解析失败",
-        },
+        422: {"model": ErrDetail, "description": "请求体解析失败"},
     },
 )
 async def _(
@@ -395,14 +381,9 @@ async def _(
     summary="删除当前设备状态",
     responses={
         200: {"model": OpSuccess},
-        404: {
-            "model": ErrDetail,
-            "description": "未找到设备",
-        },
-        422: {
-            "model": ErrDetail,
-            "description": "请求体解析失败",
-        },
+        401: {"model": ErrDetail, "description": "鉴权失败"},
+        404: {"model": ErrDetail, "description": "未找到设备"},
+        422: {"model": ErrDetail, "description": "请求体解析失败"},
     },
 )
 async def _(device_key: str):
