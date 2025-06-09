@@ -207,11 +207,16 @@ onUpdated(() => {
 
         <div my="1" text-sm>
           <div v-if="info.data?.current_app">
-            <template v-if="info.online">
-              当前应用：{{ info.data.current_app.name
-              }}{{ appOpenedTime && `（已驻前台${appOpenedTime}）` }}
+            <template v-if="info.data?.current_app.name">
+              <template v-if="info.online">
+                当前应用：{{ info.data.current_app.name
+                }}{{ (appOpenedTime && `（已驻前台${appOpenedTime}）`) || '' }}
+              </template>
+              <template v-else> 离线前应用：{{ info.data.current_app.name }} </template>
             </template>
-            <template v-else>离线前应用：{{ info.data.current_app.name }}</template>
+            <template v-else-if="info.data.current_app.last_change_time">
+              当前应用已驻前台{{ appOpenedTime }}
+            </template>
           </div>
 
           <template

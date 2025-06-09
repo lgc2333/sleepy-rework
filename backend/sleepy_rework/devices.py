@@ -39,8 +39,8 @@ class Device:
 
     @classmethod
     def new(cls, key: str, cfg: DeviceConfig, **kwargs) -> Self:
-        cfg = DeviceConfig.model_validate(cfg.model_dump(exclude_unset=True))
         info = DeviceInfo.model_validate(cfg.model_dump(exclude_unset=True))
+        cfg = DeviceConfig.model_validate(cfg.model_dump(exclude_unset=True))
         return cls(key=key, config=cfg, info=info, **kwargs)
 
     def handle_update[F: DeviceStatusUpdateHandler](self, handler: F) -> F:
