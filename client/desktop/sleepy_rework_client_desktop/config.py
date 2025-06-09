@@ -24,8 +24,8 @@ from sleepy_rework_types import DeviceType
 
 FROZEN: bool = getattr(sys, "frozen", False)
 
-APP_NAME = "Sleepy Rework Client Desktop"
-APP_NAME_NO_SPACE = "SleepyReworkClientDesktop"
+APP_NAME = "Sleepy Rework Desktop Client"
+APP_NAME_NO_SPACE = "SleepyReworkDesktopClient"
 APP_ID = "sleepy_rework_client_desktop"
 APP_PKG_NAME = "top.lgc2333.sleepy_rework.client_desktop"
 

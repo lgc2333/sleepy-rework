@@ -1,7 +1,6 @@
-from typing import ClassVar
+from typing import ClassVar, override
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QWidget
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     BodyLabel,
     ComboBox,
@@ -14,7 +13,6 @@ from qfluentwidgets import (
     OptionsConfigItem,
     OptionsSettingCard,
     SettingCardGroup,
-    SingleDirectionScrollArea,
     SwitchButton,
     SwitchSettingCard,
     qconfig,
@@ -28,6 +26,7 @@ from ..widgets import (
     LineEditSettingCard,
     PasswordLineEditSettingCard,
     StrictLineEditSettingCard,
+    VerticalScrollAreaView,
 )
 
 
@@ -280,14 +279,12 @@ class DeviceRemoveWhenOfflineOverrideGroupSettingCard(BugFixedExpandGroupSetting
             self.removeGroupWidget(self.valueGroup)
 
 
-class SettingsPage(QWidget):
+class SettingsPage(VerticalScrollAreaView):
     routeKey: ClassVar[str] = "settings"
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent=parent)
         self.setObjectName(self.routeKey)
-
-        self.setupUI()
 
         config.appAutoStart.valueChanged.connect(self.onAutoStartChanged)
         self.serverEnableConnectCard.switchButton.checkedChanged.connect(
@@ -297,28 +294,11 @@ class SettingsPage(QWidget):
             self.serverEnableConnectCard.switchButton.isChecked(),
         )
 
-    def setupUI(self) -> None:
-        self.mainLayout = QVBoxLayout(self)
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.setSpacing(0)
-
-        self.scrollArea = SingleDirectionScrollArea(orient=Qt.Orientation.Vertical)
-        self.scrollArea.setWidgetResizable(True)
-
-        self.scrollWidget = QWidget()
-        self.scrollContentLayout = QVBoxLayout(self.scrollWidget)
-        self.scrollContentLayout.setContentsMargins(8, 8, 8, 8)
-        self.scrollContentLayout.setSpacing(8)
-        self.scrollArea.setWidget(self.scrollWidget)
-
-        self.scrollArea.enableTransparentBackground()
-        self.mainLayout.addWidget(self.scrollArea)
-
+    @override
+    def setupContent(self) -> None:
         self.createServerSettings()
         self.createAppSettings()
         self.createDeviceSettings()
-
-        self.scrollContentLayout.addStretch()
 
     def createServerSettings(self) -> None:
         self.serverSettingGroup = SettingCardGroup("服务设置")
@@ -357,7 +337,7 @@ class SettingsPage(QWidget):
         )
         self.serverSettingGroup.addSettingCard(self.serverConnectProxyCard)
 
-        self.scrollContentLayout.addWidget(self.serverSettingGroup)
+        self.addWidget(self.serverSettingGroup)
 
     def createAppSettings(self) -> None:
         self.appSettingGroup = SettingCardGroup("应用设置")
@@ -389,7 +369,7 @@ class SettingsPage(QWidget):
         )
         self.appSettingGroup.addSettingCard(self.appThemeCard)
 
-        self.scrollContentLayout.addWidget(self.appSettingGroup)
+        self.addWidget(self.appSettingGroup)
 
     def createDeviceSettings(self) -> None:
         self.deviceSettingGroup = SettingCardGroup("设备设置")
@@ -432,7 +412,7 @@ class SettingsPage(QWidget):
         self.deviceRemoveWhenOfflineOverrideCard.setExpand(True)
         self.deviceSettingGroup.addSettingCard(self.deviceRemoveWhenOfflineOverrideCard)
 
-        self.scrollContentLayout.addWidget(self.deviceSettingGroup)
+        self.addWidget(self.deviceSettingGroup)
 
     def onAutoStartChanged(self, checked: bool) -> None:
         if not AutoStartManager:
