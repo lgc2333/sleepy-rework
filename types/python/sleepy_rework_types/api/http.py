@@ -161,7 +161,7 @@ class BaseHttpApiClient(ABC):
     def __init__(
         self,
         base_url: str,
-        secret: str,
+        secret: str | None = None,
         app_ua: str | None = None,
         **kwargs: Any,
     ):
@@ -207,10 +207,9 @@ class BaseHttpApiClient(ABC):
     def headers(self) -> dict[str, str]:
         from .. import __version__
 
-        headers = {
-            "User-Agent": f"{UA_BASE} sleepy-rework-types/{__version__}",
-            "Authorization": f"Bearer {self.secret}",
-        }
+        headers = {"User-Agent": f"{UA_BASE} sleepy-rework-types/{__version__}"}
+        if self.secret:
+            headers["Authorization"] = f"Bearer {self.secret}"
         if self.app_ua:
             headers["User-Agent"] = f"{self.app_ua} {headers['User-Agent']}"
         return headers

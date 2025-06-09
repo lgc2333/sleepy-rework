@@ -470,10 +470,7 @@ export interface operations {
       query?: {
         exclude_unset?: boolean
       }
-      header?: {
-        'X-Sleepy-Secret'?: string | null
-        Authorization?: string | null
-      }
+      header?: never
       path: {
         device_key: string
       }
@@ -522,10 +519,7 @@ export interface operations {
   __api_v1_device__device_key__config_put: {
     parameters: {
       query?: never
-      header?: {
-        'X-Sleepy-Secret'?: string | null
-        Authorization?: string | null
-      }
+      header?: never
       path: {
         device_key: string
       }
@@ -587,10 +581,7 @@ export interface operations {
   __api_v1_device__device_key__info_put: {
     parameters: {
       query?: never
-      header?: {
-        'X-Sleepy-Secret'?: string | null
-        Authorization?: string | null
-      }
+      header?: never
       path: {
         device_key: string
       }
@@ -661,10 +652,7 @@ export interface operations {
   __api_v1_device__device_key__info_delete: {
     parameters: {
       query?: never
-      header?: {
-        'X-Sleepy-Secret'?: string | null
-        Authorization?: string | null
-      }
+      header?: never
       path: {
         device_key: string
       }
@@ -713,10 +701,7 @@ export interface operations {
   __api_v1_device__device_key__info_patch: {
     parameters: {
       query?: never
-      header?: {
-        'X-Sleepy-Secret'?: string | null
-        Authorization?: string | null
-      }
+      header?: never
       path: {
         device_key: string
       }

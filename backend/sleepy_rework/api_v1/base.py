@@ -45,10 +45,8 @@ DESCRIPTION = """
 
 ### 请求鉴权
 
-某些接口请求时需要鉴权，有以下两种鉴权方式：
-
-- 添加请求头 X-Sleepy-Secret，值为你在配置文件中定义的 secret
-- 添加请求头 Authorization，先以 Bearer 开头，再空格接上配置文件中的 secret
+文档中部分接口需要鉴权，可以使用 `Bearer` 形式的 `Authorization` Header，\
+或 `X-Sleepy-Secret` Header，值为配置文件中定义的 `secret`。
 """
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])
