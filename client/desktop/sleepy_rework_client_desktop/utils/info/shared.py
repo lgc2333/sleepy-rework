@@ -92,7 +92,7 @@ def get_device_os() -> str | None:
 
 
 def get_initial_device_info_dict():
-    obj: dict = {"replace": True}
+    obj: dict = {"idle": False, "replace": True}
     if name := qconfig.get(config.deviceName):
         obj["name"] = name
     if description := qconfig.get(config.deviceDescription):
