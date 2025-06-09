@@ -1,0 +1,15 @@
+import type { components } from './openapi'
+
+export type DeviceBatteryStatus = components['schemas']['DeviceBatteryStatus']
+export type DeviceConfig = components['schemas']['DeviceConfig']
+export type DeviceCurrentApp = components['schemas']['DeviceCurrentApp']
+export type DeviceData = components['schemas']['DeviceData']
+export type DeviceInfo = components['schemas']['DeviceInfo']
+export type DeviceInfoFromClient = components['schemas']['DeviceInfoFromClient']
+export type DeviceType = components['schemas']['DeviceType']
+export type ErrDetail = components['schemas']['ErrDetail']
+export type FrontendConfig = components['schemas']['FrontendConfig']
+export type FrontendStatusConfig = components['schemas']['FrontendStatusConfig']
+export type Info = components['schemas']['Info']
+export type OnlineStatus = components['schemas']['OnlineStatus']
+export type OpSuccess = components['schemas']['OpSuccess']

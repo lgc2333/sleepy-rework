@@ -144,7 +144,7 @@ async def add_device(
     dependencies=[AuthDep],
     summary="获取设备配置",
     responses={
-        200: {"model": OpSuccess},
+        200: {"model": DeviceConfig},
         401: {"model": ErrDetail, "description": "鉴权失败"},
         404: {"model": ErrDetail, "description": "未找到设备"},
         422: {"model": ErrDetail, "description": "请求体解析失败"},

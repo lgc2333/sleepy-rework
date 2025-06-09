@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from qfluentwidgets import qconfig
 
 from sleepy_rework_types import (
+    DeviceBatteryStatus,
     DeviceCurrentApp,
     DeviceData,
     DeviceInfo,
@@ -13,7 +14,7 @@ from sleepy_rework_types import (
 )
 
 from ...config import config
-from ..activity import BaseActivityDetector, activity_detector
+from ..activity import ActivityDetector, activity_detector
 from ..common import SafeLoggedSignal, deep_update
 from ..info.shared import get_device_os, get_device_type, get_initial_device_info_dict
 from .base import RetryWSClient
@@ -228,27 +229,42 @@ config.deviceRemoveWhenOfflineOverrideValue.valueChanged.connect(
 )
 
 
+def get_initial_device_data() -> DeviceData:
+    initial_data = info_feeder.initial_info.data
+    if not initial_data:
+        initial_data = DeviceData()
+        info_feeder.initial_info.data = initial_data
+    return initial_data
+
+
 if activity_detector is not None:
 
     @activity_detector.on_idle_change.connect
-    async def on_idle_change(_: BaseActivityDetector, idle: bool):
+    async def on_idle_change(_: ActivityDetector, idle: bool):
         info_feeder.initial_info.idle = idle
         info_feeder.update_info(
             DeviceInfoFromClientWS(idle=idle),
         )
 
     @activity_detector.on_current_app_update.connect
-    async def on_current_app_change(
-        _: BaseActivityDetector,
-        data: DeviceCurrentApp | None,
-    ):
-        initial_data = info_feeder.initial_info.data
-        if not initial_data:
-            initial_data = DeviceData()
-            info_feeder.initial_info.data = initial_data
+    async def on_current_app_change(_: ActivityDetector, data: DeviceCurrentApp | None):
+        initial_data = get_initial_device_data()
         initial_data.current_app = data
         info_feeder.update_info(
             DeviceInfoFromClientWS(
                 data=DeviceData(current_app=data),
+            ),
+        )
+
+    @activity_detector.on_battery_status_update.connect
+    async def on_battery_status_change(
+        _: ActivityDetector,
+        data: DeviceBatteryStatus | None,
+    ):
+        initial_data = get_initial_device_data()
+        initial_data.battery = data
+        info_feeder.update_info(
+            DeviceInfoFromClientWS(
+                data=DeviceData(battery=data),
             ),
         )

@@ -1,3 +1,4 @@
+/* eslint-disable ts/no-empty-object-type */
 import createClient from 'openapi-fetch'
 import type {
   ErrDetail,
@@ -6,7 +7,7 @@ import type {
   WsPathParams,
   WsQueryParams,
   WsRecvData,
-  paths,
+  openapi,
 } from 'sleepy-rework-types'
 import { TYPE, useToast } from 'vue-toastification'
 import type {
@@ -42,7 +43,7 @@ export const immutableToastOptions = {
   closeOnClick: false,
 } satisfies ToastOptions
 
-export const client = createClient<paths>({ baseUrl: API_BASE })
+export const client = createClient<openapi.paths>({ baseUrl: API_BASE })
 client.use({
   onResponse: async ({ response }) => {
     if (!response.ok) {
@@ -54,18 +55,31 @@ client.use({
   },
 })
 
+export type WSHeaderOption<K extends WsPath> =
+  WsHeaders<K> extends never ? {} : { headers: WsHeaders<K> }
+export type WSPathOption<K extends WsPath> =
+  WsPathParams<K> extends never ? {} : { path: WsPathParams<K> }
+export type WSQueryOption<K extends WsPath> =
+  WsQueryParams<K> extends never ? {} : { query: WsQueryParams<K> }
+export type WSOption<K extends WsPath> = WSHeaderOption<K> &
+  WSPathOption<K> &
+  WSQueryOption<K>
+
 export function createWS<T extends WsPath>(
   endpoint: T,
-  options: {
-    headers?: WsHeaders<T>
-    path?: WsPathParams<T>
-    query?: WsQueryParams<T>
+  options: WSOption<T> & {
     onOpen?: (event: Event) => void
     onMessage?: (data: WsRecvData<T>) => void
     onError?: (event: Event) => void
     onClose?: (event: CloseEvent) => void
-  } = {},
+  },
 ) {
+  if ('path' in options) {
+    for (const [k, v] of Object.entries(options.path)) {
+      endpoint = endpoint.replace(`{${k}}`, encodeURIComponent(v)) as any
+    }
+  }
+
   const url = `${WS_BASE}${endpoint}`
 
   let ws: WebSocket | null = null

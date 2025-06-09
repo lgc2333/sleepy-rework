@@ -1,5 +1,3 @@
-from collections.abc import Callable
-from datetime import datetime
 from typing import ClassVar
 
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
@@ -12,19 +10,8 @@ from qfluentwidgets import (
 )
 
 from ..utils.client.info import info_feeder
+from ..utils.common import get_str_time, wrap_async
 from ..widgets.scroll_area import VerticalScrollAreaView
-
-
-async def wrap_async[**A, R](
-    func: Callable[A, R],
-    *args: A.args,
-    **kwargs: A.kwargs,
-) -> R:
-    return func(*args, **kwargs)
-
-
-def get_str_time():
-    return datetime.now().astimezone().strftime("%m-%d %H:%M:%S")
 
 
 class HeaderWidget(QWidget):

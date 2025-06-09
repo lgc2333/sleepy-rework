@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "yarn@4.9.1",
+  "packageManager": "yarn@4.9.2",
   "workspaces": [
     "types/js",
     "website"
@@ -20,6 +20,7 @@
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.5.3",
     "sleepy-rework-types": "workspace:^",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
 }

@@ -9,17 +9,17 @@ import win32gui
 
 from sleepy_rework_types import DeviceCurrentApp
 
-from .base import BaseActivityDetector
+from .basic import BasicActivityDetector
 
 CHECK_INTERVAL = 1
 IDLE_TIME = 300
 MOUSE_IDLE_THRESHOLD = 5
 
 
-class WindowsActivityDetector(BaseActivityDetector):
+class WindowsActivityDetector(BasicActivityDetector):
     def __init__(self) -> None:
         super().__init__()
-        self._task: Task | None = None
+        self._win_task: Task | None = None
 
         self._last_app_hwnd: int | None = None
         self._last_app_win_title: str | None = None
@@ -75,4 +75,5 @@ class WindowsActivityDetector(BaseActivityDetector):
 
     @override
     def setup(self) -> None:
-        self._task = asyncio.create_task(self._task_func())
+        super().setup()
+        self._win_task = asyncio.create_task(self._task_func())

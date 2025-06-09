@@ -17,6 +17,7 @@ from .enums import (
     OnlineStatus as OnlineStatus,
 )
 from .models import (
+    DeviceBatteryStatus as DeviceBatteryStatus,
     DeviceCurrentApp as DeviceCurrentApp,
     DeviceData as DeviceData,
     DeviceInfo as DeviceInfo,

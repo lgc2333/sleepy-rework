@@ -818,5 +818,6 @@ sleepy.toml
 sleepy.*.toml
 private
 client_desktop.json
+openapi.json
 
 nuitka-crash-report.xml

@@ -26,10 +26,17 @@ class DeviceCurrentApp(BaseModel):
     last_change_time: int | None = None
 
 
+class DeviceBatteryStatus(BaseModel):
+    percent: int | None = None
+    time_left: int | None = None  # in seconds
+    charging: bool = False
+
+
 class DeviceData(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     current_app: DeviceCurrentApp | None = None
+    battery: DeviceBatteryStatus | None = None
     additional_statuses: list[str] | None = None
 
 

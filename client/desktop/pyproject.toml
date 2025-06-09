@@ -13,6 +13,7 @@ dependencies = [
     "websockets>=15.0.1",
     "cookit>=0.12.0.post1",
     "python-debouncer>=0.1.5",
+    "psutil>=7.0.0",
 ]
 
 [build-system]

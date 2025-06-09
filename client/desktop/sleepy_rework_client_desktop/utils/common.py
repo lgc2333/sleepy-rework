@@ -1,5 +1,7 @@
 import sys
 import traceback
+from collections.abc import Callable
+from datetime import datetime
 from pathlib import Path
 
 from cookit import Signal
@@ -53,3 +55,15 @@ def deep_update[KT, VT, KS, VS](
             else:
                 updated_mapping[k] = v
     return updated_mapping
+
+
+async def wrap_async[**A, R](
+    func: Callable[A, R],
+    *args: A.args,
+    **kwargs: A.kwargs,
+) -> R:
+    return func(*args, **kwargs)
+
+
+def get_str_time():
+    return datetime.now().astimezone().strftime("%m-%d %H:%M:%S")

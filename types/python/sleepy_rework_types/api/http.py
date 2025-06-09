@@ -9,8 +9,8 @@ from httpx import AsyncClient, Client, HTTPStatusError, Response
 from httpx._client import USER_AGENT as UA_BASE
 from pydantic import BaseModel
 
-from ..config import FrontendConfig
-from ..models import ErrDetail, Info, OpSuccess
+from ..config import DeviceConfig, FrontendConfig
+from ..models import DeviceInfo, ErrDetail, Info, OpSuccess
 from .types import AsyncHttpApi, SyncHttpApi
 
 
@@ -70,7 +70,38 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
             type_anno="m.Info",
         ),
     ),
-    "update_device_info": HttpApiInfo(
+    "get_device_config": HttpApiInfo(
+        method="GET",
+        endpoint="/api/v1/device/:device_key/config",
+        path_params={
+            "device_key": ParamInfo(
+                name="device_key",
+                type_anno="str",
+            ),
+        },
+        response=ResponseInfo(
+            model=DeviceConfig,
+            type_anno="m.DeviceConfig",
+        ),
+    ),
+    "put_device_config": HttpApiInfo(
+        method="PUT",
+        endpoint="/api/v1/device/:device_key/config",
+        path_params={
+            "device_key": ParamInfo(
+                name="device_key",
+                type_anno="str",
+            ),
+        },
+        body=BodyInfo(
+            type_anno="m.DeviceConfig",
+        ),
+        response=ResponseInfo(
+            model=OpSuccess,
+            type_anno="m.OpSuccess",
+        ),
+    ),
+    "patch_device_info": HttpApiInfo(
         method="PATCH",
         endpoint="/api/v1/device/:device_key/info",
         path_params={
@@ -85,8 +116,27 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
             default_type_anno="None",
         ),
         response=ResponseInfo(
-            model=OpSuccess,
-            type_anno="m.OpSuccess",
+            model=DeviceInfo,
+            type_anno="m.DeviceInfo",
+        ),
+    ),
+    "put_device_info": HttpApiInfo(
+        method="PUT",
+        endpoint="/api/v1/device/:device_key/info",
+        path_params={
+            "device_key": ParamInfo(
+                name="device_key",
+                type_anno="str",
+            ),
+        },
+        body=BodyInfo(
+            type_anno="m.DeviceInfoFromClient | None",
+            default=None,
+            default_type_anno="None",
+        ),
+        response=ResponseInfo(
+            model=DeviceInfo,
+            type_anno="m.DeviceInfo",
         ),
     ),
 }

@@ -6,7 +6,7 @@
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "generate": "openapi-typescript http://127.0.0.1:29306/docs/openapi.json -o src/schema.ts && yarn format",
+    "generate": "uv run ../../scripts/gen_openapi_spec.py && openapi-typescript openapi.json -o src/openapi.ts && uv run ../../scripts/gen_js_api_type_anno.py && yarn format",
     "build:src": "tsc -b && dumble",
     "build": "yarn generate && yarn build:src",
     "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
