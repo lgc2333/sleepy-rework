@@ -106,20 +106,43 @@ const statusName = computed(() => {
   return '未知'
 })
 
+const batteryIcon = computed(() => {
+  const b = info.data?.battery
+  if (b) {
+    if (b.charging) return 'carbon:battery-charging'
+    if (typeof b.percent === 'number') {
+      if (b.percent <= 10) return 'carbon:battery-low'
+      if (b.percent <= 30) return 'carbon:battery-quarter'
+      if (b.percent <= 60) return 'carbon:battery-half'
+    }
+  }
+  return 'carbon:battery-full'
+})
+
+const batteryTip = computed(() => {
+  const b = info.data?.battery
+  if (!b) return ''
+  let s = ''
+  if (typeof b.percent === 'number') {
+    s = `${b.percent}%`
+  }
+  if (typeof b.time_left === 'number') {
+    s += `(约${formatTimeDiff(b.time_left)})`
+  }
+  return s
+})
+
+function formatTimeDiff(secs: number) {
+  if (secs <= 0) return '0秒'
+  if (secs < 60) return `${secs}秒`
+  if (secs < 3600) return `${Math.floor(secs / 60)}分钟`
+  if (secs < 86400) return `${Math.floor(secs / 3600)}小时`
+  return `${Math.floor(secs / 86400)}天`
+}
+
 function formatUpdate(timestamp: number) {
-  const now = Date.now()
-  const diff = now - timestamp
-
-  if (diff <= 0) return '0秒'
-
-  const minutes = Math.floor(diff / (1000 * 60))
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-
-  if (minutes < 1) return `${Math.floor(diff / 1000)}秒`
-  if (minutes < 60) return `${minutes}分钟`
-  if (hours < 24) return `${hours}小时`
-  return `${days}天`
+  const diff = Date.now() - timestamp
+  return formatTimeDiff(Math.floor(diff / 1000))
 }
 
 function getLastUpdate() {
@@ -205,6 +228,16 @@ onUpdated(() => {
 
       <div mx="2" my="1px">
         <div flex="~ items-center justify-end gap-2 wrap" text-light text-sm my="1">
+          <div
+            v-if="batteryTip"
+            flex="~ items-center gap-1"
+            title="电池状态"
+            @dblclick="onIconClick"
+          >
+            <Icon :icon="batteryIcon" :class="iconClass" />
+            <span>{{ batteryTip }}</span>
+          </div>
+
           <div
             v-if="info.device_os"
             flex="~ items-center gap-1"
