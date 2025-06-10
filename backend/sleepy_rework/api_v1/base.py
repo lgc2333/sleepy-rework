@@ -2,14 +2,7 @@ import asyncio
 from typing import Annotated
 
 from debouncer import DebounceOptions, debounce
-from fastapi import (
-    APIRouter,
-    Query,
-    Response,
-    WebSocket,
-    WebSocketDisconnect,
-    status,
-)
+from fastapi import APIRouter, Query, Response, WebSocket, WebSocketDisconnect, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import PlainTextResponse
 from pydantic import ValidationError
@@ -23,14 +16,13 @@ from sleepy_rework_types import (
     FrontendConfig,
     Info,
     OpSuccess,
-    WSErr,
 )
 
 from ..config import config
 from ..devices import Device, device_manager
-from ..exc_handle import transform_exc_detail
+from ..exc_handle import close_ws_use_http_exc
 from ..log import logger
-from .deps import AuthDep
+from .deps import AuthDep, WSAuthDep
 
 DESCRIPTION = """
 ## API v1 基础知识
@@ -395,15 +387,7 @@ async def _(device_key: str):
     return OpSuccess()
 
 
-async def close_ws_use_http_exc(ws: WebSocket, exc: HTTPException):
-    we = WSErr(code=exc.status_code, detail=transform_exc_detail(exc.detail))
-    await ws.close(
-        code=status.WS_1008_POLICY_VIOLATION,
-        reason=we.model_dump_json(exclude_unset=True),
-    )
-
-
-@router.websocket("/device/{device_key}/info", dependencies=[AuthDep])
+@router.websocket("/device/{device_key}/info", dependencies=[WSAuthDep])
 async def _(ws: WebSocket, device_key: str):
     try:
         device = find_device_http(device_key)

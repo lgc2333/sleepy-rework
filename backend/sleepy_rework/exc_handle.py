@@ -1,16 +1,19 @@
 from typing import TYPE_CHECKING, Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError, WebSocketRequestValidationError
+from fastapi.exceptions import (
+    HTTPException,
+    RequestValidationError,
+    WebSocketRequestValidationError,
+)
 from fastapi.utils import is_body_allowed_for_status_code
 from fastapi.websockets import WebSocket
-from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY, WS_1008_POLICY_VIOLATION
 
 from sleepy_rework_types import ErrDetail
+from sleepy_rework_types.models import WSErr
 
 
 def transform_exc_detail(v: Any):
@@ -23,6 +26,14 @@ def transform_exc_detail(v: Any):
 
 def transform_exc_detail_json(v: Any) -> str:
     return transform_exc_detail(v).model_dump_json(exclude_unset=True)
+
+
+async def close_ws_use_http_exc(ws: WebSocket, exc: HTTPException):
+    we = WSErr(code=exc.status_code, detail=transform_exc_detail(exc.detail))
+    await ws.close(
+        code=status.WS_1008_POLICY_VIOLATION,
+        reason=we.model_dump_json(exclude_unset=True),
+    )
 
 
 async def handle_http_exc(_request: Request, exc: Exception) -> Response:
@@ -45,14 +56,20 @@ async def handle_validation_err(_request: Request, exc: Exception) -> Response:
     return Response(
         content=transform_exc_detail_json(exc.errors()),
         media_type="application/json",
-        status_code=HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
 
 
 async def handle_ws_validation_err(websocket: WebSocket, exc: Exception) -> None:
     if TYPE_CHECKING:
         assert isinstance(exc, WebSocketRequestValidationError)
-    await websocket.close(code=WS_1008_POLICY_VIOLATION)
+    await close_ws_use_http_exc(
+        websocket,
+        HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=exc.errors(),
+        ),
+    )
 
 
 def install_exc_handlers(app: FastAPI) -> None:
