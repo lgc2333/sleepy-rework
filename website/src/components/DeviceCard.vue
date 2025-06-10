@@ -133,6 +133,7 @@ const batteryTip = computed(() => {
 })
 
 function formatTimeDiff(secs: number) {
+  if (secs <= 0) return `0秒`
   if (secs < 60) return `${secs}秒`
   if (secs < 3600) {
     const minutes = Math.floor(secs / 60)
