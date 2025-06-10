@@ -243,7 +243,7 @@ onUpdated(() => {
 
       <div mx="2" my="1px">
         <div
-          flex="~ items-center justify-end wrap gap-x-2 gap-y-1 row-reverse"
+          flex="~ items-center justify-end wrap gap-x-2 gap-y-1 wrap-reverse"
           text-light
           text-sm
           my="1"
