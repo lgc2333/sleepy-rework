@@ -243,7 +243,7 @@ onUpdated(() => {
 
       <div mx="2" my="1px">
         <div
-          flex="~ items-center justify-end wrap gap-x-2 gap-y-1 wrap-reverse"
+          flex="~ items-center justify-end gap-x-2 gap-y-1 wrap-reverse"
           text-light
           text-sm
           my="1"
@@ -251,18 +251,16 @@ onUpdated(() => {
           <div
             v-if="batteryTip"
             flex="~ items-center gap-1"
-            order="1"
             title="电池状态"
             @dblclick="onIconClick"
           >
-            <Icon :icon="batteryIcon" :class="iconClass" />
+            <Icon :icon="batteryIcon" :class="iconClass" text-xl />
             <span>{{ batteryTip }}</span>
           </div>
 
           <div
             v-if="info.device_os"
             flex="~ items-center gap-1"
-            order="2"
             title="操作系统"
             @dblclick="onIconClick"
           >
@@ -270,22 +268,12 @@ onUpdated(() => {
             <span>{{ info.device_os }}</span>
           </div>
 
-          <div
-            v-if="info.online"
-            flex="~ items-center gap-1"
-            order="3"
-            title="连接方式"
-          >
+          <div v-if="info.online" flex="~ items-center gap-1" title="连接方式">
             <Icon icon="carbon:connection-signal" />
             <span>{{ info.long_connection ? '长连接' : '轮询' }}</span>
           </div>
 
-          <div
-            v-if="lastUpdate"
-            flex="~ items-center gap-1"
-            order="4"
-            title="最后更新时间"
-          >
+          <div v-if="lastUpdate" flex="~ items-center gap-1" title="最后更新时间">
             <Icon icon="carbon:time" />
             <span>{{ lastUpdate }}前</span>
           </div>
