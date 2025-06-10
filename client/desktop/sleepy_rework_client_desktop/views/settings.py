@@ -23,6 +23,7 @@ from ..utils.auto_start import AutoStartManager
 from ..widgets import (
     BugFixedExpandGroupSettingCard,
     ExpandGroupWidget,
+    LineEditListSettingCard,
     LineEditSettingCard,
     PasswordLineEditSettingCard,
     StrictLineEditSettingCard,
@@ -294,11 +295,34 @@ class SettingsPage(VerticalScrollAreaView):
             self.serverEnableConnectCard.switchButton.isChecked(),
         )
 
+    def onAutoStartChanged(self, checked: bool) -> None:
+        if not AutoStartManager:
+            return
+        self.appAutoStartCard.switchButton.setEnabled(False)
+        res = AutoStartManager.enable() if checked else AutoStartManager.disable()
+        if not res:
+            self.appAutoStartCard.switchButton.setChecked(not checked)
+            InfoBar.error(
+                "操作失败",
+                "设置开机自启失败",
+                duration=3000,
+                position=InfoBarPosition.TOP_RIGHT,
+                parent=self.appAutoStartCard,
+            )
+        self.appAutoStartCard.switchButton.setEnabled(True)
+
+    def onEnableConnectSwitchChange(self, connected: bool) -> None:
+        self.serverUrlCard.lineEdit.setDisabled(connected)
+        self.serverSecretCard.lineEdit.setDisabled(connected)
+        self.serverConnectProxyCard.lineEdit.setDisabled(connected)
+        self.deviceKeyCard.lineEdit.setDisabled(connected)
+
     @override
     def setupContent(self) -> None:
         self.createServerSettings()
         self.createAppSettings()
         self.createDeviceSettings()
+        self.createActivitySettings()
 
     def createServerSettings(self) -> None:
         self.serverSettingGroup = SettingCardGroup("服务设置")
@@ -414,24 +438,47 @@ class SettingsPage(VerticalScrollAreaView):
 
         self.addWidget(self.deviceSettingGroup)
 
-    def onAutoStartChanged(self, checked: bool) -> None:
-        if not AutoStartManager:
-            return
-        self.appAutoStartCard.switchButton.setEnabled(False)
-        res = AutoStartManager.enable() if checked else AutoStartManager.disable()
-        if not res:
-            self.appAutoStartCard.switchButton.setChecked(not checked)
-            InfoBar.error(
-                "操作失败",
-                "设置开机自启失败",
-                duration=3000,
-                position=InfoBarPosition.TOP_RIGHT,
-                parent=self.appAutoStartCard,
-            )
-        self.appAutoStartCard.switchButton.setEnabled(True)
+    def createActivitySettings(self) -> None:
+        self.activitySettingGroup = SettingCardGroup("监测设置")
 
-    def onEnableConnectSwitchChange(self, connected: bool) -> None:
-        self.serverUrlCard.lineEdit.setDisabled(connected)
-        self.serverSecretCard.lineEdit.setDisabled(connected)
-        self.serverConnectProxyCard.lineEdit.setDisabled(connected)
-        self.deviceKeyCard.lineEdit.setDisabled(connected)
+        self.activityAppNameBriefCard = SwitchSettingCard(
+            icon=FluentIcon.APPLICATION,
+            title="简化上报应用名",
+            content="将检测到的以横杠分隔的应用标题仅取最后一部分上报",
+            configItem=config.activityAppNameBrief,
+        )
+        self.activitySettingGroup.addSettingCard(
+            self.activityAppNameBriefCard,
+        )
+
+        self.activityAppNameReverseCard = SwitchSettingCard(
+            icon=FluentIcon.ROTATE,
+            title="反转上报应用名",
+            content="将检测到的以横杠分隔的应用标题反转后上报（启用简化上报应用名后无效）",
+            configItem=config.activityAppNameReverse,
+        )
+        self.activitySettingGroup.addSettingCard(
+            self.activityAppNameReverseCard,
+        )
+
+        self.activityAppNameFilterIsWhiteListCard = SwitchSettingCard(
+            icon=FluentIcon.HIDE,
+            title="是否将应用名过滤列表反转为白名单",
+            content="不启用则为黑名单，符合条件的窗口标题将上报为空",
+            configItem=config.activityAppNameFilterIsWhiteList,
+        )
+        self.activitySettingGroup.addSettingCard(
+            self.activityAppNameFilterIsWhiteListCard,
+        )
+
+        self.activityAppNameFilterListCard = LineEditListSettingCard(
+            icon=FluentIcon.FILTER,
+            title="应用名过滤列表",
+            content="设置符合条件的窗口标题（模糊匹配）",
+            configItem=config.activityAppNameFilterList,
+        )
+        self.activitySettingGroup.addSettingCard(
+            self.activityAppNameFilterListCard,
+        )
+
+        self.addWidget(self.activitySettingGroup)

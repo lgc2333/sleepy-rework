@@ -22,7 +22,7 @@ class OpSuccess(BaseModel):
 
 
 class DeviceCurrentApp(BaseModel):
-    name: str
+    name: str | None = None
     last_change_time: int | None = None
 
 

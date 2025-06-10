@@ -1,4 +1,5 @@
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, cast, override
 
@@ -40,6 +41,18 @@ class StringValidator(ConfigValidator):
     @override
     def correct(self, value: Any):
         return str(value)
+
+
+class StringListValidator(ConfigValidator):
+    @override
+    def validate(self, value: Any):  # pyright: ignore
+        if not isinstance(value, list):
+            return False
+        return all(isinstance(item, str) for item in value)
+
+    @override
+    def correct(self, value: Any):
+        return [str(x) for x in value] if isinstance(value, Iterable) else [str(value)]
 
 
 class AnyProxyUrl(AnyUrl):
@@ -198,6 +211,31 @@ class Config(QConfig):
         "removeWhenOfflineOverrideValue",
         default=False,
         validator=BoolValidator(),
+    )
+
+    activityAppNameBrief = ConfigItem(
+        "activity",
+        "appNameBrief",
+        default=False,
+        validator=BoolValidator(),
+    )
+    activityAppNameReverse = ConfigItem(
+        "activity",
+        "appNameReverse",
+        default=False,
+        validator=BoolValidator(),
+    )
+    activityAppNameFilterIsWhiteList = ConfigItem(
+        "activity",
+        "appNameFilterIsWhiteList",
+        default=False,
+        validator=BoolValidator(),
+    )
+    activityAppNameFilterList = ConfigItem(
+        "activity",
+        "appNameFilterList",
+        [],
+        validator=StringListValidator(),
     )
 
 

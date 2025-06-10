@@ -1,12 +1,16 @@
-from typing import ClassVar
+from typing import ClassVar, override
 
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
+    FluentIcon,
     HeaderCardWidget,
     IconWidget,
     InfoBarIcon,
     TitleLabel,
+    ToolButton,
 )
 
 from ..utils.client.info import info_feeder
@@ -112,6 +116,89 @@ class ConnectionStatusCard(HeaderCardWidget):
         self.descText.show()
 
 
+class MonoBodyLabel(BodyLabel):
+    @override
+    def getFont(self):
+        f = QFont(
+            [
+                "JetBrains Mono",
+                "Cascadia Code",
+                "Ubuntu Mono",
+                "Consolas",
+                "Courier New",
+                "Segoe UI",
+                "Microsoft YaHei",
+                "PingFang SC",
+            ],
+            weight=QFont.Weight.Normal,
+        )
+        f.setStyleHint(QFont.StyleHint.Monospace)
+        f.setPixelSize(14)
+        return f
+
+
+class CodeCard(HeaderCardWidget):
+    def __init__(self, parent: QWidget | None = None):  # type: ignore
+        super().__init__(parent)
+
+        self.headerLayout.addStretch(1)
+
+        self.copyButton = ToolButton(FluentIcon.COPY)
+        self.copyButton.clicked.connect(self._onCopyClicked)
+        self.headerLayout.addWidget(self.copyButton)
+
+        self.copyIconResetTimer: QTimer | None = None
+
+        self.bodyLabel = MonoBodyLabel()
+        self.viewLayout.addWidget(self.bodyLabel)
+
+    def _onCopyClicked(self):
+        from ..app import app
+
+        app.clipboard().setText(self.bodyLabel.text())
+        self.copyButton.setIcon(FluentIcon.ACCEPT)
+        if self.copyIconResetTimer:
+            self.copyIconResetTimer.stop()
+        self.copyIconResetTimer = QTimer(self)
+        self.copyIconResetTimer.singleShot(
+            3000,
+            lambda: self.copyButton.setIcon(FluentIcon.COPY),
+        )
+
+
+class CurrentClientSideInfoCard(CodeCard):
+    def __init__(self, parent: QWidget | None = None):  # type: ignore
+        super().__init__(parent)
+        self.setTitle("客户端侧当前信息")
+
+        info_feeder.on_info_update.connect(lambda *_: wrap_async(self._onInfoUpdate))
+        self._onInfoUpdate()
+
+    def _onInfoUpdate(self):
+        self.bodyLabel.setText(
+            info_feeder.initial_info.model_dump_json(indent=2, exclude_unset=True),
+        )
+
+
+class CurrentServerSideInfoCard(CodeCard):
+    def __init__(self, parent: QWidget | None = None):  # type: ignore
+        super().__init__(parent)
+        self.setTitle("服务端侧当前信息")
+
+        info_feeder.on_server_side_info_updated.connect(
+            lambda *_: wrap_async(self._onInfoUpdate),
+        )
+        self._onInfoUpdate()
+
+    def _onInfoUpdate(self):
+        if (not info_feeder.server_side_info) or (not info_feeder.connected):
+            self.bodyLabel.setText("null")
+        else:
+            self.bodyLabel.setText(
+                info_feeder.server_side_info.model_dump_json(indent=2),
+            )
+
+
 class HomePage(VerticalScrollAreaView):
     routeKey: ClassVar[str] = "home"
 
@@ -125,3 +212,9 @@ class HomePage(VerticalScrollAreaView):
 
         self.connectionStatusCard = ConnectionStatusCard()
         self.addWidget(self.connectionStatusCard)
+
+        self.currentClientSideInfoCard = CurrentClientSideInfoCard()
+        self.addWidget(self.currentClientSideInfoCard)
+
+        self.currentServerSideInfoCard = CurrentServerSideInfoCard()
+        self.addWidget(self.currentServerSideInfoCard)

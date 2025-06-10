@@ -5,9 +5,11 @@ from typing import Any, Self
 
 import psutil
 from psutil._common import sbattery
+from qfluentwidgets import qconfig
 
 from sleepy_rework_types import DeviceBatteryStatus, DeviceCurrentApp
 
+from ...config import config
 from ..common import SafeLoggedSignal, wrap_async
 
 BATTERY_CHECK_INTERVAL = 3
@@ -83,6 +85,31 @@ class BasicActivityDetector:
     @property
     def additional_statuses(self) -> list[str]:
         return [status.content for status in self._additional_statuses_items]
+
+    def process_app_name(self, name: str | None) -> str | None:
+        if not name:
+            return None
+
+        name_parts = name.split(" - ")
+        if qconfig.get(config.activityAppNameBrief):
+            name = name_parts[-1]
+        elif qconfig.get(config.activityAppNameReverse):
+            name_parts.reverse()
+            name = " - ".join(name_parts)
+
+        if not name:
+            return None
+
+        filter_li: list[str] = qconfig.get(config.activityAppNameFilterList)
+        is_blacked = any(
+            True for x in filter_li if x and (x.casefold() in name.casefold())
+        )
+        if qconfig.get(config.activityAppNameFilterIsWhiteList):
+            is_blacked = not is_blacked
+        if is_blacked:
+            name = None
+
+        return name
 
     def update_idle(self, idle: bool) -> None:
         if self._idle == idle:

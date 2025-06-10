@@ -157,17 +157,21 @@ def on_config_device_attr_change(
     # if original v is None, meaning using server side config
     # then we need to remove the attr from server side stored data
     # so we replace the entire info with target attr excluded
-    info = info_feeder.server_side_info
-    if info:
-        info = DeviceInfoFromClientWS.model_validate(
-            info.model_dump(exclude_unset=True),
-        )
-        setattr(info, attr, None)
-        info.model_fields_set.remove(attr)
-    else:
-        info = info_feeder.initial_info
-    info.replace = True
-    info_feeder.update_info(info)
+
+    # info = info_feeder.server_side_info
+    # if info:
+    #     info = DeviceInfoFromClientWS.model_validate(
+    #         info.model_dump(exclude_unset=True),
+    #     )
+    #     setattr(info, attr, None)
+    #     info.model_fields_set.remove(attr)
+    # else:
+    #     info = info_feeder.initial_info
+    # info.replace = True
+
+    # maybe just use initial info, then set replace=True (already set) is enough
+
+    info_feeder.update_info(info_feeder.initial_info)
 
 
 def on_config_key_change(_: Any):

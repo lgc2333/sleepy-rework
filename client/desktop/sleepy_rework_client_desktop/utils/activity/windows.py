@@ -44,7 +44,7 @@ class WindowsActivityDetector(BasicActivityDetector):
 
     async def update_curr_window(self, curr_time: float):
         hwnd = win32gui.GetForegroundWindow()
-        title = win32gui.GetWindowText(hwnd)
+        title = self.process_app_name(win32gui.GetWindowText(hwnd))
 
         if hwnd != self._last_app_hwnd:
             self._last_app_change_time = curr_time
