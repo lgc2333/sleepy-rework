@@ -133,11 +133,19 @@ const batteryTip = computed(() => {
 })
 
 function formatTimeDiff(secs: number) {
-  if (secs <= 0) return '0秒'
   if (secs < 60) return `${secs}秒`
-  if (secs < 3600) return `${Math.floor(secs / 60)}分钟`
-  if (secs < 86400) return `${Math.floor(secs / 3600)}小时`
-  return `${Math.floor(secs / 86400)}天`
+  if (secs < 3600) {
+    const minutes = Math.floor(secs / 60)
+    return `${minutes}分钟`
+  }
+  if (secs < 86400) {
+    const hours = Math.floor(secs / 3600)
+    const minutes = Math.floor((secs % 3600) / 60)
+    return `${hours}小时${minutes}分钟`
+  }
+  const days = Math.floor(secs / 86400)
+  const hours = Math.floor((secs % 86400) / 3600)
+  return `${days}天${hours}小时`
 }
 
 function formatUpdate(timestamp: number) {
@@ -255,7 +263,7 @@ onUpdated(() => {
             <span>{{ info.device_os }}</span>
           </div>
 
-          <div v-if="info.online" flex="~ items-center gap-1">
+          <div v-if="info.online" flex="~ items-center gap-1" title="连接方式">
             <Icon icon="carbon:connection-signal" />
             <span>{{ info.long_connection ? '长连接' : '轮询' }}</span>
           </div>

@@ -18,7 +18,12 @@ BATTERY_CHECK_INTERVAL = 3
 def transform_battery_status(data: sbattery) -> DeviceBatteryStatus:
     return DeviceBatteryStatus(
         percent=data.percent,
-        time_left=data.secsleft if data.secsleft > 0 else None,
+        time_left=(
+            data.secsleft
+            # idk why it report 0xFFFFFFFF when power is unplugged recently
+            if data.secsleft > 0 and data.secsleft < 0xFFFFFFFF
+            else None
+        ),
         charging=data.power_plugged,
     )
 
