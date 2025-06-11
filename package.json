@@ -6,8 +6,7 @@
   "packageManager": "yarn@4.9.2",
   "workspaces": [
     "types/js",
-    "website",
-    "client/autoxjs"
+    "website"
   ],
   "scripts": {
     "build": "yarn workspaces foreach -Wpt run build",
