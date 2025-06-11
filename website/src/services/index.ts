@@ -1,8 +1,6 @@
-/* eslint-disable ts/no-empty-object-type */
 import createClient from 'openapi-fetch'
 import type {
   ErrDetail,
-  WsHeaders,
   WsPath,
   WsPathParams,
   WsQueryParams,
@@ -55,15 +53,11 @@ client.use({
   },
 })
 
-export type WSHeaderOption<K extends WsPath> =
-  WsHeaders<K> extends never ? {} : { headers: WsHeaders<K> }
 export type WSPathOption<K extends WsPath> =
   WsPathParams<K> extends never ? {} : { path: WsPathParams<K> }
 export type WSQueryOption<K extends WsPath> =
   WsQueryParams<K> extends never ? {} : { query: WsQueryParams<K> }
-export type WSOption<K extends WsPath> = WSHeaderOption<K> &
-  WSPathOption<K> &
-  WSQueryOption<K>
+export type WSOption<K extends WsPath> = WSPathOption<K> & WSQueryOption<K>
 
 export function createWS<T extends WsPath>(
   endpoint: T,

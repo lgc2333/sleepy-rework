@@ -1,0 +1,15 @@
+diff --git a/internals/string-punycode-to-ascii.js b/internals/string-punycode-to-ascii.js
+index 6e397462e20628c02fa27dc30af3d72d49d53a60..eca0c8cfb3649d9097ad7ef9cc166231bf2b584e 100644
+--- a/internals/string-punycode-to-ascii.js
++++ b/internals/string-punycode-to-ascii.js
+@@ -172,8 +172,9 @@ var encode = function (input) {
+ module.exports = function (input) {
+   var encoded = [];
+   var labels = split(replace(toLowerCase(input), regexSeparators, '\u002E'), '.');
++  var labelsLen = labels.length;
+   var i, label;
+-  for (i = 0; i < labels.length; i++) {
++  for (i = 0; i < labelsLen; i++) {
+     label = labels[i];
+     push(encoded, exec(regexNonASCII, label) ? 'xn--' + encode(label) : label);
+   }

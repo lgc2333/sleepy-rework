@@ -1,0 +1,27 @@
+{
+  "name": "sleepy-rework-client-autoxjs",
+  "version": "0.1.0",
+  "packageManager": "yarn@4.9.1",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build:post": "node scripts/post-build.mjs",
+    "build:src": "tsc -b && dumble && babel dist/index.js --out-file dist/index.js",
+    "build": "yarn build:src && yarn build:post",
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@types/babel__core": "^7",
+    "@types/babel__preset-env": "^7",
+    "autox-v6-api": "^1.0.5",
+    "core-js": "patch:core-js@npm%3A3.43.0#~/.yarn/patches/core-js-npm-3.43.0-7859dbc9f9.patch",
+    "dumble": "^0.2.2",
+    "esbuild": "^0.25.5",
+    "event-target-shim": "patch:event-target-shim@npm%3A6.0.2#~/.yarn/patches/event-target-shim-npm-6.0.2-4b3d91b04f.patch",
+    "sleepy-rework-types": "workspace:^",
+    "typescript": "^5.8.3"
+  }
+}

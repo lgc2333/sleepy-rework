@@ -27,9 +27,11 @@ async def ws_auth_dep(ws: WebSocket):
     scheme, credentials = get_authorization_scheme_param(
         ws.headers.get("Authorization"),
     )
-    if (scheme == "Bearer" and credentials == config.secret) or (
-        ws.headers.get("X-Sleepy-Secret") == config.secret
-    ):
+    if scheme == "Bearer" and credentials == config.secret:
+        return
+    if ws.headers.get("X-Sleepy-Secret") == config.secret:
+        return
+    if ws.headers.get("Sec-WebSocket-Protocol") == f"sleepy, {config.secret}":
         return
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, ErrDetail())
 

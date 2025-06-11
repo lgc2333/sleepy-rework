@@ -39,6 +39,9 @@ DESCRIPTION = """
 
 文档中部分接口需要鉴权，可以使用 `Bearer` 形式的 `Authorization` Header，\
 或 `X-Sleepy-Secret` Header，值为配置文件中定义的 `secret`。
+
+WebSocket 连接除了可以使用 HTTP 的请求方式外，也可以使用 `Sec-WebSocket-Protocol` Header，\
+值为 `sleepy, secret`，其中 `secret` 应替换为配置文件中定义的 `secret`。
 """
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])

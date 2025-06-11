@@ -1,0 +1,72 @@
+diff --git a/es5.js b/es5.js
+index 8af71d6097e36c3ea51b39657b6007d054d7e0ca..d7a38eef79b51da431a4de645691420b37f5d6be 100644
+--- a/es5.js
++++ b/es5.js
+@@ -623,7 +623,7 @@ for (var i = 0; i < keys.length; ++i) {
+ 
+ 
+ if (typeof Global !== "undefined" && typeof Global.Event !== "undefined") {
+-  Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
++  // Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
+ }
+ /**
+  * Create a new InvalidStateError instance.
+diff --git a/es5.mjs b/es5.mjs
+index 4fe57ed8ad8e7e9136bb4c09fa67ad4a78106b44..82c1a0345abe3c0f8c2e58b578b051efa2929b24 100644
+--- a/es5.mjs
++++ b/es5.mjs
+@@ -604,7 +604,7 @@ for (var i = 0; i < keys.length; ++i) {
+ 
+ 
+ if (typeof Global !== "undefined" && typeof Global.Event !== "undefined") {
+-  Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
++  // Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
+ }
+ /**
+  * Create a new InvalidStateError instance.
+diff --git a/index.js b/index.js
+index 2bf2cb8b8dadbaf98723eb0353973d72e0cfe0d5..15ca5bccfa5cf3e1b69287ceb8f694f0aa813d0a 100644
+--- a/index.js
++++ b/index.js
+@@ -447,7 +447,7 @@ for (let i = 0; i < keys.length; ++i) {
+ }
+ // Ensure `event instanceof window.Event` is `true`.
+ if (typeof Global !== "undefined" && typeof Global.Event !== "undefined") {
+-    Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
++    // Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
+ }
+ 
+ /**
+diff --git a/index.mjs b/index.mjs
+index 6b6f6cd766ce50b4b88c3f062cd4d0cb27379f54..5cae4c61db4015c4fac045d25b6640186d82c3bc 100644
+--- a/index.mjs
++++ b/index.mjs
+@@ -443,7 +443,7 @@ for (let i = 0; i < keys.length; ++i) {
+ }
+ // Ensure `event instanceof window.Event` is `true`.
+ if (typeof Global !== "undefined" && typeof Global.Event !== "undefined") {
+-    Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
++    // Object.setPrototypeOf(Event.prototype, Global.Event.prototype);
+ }
+ 
+ /**
+diff --git a/package.json b/package.json
+index 045cf8bb2890a73e03d8aad727ab9f81bae2176a..4810413c3739765d3c249fa667bf70420f1d9521 100644
+--- a/package.json
++++ b/package.json
+@@ -6,11 +6,13 @@
+   "exports": {
+     ".": {
+       "import": "./index.mjs",
+-      "require": "./index.js"
++      "require": "./index.js",
++      "types": "./index.d.ts"
+     },
+     "./es5": {
+       "import": "./es5.mjs",
+-      "require": "./es5.js"
++      "require": "./es5.js",
++      "types": "./es5.d.ts"
+     },
+     "./umd": "./umd.js",
+     "./package.json": "./package.json"

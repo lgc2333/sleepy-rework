@@ -6,7 +6,8 @@
   "packageManager": "yarn@4.9.2",
   "workspaces": [
     "types/js",
-    "website"
+    "website",
+    "client/autoxjs"
   ],
   "scripts": {
     "build": "yarn workspaces foreach -Wpt run build",
@@ -22,5 +23,8 @@
     "sleepy-rework-types": "workspace:^",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/node": "^24.0.0"
   }
 }

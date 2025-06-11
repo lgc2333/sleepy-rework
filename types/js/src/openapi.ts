@@ -258,7 +258,7 @@ export interface components {
     /** DeviceCurrentApp */
     DeviceCurrentApp: {
       /** Name */
-      name: string
+      name?: string | null
       /** Last Change Time */
       last_change_time?: number | null
     }
