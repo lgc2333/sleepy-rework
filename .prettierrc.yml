@@ -4,11 +4,12 @@ trailingComma: all
 printWidth: 88
 
 plugins:
-  - "@trivago/prettier-plugin-sort-imports"
+  - '@prettier/plugin-xml'
+  - '@trivago/prettier-plugin-sort-imports'
 
 importOrder:
-  - "^node:(.*)$" # builtin
+  - '^node:(.*)$' # builtin
   - '^(@[^\/]|[^\.@])(.*)$' # external
-  - ".*" # local
+  - '.*' # local
 importOrderSeparation: true
 importOrderSortSpecifiers: true

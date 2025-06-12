@@ -13,17 +13,16 @@
     "clean": "yarn workspaces foreach -Wpt run clean"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.12.0",
+    "@antfu/eslint-config": "^4.14.1",
+    "@prettier/plugin-xml": "^3.4.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^24.0.0",
     "dumble": "^0.2.2",
-    "eslint": "^9.26.0",
+    "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.5.3",
     "sleepy-rework-types": "workspace:^",
-    "tsx": "^4.19.4",
+    "tsx": "^4.20.1",
     "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@types/node": "^24.0.0"
   }
 }
