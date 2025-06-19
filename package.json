@@ -6,8 +6,7 @@
   "packageManager": "yarn@4.9.2",
   "workspaces": [
     "types/js",
-    "website",
-    "client/android"
+    "website"
   ],
   "scripts": {
     "build": "yarn workspaces foreach -Wpt run build",
