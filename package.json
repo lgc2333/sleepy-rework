@@ -6,7 +6,8 @@
   "packageManager": "yarn@4.9.2",
   "workspaces": [
     "types/js",
-    "website"
+    "website",
+    "client/android"
   ],
   "scripts": {
     "build": "yarn workspaces foreach -Wpt run build",
@@ -16,13 +17,13 @@
     "@antfu/eslint-config": "^4.14.1",
     "@prettier/plugin-xml": "^3.4.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@types/node": "^24.0.0",
+    "@types/node": "^24.0.3",
     "dumble": "^0.2.2",
-    "eslint": "^9.28.0",
+    "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.5.3",
     "sleepy-rework-types": "workspace:^",
-    "tsx": "^4.20.1",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }

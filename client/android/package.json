@@ -1,0 +1,35 @@
+{
+  "name": "sleepy-rework-client-android",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "android": "react-native run-android",
+    "start": "react-native start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-native": "0.80.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/runtime": "^7.27.6",
+    "@react-native-community/cli": "19.0.0",
+    "@react-native-community/cli-platform-android": "19.0.0",
+    "@react-native/babel-preset": "0.80.0",
+    "@react-native/metro-config": "0.80.0",
+    "@react-native/typescript-config": "0.80.0",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.1.8",
+    "eslint": "^9.29.0",
+    "jest": "^30.0.1",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3"
+  }
+}

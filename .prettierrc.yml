@@ -10,6 +10,6 @@ plugins:
 importOrder:
   - '^node:(.*)$' # builtin
   - '^(@[^\/]|[^\.@])(.*)$' # external
-  - '.*' # local
+  - '(.*)' # local (rest)
 importOrderSeparation: true
 importOrderSortSpecifiers: true
