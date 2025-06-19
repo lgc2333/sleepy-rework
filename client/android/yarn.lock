@@ -3274,7 +3274,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.6":
+"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
   dependencies:
@@ -3508,6 +3508,18 @@ __metadata:
   dependencies:
     iconv-lite: "npm:^0.6.2"
   checksum: 10c0/36d938712ff00fe1f4bac88b43bcffb5930c1efa57bbcdca9d67e1d9d6c57cfb1200fb01efe0f3109b2ce99b231f90779532814a81370a1bd3274a0f58585039
+  languageName: node
+  linkType: hard
+
+"env-cmd@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "env-cmd@npm:10.1.0"
+  dependencies:
+    commander: "npm:^4.0.0"
+    cross-spawn: "npm:^7.0.0"
+  bin:
+    env-cmd: bin/env-cmd.js
+  checksum: 10c0/8ea5f4205bed83f39ea0ef0eb94d52a47bc815302c55779fb6c38346ca9284df1855f0847c8f5c702554f7f01e3575d171f12cffd13a1bada01961815842abe3
   languageName: node
   linkType: hard
 
@@ -6920,6 +6932,7 @@ __metadata:
     "@react-native-vector-icons/material-design-icons": "npm:^12.0.1"
     "@saserinn/react-native-battery-optimization-check": "npm:^1.0.3"
     "@types/react": "npm:~19.1.8"
+    env-cmd: "npm:^10.1.0"
     eslint: "npm:^9.29.0"
     expo: "npm:~53.0.12"
     expo-status-bar: "npm:~2.2.3"

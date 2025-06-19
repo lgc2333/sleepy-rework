@@ -1,7 +1,7 @@
 // sort-imports-ignore
 import 'ts-node/register'
 
-import type { ConfigContext } from 'expo/config'
+import type { ConfigContext, ExpoConfig } from 'expo/config'
 
 export default function createConfig(_: ConfigContext) {
   return {
@@ -37,5 +37,5 @@ export default function createConfig(_: ConfigContext) {
       edgeToEdgeEnabled: true,
     },
     plugins: ['./plugins/prebuild.plugin.ts'],
-  }
+  } satisfies Partial<ExpoConfig>
 }

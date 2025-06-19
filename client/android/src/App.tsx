@@ -1,5 +1,4 @@
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
-import Constants from 'expo-constants'
 import { StatusBar } from 'expo-status-bar'
 import { useMemo } from 'react'
 import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
@@ -11,13 +10,9 @@ import {
   PaperProvider,
   Text,
 } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const styles = StyleSheet.create({
-  rootContainer: {
-    flex: 1,
-    marginTop: Constants.statusBarHeight + 8,
-    marginHorizontal: 16,
-  },
   mainContainer: {
     gap: 8,
   },
@@ -33,10 +28,20 @@ export function MainView() {
 }
 
 export function AppMain() {
+  const insets = useSafeAreaInsets()
+  const viewStyle = useMemo(
+    () => ({
+      marginTop: insets.top,
+      marginBottom: insets.bottom,
+      marginLeft: insets.left + 16,
+      marginRight: insets.right + 16,
+    }),
+    [insets],
+  )
   return (
-    <SafeAreaView style={styles.rootContainer}>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar style="auto" />
-      <ScrollView>
+      <ScrollView style={viewStyle}>
         <MainView />
       </ScrollView>
     </SafeAreaView>

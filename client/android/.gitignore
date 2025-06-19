@@ -47,4 +47,5 @@ app-example
 
 /android/
 
-signing-key.keystore
+release.keystore
+release.keystore.properties
