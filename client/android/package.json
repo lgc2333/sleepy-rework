@@ -11,30 +11,33 @@
   "scripts": {
     "prebuild": "expo prebuild --clean",
     "start": "expo run:android",
-    "build": "cd android && ./gradlew app:assembleRelease && cd ..",
+    "build": "cd android && ./gradlew app:assembleRelease --stacktrace && cd ..",
     "ios": "expo run:ios",
     "android": "expo run:android"
   },
   "dependencies": {
-    "expo": "~53.0.12",
-    "expo-status-bar": "~2.2.3",
-    "react": "19.0.0",
-    "react-native": "0.79.4"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.27.4",
     "@brighthustle/react-native-auto-start": "^0.1.0",
     "@pchmn/expo-material3-theme": "^1.3.2",
     "@react-native-vector-icons/material-design-icons": "^12.0.1",
     "@saserinn/react-native-battery-optimization-check": "^1.0.3",
+    "expo": "~53.0.12",
+    "expo-status-bar": "~2.2.3",
+    "expo-system-ui": "^5.0.9",
+    "react": "19.0.0",
+    "react-native": "0.79.4",
+    "react-native-background-actions": "^4.0.1",
+    "react-native-edge-to-edge": "^1.6.1",
+    "react-native-paper": "^5.14.5",
+    "react-native-safe-area-context": "^5.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@react-native-community/cli": "^19.0.0",
+    "@react-native-community/cli-platform-android": "^19.0.0",
     "@types/react": "~19.1.8",
     "env-cmd": "^10.1.0",
     "eslint": "^9.29.0",
-    "expo-system-ui": "^5.0.9",
     "prettier": "^3.5.3",
-    "react-native-background-actions": "^4.0.1",
-    "react-native-paper": "^5.14.5",
-    "react-native-safe-area-context": "^5.4.1",
     "sleepy-rework-types": "workspace:^",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.3"

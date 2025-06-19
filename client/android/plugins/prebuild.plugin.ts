@@ -15,7 +15,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 `
 const signingConfigRelease = `
         release {
-            storeFile file('../assets/release.keystore')
+            storeFile file('../../assets/release.keystore')
             storePassword keystoreProperties.getProperty('storePassword')
             keyAlias keystoreProperties.getProperty('keyAlias')
             keyPassword keystoreProperties.getProperty('keyPassword')
