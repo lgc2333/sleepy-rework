@@ -24,12 +24,15 @@
     "@react-native/babel-preset": "0.80.0",
     "@react-native/metro-config": "0.80.0",
     "@react-native/typescript-config": "0.80.0",
+    "@saserinn/react-native-battery-optimization-check": "^1.0.3",
     "@testing-library/react-native": "^13.2.0",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.1.8",
     "eslint": "^9.29.0",
     "jest": "^30.0.1",
     "prettier": "^3.5.3",
+    "react-native-autostarter": "^1.0.5",
+    "react-native-background-actions": "^4.0.1",
     "typescript": "^5.8.3"
   }
 }

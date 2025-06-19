@@ -3139,6 +3139,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@saserinn/react-native-battery-optimization-check@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@saserinn/react-native-battery-optimization-check@npm:1.0.3"
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.63.3"
+  checksum: 10c0/b4b6b861d65d13d209740ee9b99e28b47d63a8f8e64211d10ce331e1cd970983832c99be7409601dc5b014b34c5a7654d7f576914705b309c8038545028ffa5e
+  languageName: node
+  linkType: hard
+
 "@sideway/address@npm:^4.1.5":
   version: 4.1.5
   resolution: "@sideway/address@npm:4.1.5"
@@ -6344,6 +6354,13 @@ __metadata:
   version: 5.0.1
   resolution: "event-target-shim@npm:5.0.1"
   checksum: 10c0/0255d9f936215fd206156fd4caa9e8d35e62075d720dc7d847e89b417e5e62cf1ce6c9b4e0a1633a9256de0efefaf9f8d26924b1f3c8620cffb9db78e7d3076b
+  languageName: node
+  linkType: hard
+
+"eventemitter3@npm:^4.0.7":
+  version: 4.0.7
+  resolution: "eventemitter3@npm:4.0.7"
+  checksum: 10c0/5f6d97cbcbac47be798e6355e3a7639a84ee1f7d9b199a07017f1d2f1e2fe236004d14fa5dfaeba661f94ea57805385e326236a6debbc7145c8877fbc0297c6b
   languageName: node
   linkType: hard
 
@@ -10149,6 +10166,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-autostarter@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "react-native-autostarter@npm:1.0.5"
+  peerDependencies:
+    react: ^16.8.1
+    react-native: ">=0.59.0-rc.0 <1.0.x"
+  checksum: 10c0/35f19008a745f1a9d77737ec6165cb03dfe905ab480b208814464b3be9ce79eb4d8d8b097558b974c6393cadd9a1367ca8b7d5e9cb13e9e943d316de4f456cbd
+  languageName: node
+  linkType: hard
+
+"react-native-background-actions@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "react-native-background-actions@npm:4.0.1"
+  dependencies:
+    eventemitter3: "npm:^4.0.7"
+  peerDependencies:
+    react-native: ">=0.47.0"
+  checksum: 10c0/be8589b67db310da638de02b62618d2019c0e957f76ecee3af9fc656834d837152501b3b27276a26e9be33ac8459f0015063ef245b5ee321cc3e33c4fc65b280
+  languageName: node
+  linkType: hard
+
 "react-native@npm:0.80.0":
   version: 0.80.0
   resolution: "react-native@npm:0.80.0"
@@ -10963,6 +11001,7 @@ __metadata:
     "@react-native/babel-preset": "npm:0.80.0"
     "@react-native/metro-config": "npm:0.80.0"
     "@react-native/typescript-config": "npm:0.80.0"
+    "@saserinn/react-native-battery-optimization-check": "npm:^1.0.3"
     "@testing-library/react-native": "npm:^13.2.0"
     "@types/jest": "npm:^30.0.0"
     "@types/react": "npm:^19.1.8"
@@ -10971,6 +11010,8 @@ __metadata:
     prettier: "npm:^3.5.3"
     react: "npm:19.1.0"
     react-native: "npm:0.80.0"
+    react-native-autostarter: "npm:^1.0.5"
+    react-native-background-actions: "npm:^4.0.1"
     typescript: "npm:^5.8.3"
   languageName: unknown
   linkType: soft
