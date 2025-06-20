@@ -10,6 +10,7 @@ export default antfu(
       'perfectionist/sort-named-imports': 'off',
       'ts/no-redeclare': ['error', { ignoreDeclarationMerge: true }],
       'ts/no-empty-object-type': 'off',
+      'ts/no-namespace': 'off',
       'antfu/if-newline': 'off',
     },
   },

@@ -1,52 +1,15 @@
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
-import { StatusBar } from 'expo-status-bar'
-import { useMemo } from 'react'
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native'
+import { useMemo, useState } from 'react'
 import { useColorScheme } from 'react-native'
 import {
-  Button,
+  BottomNavigation,
   MD3DarkTheme,
   MD3LightTheme,
   PaperProvider,
-  Text,
 } from 'react-native-paper'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    gap: 8,
-  },
-})
-
-export function MainView() {
-  return (
-    <View style={styles.mainContainer}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <Button mode="contained">Some Text</Button>
-    </View>
-  )
-}
-
-export function AppMain() {
-  const insets = useSafeAreaInsets()
-  const viewStyle = useMemo(
-    () => ({
-      marginTop: insets.top,
-      marginBottom: insets.bottom,
-      marginLeft: insets.left + 16,
-      marginRight: insets.right + 16,
-    }),
-    [insets],
-  )
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar style="auto" />
-      <ScrollView style={viewStyle}>
-        <MainView />
-      </ScrollView>
-    </SafeAreaView>
-  )
-}
+import Home, { title as homeTitle } from './views/Home'
+import Settings, { title as settingsTitle } from './views/Settings'
 
 export default function App() {
   const colorScheme = useColorScheme()
@@ -58,9 +21,34 @@ export default function App() {
         : { ...MD3LightTheme, colors: theme.light },
     [colorScheme, theme],
   )
+
+  const [index, setIndex] = useState(0)
+  const [routes] = useState([
+    {
+      key: 'home',
+      title: homeTitle,
+      focusedIcon: 'home',
+      unfocusedIcon: 'home-outline',
+    },
+    {
+      key: 'settings',
+      title: settingsTitle,
+      focusedIcon: 'cog',
+      unfocusedIcon: 'cog-outline',
+    },
+  ])
+  const renderScene = BottomNavigation.SceneMap({
+    home: Home,
+    settings: Settings,
+  })
+
   return (
     <PaperProvider theme={paperTheme}>
-      <AppMain />
+      <BottomNavigation
+        navigationState={{ index, routes }}
+        onIndexChange={setIndex}
+        renderScene={renderScene}
+      />
     </PaperProvider>
   )
 }
