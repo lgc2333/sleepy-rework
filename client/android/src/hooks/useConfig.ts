@@ -24,7 +24,7 @@ export function useConfig<K extends keyof Config>(
       }
     }
     fetchValue()
-  }, [configKey, onSetFailed])
+  }, []) // 只在组件挂载时执行，移除依赖项
 
   const updateValue = useCallback(
     async (newValue: Config[K]) => {

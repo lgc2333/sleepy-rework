@@ -9,11 +9,10 @@
     "../../types/js"
   ],
   "scripts": {
-    "prebuild": "expo prebuild --clean",
-    "start": "expo run:android",
-    "build": "cd android && ./gradlew app:assembleRelease --stacktrace && cd ..",
-    "ios": "expo run:ios",
-    "android": "expo run:android"
+    "prebuild": "expo prebuild",
+    "start": "react-native run-android --active-arch-only",
+    "build-now": "cd android && ./gradlew app:assembleRelease --stacktrace && cd ..",
+    "build": "yarn prebuild && yarn build-now"
   },
   "dependencies": {
     "@brighthustle/react-native-auto-start": "^0.1.0",

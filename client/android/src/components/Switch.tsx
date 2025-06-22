@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Pressable, StyleSheet, View } from 'react-native'
 import {
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
 })
 
-// https://github.com/callstack/react-native-paper/issues/3797#issuecomment-1859135794
+// Based on https://github.com/callstack/react-native-paper/issues/3797#issuecomment-1859135794
 export default function Switch({
   value,
   onPress,
@@ -51,20 +51,22 @@ export default function Switch({
   const position = useSharedValue(value ? 10 : -10)
   const handleHeight = useSharedValue(value ? 24 : 16)
   const handleWidth = useSharedValue(value ? 24 : 16)
-  const [active, setActive] = useState(value)
   const [isPressed, setIsPressed] = useState(false)
 
-  const onSwitchPress = () => {
-    onPress?.()
-  }
+  const syncButtonState = useCallback(() => {
+    position.value = withTiming(value ? 10 : -10, { duration: 250 })
+    handleHeight.value = withTiming(value ? 24 : 16, { duration: 100 })
+    handleWidth.value = withTiming(value ? 24 : 16, { duration: 100 })
+  }, [value])
+
   const callbackFunction = () => {
-    onSwitchPress()
-    setIsPressed(false)
+    onPress?.()
+    syncButtonState()
   }
 
-  // #region
   const pan = Gesture.Pan()
     .activateAfterLongPress(100)
+    .enabled(!disabled)
     .onTouchesUp(() => setIsPressed(false))
     .runOnJS(true)
     .hitSlop(disabled ? -30 : 0)
@@ -76,37 +78,24 @@ export default function Switch({
     .onChange((event) => {
       if (position.value + event.translationX / 10 < -10) {
         position.value = -10
-        return
-      }
-      if (position.value + event.translationX / 10 > 10) {
+      } else if (position.value + event.translationX / 10 > 10) {
         position.value = 10
-        return
+      } else {
+        position.value += event.translationX / 10
       }
-      position.value += event.translationX / 10
     })
     .onEnd(() => {
       setIsPressed(false)
       if (position.value > 0) {
         position.value = withTiming(10)
         handleHeight.value = withTiming(24, { duration: 160 })
-        handleWidth.value = withTiming(24, { duration: 160 }, (finished) => {
-          'worklet'
-          if (finished && !active) {
-            runOnJS(callbackFunction)()
-          }
-        })
-        return
-      }
-
-      if (position.value < 0) {
+        handleWidth.value = withTiming(24, { duration: 160 })
+        if (!value) runOnJS(callbackFunction)()
+      } else if (position.value < 0) {
         position.value = withTiming(-10)
         handleHeight.value = withTiming(16, { duration: 160 })
-        handleWidth.value = withTiming(16, { duration: 160 }, (finished) => {
-          'worklet'
-          if (finished && active) {
-            runOnJS(callbackFunction)()
-          }
-        })
+        handleWidth.value = withTiming(16, { duration: 160 })
+        if (value) runOnJS(callbackFunction)()
       }
     })
   // #endregion
@@ -114,14 +103,14 @@ export default function Switch({
   const handleStyle = useAnimatedStyle(() =>
     disabled
       ? {
-          transform: [{ translateX: active ? 10 : -10 }],
-          height: active ? 24 : 16,
-          width: active ? 24 : 16,
+          transform: [{ translateX: value ? 10 : -10 }],
+          height: value ? 24 : 16,
+          width: value ? 24 : 16,
           marginVertical: 'auto',
           minHeight: switchOffIcon ? 24 : 16,
           minWidth: switchOffIcon ? 24 : 16,
-          opacity: active ? 1 : 0.36,
-          backgroundColor: active ? theme.colors.surface : theme.colors.onSurface,
+          opacity: value ? 1 : 0.36,
+          backgroundColor: value ? theme.colors.surface : theme.colors.onSurface,
           borderRadius: 20,
           justifyContent: 'center',
           alignItems: 'center',
@@ -153,9 +142,7 @@ export default function Switch({
           height: 32,
           width: 52,
           opacity: 0.12,
-          backgroundColor: active
-            ? theme.colors.onSurface
-            : theme.colors.surfaceVariant,
+          backgroundColor: value ? theme.colors.onSurface : theme.colors.surfaceVariant,
           borderColor: theme.colors.onSurface,
         }
       : {
@@ -236,49 +223,8 @@ export default function Switch({
     // width: interpolate(position.value, [5, 10], [0, 16]),
   }))
 
-  const changeSwitch = (withCallback: boolean) => {
-    if (active) {
-      handleHeight.value = withTiming(16, { duration: 100 })
-      handleWidth.value = withTiming(16, { duration: 100 })
-      position.value = withTiming(
-        -10,
-        { duration: 250 },
-        withCallback
-          ? (finished) => {
-              'worklet'
-              if (finished) {
-                runOnJS(callbackFunction)()
-              }
-            }
-          : undefined,
-      )
-      setActive(false)
-    } else {
-      handleHeight.value = withTiming(24, { duration: 100 })
-      handleWidth.value = withTiming(24, { duration: 100 })
-
-      position.value = withTiming(
-        10,
-        { duration: 250 },
-        withCallback
-          ? (finished) => {
-              'worklet'
-              if (finished) {
-                runOnJS(callbackFunction)()
-              }
-            }
-          : undefined,
-      )
-      setActive(true)
-    }
-  }
-
   useEffect(() => {
-    if (active !== value) {
-      changeSwitch(false)
-    }
-    handleHeight.value = withTiming(value ? 24 : 16)
-    handleWidth.value = withTiming(value ? 24 : 16)
+    syncButtonState()
   }, [value])
 
   return (
@@ -297,13 +243,13 @@ export default function Switch({
                 width: 52,
                 alignItems: 'center',
               }}
-              onLongPress={() => {
-                handleHeight.value = withTiming(28, { duration: 100 })
-                handleWidth.value = withTiming(28, { duration: 100 })
-              }}
               onPress={() => {
                 setIsPressed(true)
-                changeSwitch(true)
+                try {
+                  callbackFunction()
+                } finally {
+                  setIsPressed(false)
+                }
               }}
             ></Pressable>
           </GestureDetector>

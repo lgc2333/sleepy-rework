@@ -1,0 +1,63 @@
+name: Build Android Client
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install Corepack
+        run: |-
+          npm install -g corepack
+          corepack enable
+
+      - name: Install dependencies
+        working-directory: client/android
+        run: yarn
+
+      - name: Configure sign key
+        run: |-
+          base64 -d <<< "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > client/android/assets/release.keystore
+          cat > client/android/assets/release.keystore.properties << EOF
+          keyAlias=${{ secrets.ANDROID_RELEASE_KEYSTORE_KEY_ALIAS }}
+          storePassword=${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+          EOF
+
+      - name: Build
+        working-directory: client/android
+        run: yarn build
+
+      - name: Upload arm v7 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: client/android/android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+      - name: Upload arm v8 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: client/android/android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
+      - name: Upload x86 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: client/android/android/app/build/outputs/apk/release/app-x86-release.apk
+      - name: Upload x64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: client/android/android/app/build/outputs/apk/release/app-x86_64-release.apk
+      - name: Upload universal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: client/android/android/app/build/outputs/apk/release/app-universal-release.apk

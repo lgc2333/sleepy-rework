@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Build desktop client
+      - name: Build
         run: uv run ./scripts/build_desktop_client.py
 
       - name: Upload build artifacts
