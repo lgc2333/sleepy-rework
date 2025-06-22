@@ -1,5 +1,12 @@
-import { useState } from 'react'
+import {
+  BatteryOptEnabled,
+  OpenOptimizationSettings,
+  RequestDisableOptimization,
+} from '@saserinn/react-native-battery-optimization-check'
+import { useEffect, useRef, useState } from 'react'
+import { NativeModules } from 'react-native'
 import { ScrollView, View } from 'react-native'
+import AndroidOpenSettings from 'react-native-android-open-settings'
 import { Appbar, Button, List, Snackbar, Text } from 'react-native-paper'
 
 import { ConfigListItem } from '../components/Config'
@@ -13,24 +20,48 @@ export const title = '设置'
 export default function Home() {
   const [snackVisible, setSnackVisible] = useState(false)
   const [snackBarText, setSnackBarText] = useState('')
-
-  const [snackBarTimeout, setSnackBarTimeout] = useState<number | null>(null)
+  const snackBarTimeout = useRef<number | null>(null)
 
   const openSnackbar = (text: string) => {
     setSnackBarText(text)
     setSnackVisible(true)
-    if (snackBarTimeout) clearTimeout(snackBarTimeout)
-    setSnackBarTimeout(
-      setTimeout(() => {
-        setSnackVisible(false)
-      }, Snackbar.DURATION_MEDIUM),
-    )
+    if (snackBarTimeout.current) clearTimeout(snackBarTimeout.current)
+    snackBarTimeout.current = setTimeout(() => {
+      setSnackVisible(false)
+    }, Snackbar.DURATION_MEDIUM)
   }
-
   const onSetFailed: ConfigProps<any>['onSetFailed'] = (e, k) => {
     openSnackbar(
       `更新配置 "${k}" 失败！\n${e instanceof Error ? e.message : String(e)}`,
     )
+  }
+
+  const [batteryOptEnabled, setBatteryOptEnabled] = useState(false)
+  useEffect(() => {
+    BatteryOptEnabled().then(setBatteryOptEnabled)
+  }, [batteryOptEnabled])
+  const toggleBatteryOpt = async () => {
+    const nowEnabled = await BatteryOptEnabled()
+    setBatteryOptEnabled(nowEnabled)
+    if (nowEnabled) {
+      RequestDisableOptimization()
+    } else {
+      OpenOptimizationSettings()
+    }
+  }
+
+  const openAutoStartSettings = async () => {
+    try {
+      await NativeModules.AutoStart.addAutoStartup()
+    } catch (e: any) {
+      if (e.code === 'UNSUPPORTED_MANUFACTURER') {
+        openSnackbar(`当前设备没有开机自启权限设置界面`)
+      } else {
+        openSnackbar(
+          `打开获取权限界面失败：\n${e instanceof Error ? e.message : String(e)}`,
+        )
+      }
+    }
   }
 
   return (
@@ -103,33 +134,41 @@ export default function Home() {
               description="使应用能够获取前台应用信息"
               left={(props) => <List.Icon {...props} icon="information" />}
               right={(props) => (
-                <Button {...props} mode="outlined">
+                <Button
+                  {...props}
+                  mode="outlined"
+                  onPress={AndroidOpenSettings.accessibilitySettings}
+                >
                   设置
                 </Button>
               )}
-              onPress={() => {}}
+              onPress={AndroidOpenSettings.accessibilitySettings}
             />
             <List.Item
               title="忽略电池优化"
               description="允许应用更不受限地持续在后台运行"
               left={(props) => <List.Icon {...props} icon="battery-plus" />}
               right={(props) => (
-                <Button {...props} mode="outlined">
-                  设置
+                <Button
+                  {...props}
+                  mode={batteryOptEnabled ? 'contained' : 'outlined'}
+                  onPress={toggleBatteryOpt}
+                >
+                  {batteryOptEnabled ? '忽略' : '设置'}
                 </Button>
               )}
-              onPress={() => {}}
+              onPress={toggleBatteryOpt}
             />
             <List.Item
               title="开机自启"
               description="允许应用开机运行"
               left={(props) => <List.Icon {...props} icon="run" />}
               right={(props) => (
-                <Button {...props} mode="outlined">
+                <Button {...props} mode="outlined" onPress={openAutoStartSettings}>
                   设置
                 </Button>
               )}
-              onPress={() => {}}
+              onPress={openAutoStartSettings}
             />
           </List.Section>
           <List.Section title="设备设置">

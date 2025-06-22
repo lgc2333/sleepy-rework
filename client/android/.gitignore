@@ -48,4 +48,4 @@ app-example
 /android/
 
 release.keystore
-release.keystore.properties
+keystore.properties

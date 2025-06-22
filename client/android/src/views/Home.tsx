@@ -12,7 +12,7 @@ export default function Home() {
       <View>
         <Banner visible contentStyle={{ marginTop: -8 }}>
           欢迎使用 Sleepy Rework Android Client！{'\n'}
-          如果您是第一次使用，请先前往设置页。
+          如果您是第一次使用，请先前往设置页启用必要权限及调整设置，最后启用连接服务端开关。
         </Banner>
         <View style={{ padding: 16, gap: 16 }}>
           <Card mode="contained">
@@ -28,7 +28,7 @@ export default function Home() {
               )}
             />
           </Card>
-          <Card mode="contained">
+          {/* <Card mode="contained">
             <Card.Title
               style={{ paddingVertical: 20 }}
               title={<Text variant="titleMedium">警告</Text>}
@@ -41,7 +41,7 @@ export default function Home() {
                 </View>
               )}
             />
-          </Card>
+          </Card> */}
           <Card mode="outlined">
             <Card.Content style={{ gap: 8 }}>
               <Text variant="titleSmall">客户端侧当前信息</Text>

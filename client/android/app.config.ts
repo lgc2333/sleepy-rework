@@ -23,6 +23,11 @@ export default function createConfig(_: ConfigContext) {
       versionCode: 1,
       permissions: [
         'android.permission.INTERNET',
+        'android.permission.ACCESS_NETWORK_STATE',
+        'android.permission.POST_NOTIFICATIONS',
+        // battery optimizations
+        'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+        'android.permission.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
         // foreground
         'android.permission.FOREGROUND_SERVICE',
         'android.permission.FOREGROUND_SERVICE_DATA_SYNC',
