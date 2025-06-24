@@ -1,10 +1,10 @@
 export SHELL="bash"
 
 curl -o- https://fnm.vercel.app/install | bash
-source ~/.bashrc
+source /root/.bashrc
 
-fnm install 22 --corepack-enabled
-fnm alias default 22
+fnm install --lts
+corepack enable
 
 cd website
 yarn
