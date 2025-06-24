@@ -2,7 +2,7 @@
 name = "sleepy-rework-types"
 dynamic = ["version"]
 requires-python = ">=3.12"
-dependencies = ["httpx>=0.28.1", "pydantic>=2.11.5"]
+dependencies = ["httpx>=0.28.1", "pydantic>=2.11.7"]
 
 [project.optional-dependencies]
 
