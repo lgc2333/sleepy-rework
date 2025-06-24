@@ -3,7 +3,8 @@ export SHELL="bash"
 curl -o- https://fnm.vercel.app/install | bash
 source /root/.bashrc
 
-fnm install --lts
+fnm install 22
+fnm use 22
 corepack enable
 
 cd website
