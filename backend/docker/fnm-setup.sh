@@ -1,6 +1,8 @@
-touch ~/.bashrc
+export SHELL="bash"
+
 curl -o- https://fnm.vercel.app/install | bash
-eval $(fnm env --use-on-cd --shell bash)
+source ~/.bashrc
+
 fnm install 22 --corepack-enabled
 fnm alias default 22
 

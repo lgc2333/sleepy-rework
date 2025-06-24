@@ -8,7 +8,7 @@ COPY website .
 COPY backend/docker/fnm-setup.sh .
 
 ARG FNM_DIR /opt/fnm
-RUN apk --no-cache add curl bash && cat fnm-setup.sh | bash
+RUN apk --no-cache add curl bash && cat fnm-setup.sh | bash && rm fnm-setup.sh
 
 ENV SLEEPY_APP_STATIC_DIR=static
 # end of frontend resource preparation
