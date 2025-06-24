@@ -7,14 +7,14 @@ WORKDIR /app
 COPY website .
 
 RUN apk --no-cache add curl bash \
-    && curl -o- https://fnm.vercel.app/install | bash -s -- --install-dir ./fnm --skip-shell \
+    && curl -o- https://fnm.vercel.app/install | bash -s -- --install-dir /opt/fnm --skip-shell \
     && bash -c "./fnm/fnm install 22 && ./fnm/fnm alias default 22" \
-    && ./fnm/aliases/default/corepack enable \
+    && /opt/fnm/aliases/default/bin/corepack enable \
     && cd website \
-    && ./fnm/aliases/default/yarn \
-    && ./fnm/aliases/default/yarn build \
+    && /opt/fnm/aliases/default/bin/yarn \
+    && /opt/fnm/aliases/default/bin/yarn build \
     && cp -r dist ../static && cd .. \
-    && rm -rf website && rm -rf ~/.fnm
+    && rm -rf website && rm -rf /opt/fnm
 
 ENV SLEEPY_APP_STATIC_DIR=static
 # end of frontend resource preparation
