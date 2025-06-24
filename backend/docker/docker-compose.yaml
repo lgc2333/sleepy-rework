@@ -5,6 +5,8 @@ services:
     env_file: .env
     ports:
       - '${D_SLEEPY_EXPOSE_PORT:-29306}:29306'
-    # uncomment this if you like toml
     # volumes:
+    #   # use this if you like toml
     #   - sleepy.toml:sleepy.toml
+    #   # use this if you want to use your own frontend resources
+    #   - static:/app/backend/sleepy_rework/static

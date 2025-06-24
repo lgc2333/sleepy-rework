@@ -3,6 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # prepare frontend resource
+# comment this block if you want to use your own frontend
 COPY ../../website website
 RUN curl -o- https://fnm.vercel.app/install | bash -s -- --skip-shell --install-dir ./fnm &&
     eval "$(./fnm/fnm env --use-on-cd --shell bash)" &&
