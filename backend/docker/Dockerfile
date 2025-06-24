@@ -5,15 +5,14 @@ WORKDIR /app
 # prepare frontend resource
 # comment this block if you want to use your own frontend
 COPY ../../website website
-RUN curl -o- https://fnm.vercel.app/install | bash -s -- --skip-shell --install-dir ./fnm &&
-    eval "$(./fnm/fnm env --use-on-cd --shell bash)" &&
-    ./fnm/fnm install 22 &&
+RUN curl -o- https://fnm.vercel.app/install | bash &&
+    fnm install 22 &&
     corepack enable &&
     cd website &&
     yarn &&
     yarn build
 COPY website/dist static
-RUN rm -rf website && rm -rf fnm
+RUN rm -rf website && rm -rf ~/.fnm
 ENV SLEEPY_APP_STATIC_DIR=static
 
 COPY ../../backend backend
