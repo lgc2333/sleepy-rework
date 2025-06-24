@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: ../..
-      dockerfile: ./Dockerfile
+    build: .
     container_name: sleepy-rework-backend
     env_file: .env
     ports:

@@ -4,7 +4,7 @@ WORKDIR /app
 
 # prepare frontend resource
 # comment this block if you want to use your own frontend
-COPY website .
+COPY ../../website .
 
 RUN curl -o- https://fnm.vercel.app/install | bash \
     && fnm install 22 \
@@ -16,9 +16,9 @@ RUN curl -o- https://fnm.vercel.app/install | bash \
 ENV SLEEPY_APP_STATIC_DIR=static
 # end of frontend resource preparation
 
-COPY backend .
-COPY types/python types
-COPY backend/docker/pyproject.toml .
+COPY ../../backend .
+COPY ../../types/python types
+COPY ./pyproject.toml .
 RUN pip install uv && uv sync && uv cache clean
 
 ENV SLEEPY_APP__HOST=0.0.0.0
