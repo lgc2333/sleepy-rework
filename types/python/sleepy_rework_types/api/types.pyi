@@ -28,6 +28,7 @@ class SyncHttpApi:
         *,
         device_key: str,
     ) -> m.DeviceInfo: ...
+    def delete_device_info(self, *, device_key: str) -> m.OpSuccess: ...
 
 class AsyncHttpApi:
     def test_alive(self) -> t.Coroutine[t.Any, t.Any, str]: ...
@@ -59,3 +60,8 @@ class AsyncHttpApi:
         *,
         device_key: str,
     ) -> t.Coroutine[t.Any, t.Any, m.DeviceInfo]: ...
+    def delete_device_info(
+        self,
+        *,
+        device_key: str,
+    ) -> t.Coroutine[t.Any, t.Any, m.OpSuccess]: ...

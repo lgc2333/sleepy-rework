@@ -72,7 +72,7 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
     ),
     "get_device_config": HttpApiInfo(
         method="GET",
-        endpoint="/api/v1/device/:device_key/config",
+        endpoint="/api/v1/device/{device_key}/config",
         path_params={
             "device_key": ParamInfo(
                 name="device_key",
@@ -86,7 +86,7 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
     ),
     "put_device_config": HttpApiInfo(
         method="PUT",
-        endpoint="/api/v1/device/:device_key/config",
+        endpoint="/api/v1/device/{device_key}/config",
         path_params={
             "device_key": ParamInfo(
                 name="device_key",
@@ -103,7 +103,7 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
     ),
     "patch_device_info": HttpApiInfo(
         method="PATCH",
-        endpoint="/api/v1/device/:device_key/info",
+        endpoint="/api/v1/device/{device_key}/info",
         path_params={
             "device_key": ParamInfo(
                 name="device_key",
@@ -122,7 +122,7 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
     ),
     "put_device_info": HttpApiInfo(
         method="PUT",
-        endpoint="/api/v1/device/:device_key/info",
+        endpoint="/api/v1/device/{device_key}/info",
         path_params={
             "device_key": ParamInfo(
                 name="device_key",
@@ -137,6 +137,20 @@ HTTP_APIS: dict[str, HttpApiInfo] = {
         response=ResponseInfo(
             model=DeviceInfo,
             type_anno="m.DeviceInfo",
+        ),
+    ),
+    "delete_device_info": HttpApiInfo(
+        method="DELETE",
+        endpoint="/api/v1/device/{device_key}/info",
+        path_params={
+            "device_key": ParamInfo(
+                name="device_key",
+                type_anno="str",
+            ),
+        },
+        response=ResponseInfo(
+            model=OpSuccess,
+            type_anno="m.OpSuccess",
         ),
     ),
 }
@@ -247,8 +261,7 @@ class BaseHttpApiClient(ABC):
     ) -> Any:
         endpoint = api_info.endpoint
         path_params = self.collect_params(api_info.path_params, kwargs)
-        for param, value in path_params.items():
-            endpoint = endpoint.replace(f":{param}", str(value))
+        endpoint = endpoint.format(**path_params)
 
         query_params = self.collect_params(api_info.query_params, kwargs)
         body = self.collect_body(api_info.body, args)
