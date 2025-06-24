@@ -1,0 +1,10 @@
+services:
+  backend:
+    build: .
+    container_name: sleepy-rework-backend
+    env_file: .env
+    ports:
+      - '${D_SLEEPY_EXPOSE_PORT:-29306}:29306'
+    # uncomment this if you like toml
+    # volumes:
+    #   - sleepy.toml:sleepy.toml

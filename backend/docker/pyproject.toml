@@ -1,0 +1,15 @@
+[project]
+name = "workspace-sleepy-rework"
+version = "0.1.0"
+requires-python = ">=3.12"
+classifiers = ["Private :: Do Not Upload"]
+
+[dependency-groups]
+dev = ["sleepy-rework", "sleepy-rework-types"]
+
+[tool.uv.workspace]
+members = ["backend", "types"]
+
+[tool.uv.sources]
+sleepy-rework = { workspace = true }
+sleepy-rework-types = { workspace = true }

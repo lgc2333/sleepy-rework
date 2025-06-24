@@ -3521,6 +3521,7 @@ dependencies = [
     { name = "pydantic-settings", extra = ["toml"] },
     { name = "python-debouncer" },
     { name = "python-multipart" },
+    { name = "sleepy-rework-types" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -3532,6 +3533,7 @@ requires-dist = [
     { name = "pydantic-settings", extras = ["toml"], specifier = ">=2.10.1" },
     { name = "python-debouncer", specifier = ">=0.1.5" },
     { name = "python-multipart", specifier = ">=0.0.20" },
+    { name = "sleepy-rework-types", editable = "types/python" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.3" },
 ]
 
