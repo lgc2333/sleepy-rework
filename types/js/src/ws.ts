@@ -48,19 +48,19 @@ export interface BasicWebSocket {
   readonly readyState: BasicWebSocket.ReadyState
   readonly url: string
 
-  close(code?: number, reason?: string): void
-  send(data: string): void
+  close: (code?: number, reason?: string) => void
+  send: (data: string) => void
 
-  addEventListener<K extends keyof WebSocketEventMap>(
+  addEventListener: <K extends keyof WebSocketEventMap>(
     type: K,
     listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
     options?: boolean | AddEventListenerOptions,
-  ): void
-  removeEventListener<K extends keyof WebSocketEventMap>(
+  ) => void
+  removeEventListener: <K extends keyof WebSocketEventMap>(
     type: K,
     listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
     options?: boolean | EventListenerOptions,
-  ): void
+  ) => void
 }
 
 // eslint-disable-next-line ts/consistent-type-definitions
