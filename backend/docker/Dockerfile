@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 WORKDIR /app
 
@@ -6,10 +6,13 @@ WORKDIR /app
 # comment this block if you want to use your own frontend
 COPY website .
 
-RUN curl -o- https://fnm.vercel.app/install | bash \
-    && fnm install 22 \
-    && corepack enable \
-    && cd website && yarn && yarn build \
+RUN apk --no-cache add curl bash \
+    && curl -o- https://fnm.vercel.app/install | bash -s -- --install-dir ./fnm --skip-shell \
+    && bash -c "source /etc/bash.bashrc && ./fnm/fnm install 22" \
+    && bash -c "source /etc/bash.bashrc && corepack enable" \
+    && cd website \
+    && bash -c "source /etc/bash.bashrc && yarn" \
+    && bash -c "source /etc/bash.bashrc && yarn build" \
     && cp -r dist ../static && cd .. \
     && rm -rf website && rm -rf ~/.fnm
 
