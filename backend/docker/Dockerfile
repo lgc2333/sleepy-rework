@@ -9,10 +9,10 @@ COPY website .
 RUN apk --no-cache add curl bash \
     && curl -o- https://fnm.vercel.app/install | bash -s -- --install-dir ./fnm --skip-shell \
     && bash -c "./fnm/fnm install 22 && ./fnm/fnm alias default 22" \
-    && ./fnm/aliases/default/bin/corepack enable \
+    && ./fnm/aliases/default/corepack enable \
     && cd website \
-    && ./fnm/aliases/default/bin/yarn \
-    && ./fnm/aliases/default/bin/yarn build \
+    && ./fnm/aliases/default/yarn \
+    && ./fnm/aliases/default/yarn build \
     && cp -r dist ../static && cd .. \
     && rm -rf website && rm -rf ~/.fnm
 
