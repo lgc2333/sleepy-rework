@@ -6,9 +6,10 @@ WORKDIR /app
 # comment this block if you want to use your own frontend
 COPY website .
 
+ARG FNM_DIR /opt/fnm
 RUN apk --no-cache add curl bash \
     && curl -o- https://fnm.vercel.app/install | bash -s -- --install-dir /opt/fnm --skip-shell \
-    && bash -c "./fnm/fnm install 22 && ./fnm/fnm alias default 22" \
+    && bash -c "/opt/fnm/fnm install 22 && /opt/fnm/fnm alias default 22" \
     && /opt/fnm/aliases/default/bin/corepack enable \
     && cd website \
     && /opt/fnm/aliases/default/bin/yarn \
