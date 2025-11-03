@@ -19,7 +19,7 @@ from ..common import SafeLoggedSignal, deep_update
 from ..info.shared import get_device_os, get_device_type, get_initial_device_info_dict
 from .base import RetryWSClient
 
-THROTTLE = 1
+THROTTLE = 0.2  # s
 
 
 class DeviceInfoFeeder(RetryWSClient[str]):
