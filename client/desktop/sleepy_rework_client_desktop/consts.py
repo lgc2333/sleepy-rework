@@ -12,3 +12,5 @@ if not FROZEN:
     APP_NAME_NO_SPACE += "-Dev"
     APP_ID += "-dev"
     APP_PKG_NAME += ".dev"
+
+GITHUB_LINK = "https://github.com/lgc2333/sleepy-rework"

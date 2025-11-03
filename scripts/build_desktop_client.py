@@ -1,7 +1,23 @@
 import subprocess
 import sys
+from pathlib import Path
 
 # from sleepy_rework_client_desktop import __version__ as version
+
+BUILD_CONF_PATH = (
+    Path(__file__).parent.parent
+    / "client/desktop/sleepy_rework_client_desktop/_build_conf.py"
+)
+commit_hash = subprocess.run(
+    ("git", "rev-parse", "--short", "HEAD"),
+    check=True,
+    stdout=subprocess.PIPE,
+    encoding="u8",
+).stdout.strip()
+BUILD_CONF_PATH.write_text(
+    f'commit_hash = "{commit_hash}"\n',
+    "u8",
+)
 
 # a = [
 #     sys.executable,

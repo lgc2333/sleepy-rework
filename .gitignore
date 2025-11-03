@@ -887,3 +887,5 @@ client_desktop.json
 openapi.json
 
 nuitka-crash-report.xml
+
+_build_conf.py

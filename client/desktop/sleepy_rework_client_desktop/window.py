@@ -31,6 +31,7 @@ class MainWindow(MSFluentWindow):
         self.setupUI()
         self.restoreAutoStart()
         self.setupInfoClient()
+        self.setupEaster()
         self.splashScreen.finish()
 
     def setupTrayIcon(self):
@@ -46,7 +47,7 @@ class MainWindow(MSFluentWindow):
         self.themeListener.start()
 
     def setupUI(self):
-        from .views import HomePage, SettingsPage
+        from .views import AboutPage, HomePage, SettingsPage
 
         self.homePage = HomePage()
         self.addSubInterface(
@@ -61,6 +62,13 @@ class MainWindow(MSFluentWindow):
             self.settingsPage,
             FluentIcon.SETTING,
             "设置",
+        )
+
+        self.aboutPage = AboutPage()
+        self.addSubInterface(
+            self.aboutPage,
+            FluentIcon.INFO,
+            "关于",
         )
 
         self.navigationInterface.setCurrentItem(self.homePage.routeKey)
@@ -94,6 +102,12 @@ class MainWindow(MSFluentWindow):
             info_feeder.run_in_background()
 
         activity_detector.setup()
+
+    def setupEaster(self):
+        from .widgets import EasterEventFilter
+
+        self.easterEventFilter = EasterEventFilter(parent=self)
+        self.installEventFilter(self.easterEventFilter)
 
     @override
     def showEvent(self, e: QShowEvent):

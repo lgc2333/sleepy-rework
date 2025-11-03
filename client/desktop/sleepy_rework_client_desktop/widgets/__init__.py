@@ -1,3 +1,10 @@
+from .easter import (
+    EasterEventFilter as EasterEventFilter,
+)
+from .icon import (
+    LightDarkIcon as LightDarkIcon,
+    SvgIcon as SvgIcon,
+)
 from .scroll_area import (
     VerticalScrollAreaView as VerticalScrollAreaView,
 )
