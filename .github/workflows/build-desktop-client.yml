@@ -21,7 +21,7 @@ jobs:
 
       - name: Set up MSVC developer environment (Windows only)
         if: matrix.os == 'windows-latest'
-        uses: ilammy/setup-msvc-dev@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
