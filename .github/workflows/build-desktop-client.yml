@@ -19,11 +19,10 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Set up MSVC developer environment (Windows only)
-        if: matrix.os == 'windows-latest'
-        uses: TheMrMilchmann/setup-msvc-dev@v4
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
-          arch: x64
+          python-version-file: '.python-version'
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
