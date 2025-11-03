@@ -43,7 +43,23 @@ def launch():
     asyncio.set_event_loop(event_loop)
 
     app_close_event = asyncio.Event()
-    app.aboutToQuit.connect(app_close_event.set)
+
+    @app.aboutToQuit.connect
+    def _about_to_quit():
+        from .utils.activity import activity_detector
+        from .utils.client.info import info_feeder
+
+        try:
+            activity_detector.dispose()
+        except Exception:
+            traceback.print_exc()
+
+        try:
+            info_feeder.stop_background()
+        except Exception:
+            traceback.print_exc()
+
+        app_close_event.set()
 
     async def _async_setup(app: QtSingleApplication):
         show = not (

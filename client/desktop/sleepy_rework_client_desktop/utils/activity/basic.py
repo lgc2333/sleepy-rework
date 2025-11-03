@@ -12,7 +12,7 @@ from sleepy_rework_types import DeviceBatteryStatus, DeviceCurrentApp
 from ...config import config
 from ..common import SafeLoggedSignal, wrap_async
 
-BATTERY_CHECK_INTERVAL = 3
+BATTERY_CHECK_INTERVAL = 10  # s
 
 
 def transform_battery_status(data: sbattery) -> DeviceBatteryStatus:
@@ -163,3 +163,8 @@ class BasicActivityDetector:
 
     def setup(self) -> None:
         self._battery_task = asyncio.create_task(self._battery_task_func())
+
+    def dispose(self):
+        if self._battery_task:
+            self._battery_task.cancel()
+            self._battery_task = None

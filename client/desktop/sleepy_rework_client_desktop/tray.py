@@ -1,6 +1,6 @@
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon, QWidget
-from qfluentwidgets import Action
+from qfluentwidgets import Action, FluentIcon, SystemTrayMenu
 
 from .consts import APP_NAME
 
@@ -19,8 +19,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.show()
 
     def createMenu(self):
-        from qfluentwidgets import FluentIcon, SystemTrayMenu
-
         self.menu = SystemTrayMenu(APP_NAME, parent=self.parent_)
         show_action = Action("显示窗口", self)
         show_action.setIcon(FluentIcon.LINK)

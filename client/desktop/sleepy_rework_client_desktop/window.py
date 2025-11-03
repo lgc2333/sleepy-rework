@@ -96,10 +96,10 @@ class MainWindow(MSFluentWindow):
         activity_detector.setup()
 
     @override
-    def showEvent(self, a0: QShowEvent):
+    def showEvent(self, e: QShowEvent):
         # reApplyThemeMode()
         reApplyThemeColor()
-        super().showEvent(a0)
+        super().showEvent(e)
 
     @override
     def closeEvent(self, a0: QCloseEvent):  # noqa: N802
