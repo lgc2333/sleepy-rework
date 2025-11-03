@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 from qfluentwidgets import BodyLabel, PushButton, SubtitleLabel
 
 from ..assets import ICON_PATH, PROICONS_GITHUB_BLACK_PATH, PROICONS_GITHUB_WHITE_PATH
-from ..consts import APP_NAME, GITHUB_LINK
+from ..consts import APP_NAME, FROZEN, GITHUB_LINK
 from ..widgets import LightDarkIcon
 
 
@@ -67,7 +67,7 @@ class AboutPage(QWidget):
         nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(nameLabel)
 
-        versionText = f"v{__version__} (git-{commit_hash})"
+        versionText = f"v{__version__} (git-{commit_hash})" if FROZEN else "Dev Version"
         versionLabel = BodyLabel(versionText)
         versionLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(versionLabel)
